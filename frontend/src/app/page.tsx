@@ -50,6 +50,21 @@ interface Project {
   link: string;
 }
 
+const getProjectPreview = (image: string, link: string) => {
+  if (!image || image === "/assets/portofolio.png") {
+    if (link && link.includes("github.com/")) {
+      const parts = link.split("github.com/");
+      if (parts.length > 1) {
+        const repoPath = parts[1].split("?")[0];
+        return `https://opengraph.githubassets.com/1/${repoPath}`;
+      }
+    } else if (link && link.startsWith("http")) {
+      return `https://api.microlink.io?url=${encodeURIComponent(link)}&screenshot=true&embed=screenshot.url`;
+    }
+  }
+  return image || "/assets/portofolio.png";
+};
+
 interface GitHubProfile {
   name: string;
   login: string;
@@ -277,11 +292,14 @@ export default function AdminDashboard() {
           try {
             const batch = writeBatch(db);
             newRepos.forEach((r: any) => {
+              const repoPath = r.html_url.split("github.com/")[1]?.split("?")[0] || `moch-firmansyahh/${r.name}`;
+              const ogImageUrl = `https://opengraph.githubassets.com/1/${repoPath}`;
+              
               const docRef = doc(collection(db, "projects"));
               batch.set(docRef, {
                 title: r.name.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
                 description: r.description || "Repositori project open source di GitHub.",
-                image: "/assets/portofolio.png",
+                image: ogImageUrl,
                 link: r.html_url,
                 createdAt: serverTimestamp()
               });
@@ -965,7 +983,7 @@ export default function AdminDashboard() {
                       <tr key={project.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition duration-150">
                         <td className="py-4 px-4">
                           <img 
-                            src={project.image || "/assets/portofolio.png"} 
+                            src={getProjectPreview(project.image, project.link)} 
                             alt={project.title} 
                             className="h-10 w-16 object-cover rounded-lg border border-gray-200"
                             onError={(e) => { 
