@@ -968,7 +968,11 @@ export default function AdminDashboard() {
                             src={project.image || "/assets/portofolio.png"} 
                             alt={project.title} 
                             className="h-10 w-16 object-cover rounded-lg border border-gray-200"
-                            onError={(e) => { (e.target as HTMLImageElement).src = "/assets/portofolio.png"; }}
+                            onError={(e) => { 
+                              const img = e.target as HTMLImageElement; 
+                              img.onerror = null; 
+                              img.src = "/assets/portofolio.png"; 
+                            }}
                           />
                         </td>
                         <td className="py-4 px-4 font-semibold truncate max-w-[150px] text-gray-900">{project.title}</td>
