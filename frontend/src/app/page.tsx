@@ -1,7 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
+import { db } from "../lib/firebase";
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  writeBatch,
+  serverTimestamp 
+} from "firebase/firestore";
 import { GitHubCalendar } from "react-github-calendar";
 import { 
   LayoutDashboard, 
@@ -166,30 +176,43 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     
-    // 1. Fetch Skills from Supabase
+    // 1. Fetch Skills from Firebase
     try {
-      const { data: skillsData, error: skillsError } = await supabase
-        .from("skills")
-        .select("*")
-        .order("id", { ascending: true });
-
-      if (skillsError) throw skillsError;
-      setSkills(skillsData || []);
+      const skillsSnapshot = await getDocs(collection(db, "skills"));
+      const skillsData = skillsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || "",
+          logo: data.logo || "",
+          percent: data.percent || 0,
+          createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(0)
+        };
+      });
+      skillsData.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      setSkills(skillsData);
     } catch (err) {
-      console.warn("Error loading skills from Supabase:", err);
+      console.warn("Error loading skills from Firebase:", err);
     }
 
-    // 2. Fetch Projects from Supabase
+    // 2. Fetch Projects from Firebase
     try {
-      const { data: projectsData, error: projectsError } = await supabase
-        .from("projects")
-        .select("*")
-        .order("id", { ascending: true });
-
-      if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
+      const projectsSnapshot = await getDocs(collection(db, "projects"));
+      const projectsData = projectsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: data.title || "",
+          description: data.description || "",
+          image: data.image || "",
+          link: data.link || "",
+          createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(0)
+        };
+      });
+      projectsData.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      setProjects(projectsData);
     } catch (err) {
-      console.warn("Error loading projects from Supabase:", err);
+      console.warn("Error loading projects from Firebase:", err);
     }
 
     // 3. Fetch GitHub Profile & Repos
@@ -236,7 +259,7 @@ export default function AdminDashboard() {
       
       const repos = await res.json();
       
-      // Filter out repos that are already in Supabase projects list (check by title or link)
+      // Filter out repos that are already in projects list (check by title or link)
       const existingLinks = new Set(projects.map(p => p.link.toLowerCase()));
       const newRepos = repos.filter((r: any) => !existingLinks.has(r.html_url.toLowerCase()));
 
@@ -248,21 +271,24 @@ export default function AdminDashboard() {
 
       triggerConfirm(
         "Sinkronisasi Proyek GitHub",
-        `Ditemukan ${newRepos.length} repositori GitHub baru. Apakah Anda yakin ingin menyinkronkan proyek-proyek ini ke database Supabase?`,
+        `Ditemukan ${newRepos.length} repositori GitHub baru. Apakah Anda yakin ingin menyinkronkan proyek-proyek ini ke database Firebase?`,
         async () => {
           setSyncingGit(true);
           try {
-            const insertData = newRepos.map((r: any) => ({
-              title: r.name.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
-              description: r.description || "Repositori project open source di GitHub.",
-              image: "/assets/portofolio.png",
-              link: r.html_url
-            }));
+            const batch = writeBatch(db);
+            newRepos.forEach((r: any) => {
+              const docRef = doc(collection(db, "projects"));
+              batch.set(docRef, {
+                title: r.name.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                description: r.description || "Repositori project open source di GitHub.",
+                image: "/assets/portofolio.png",
+                link: r.html_url,
+                createdAt: serverTimestamp()
+              });
+            });
+            await batch.commit();
 
-            const { error } = await supabase.from("projects").insert(insertData);
-            if (error) throw error;
-
-            showToast(`Berhasil menyinkronkan ${insertData.length} proyek dari GitHub!`, "success");
+            showToast(`Berhasil menyinkronkan ${newRepos.length} proyek dari GitHub!`, "success");
             fetchData();
           } catch (err) {
             showToast("Gagal sinkronisasi: " + (err as Error).message, "error");
@@ -320,27 +346,22 @@ export default function AdminDashboard() {
         async () => {
           setSyncingSkills(true);
           try {
-            const insertData = newLanguages.map(lang => {
+            const batch = writeBatch(db);
+            newLanguages.forEach(lang => {
               const foundPopular = POPULAR_SKILLS.find(ps => ps.name.toLowerCase() === lang.toLowerCase());
-              let logoVal = "";
+              let logoVal = foundPopular ? foundPopular.logo : lang.substring(0, 3).toUpperCase();
               
-              if (foundPopular) {
-                logoVal = foundPopular.logo;
-              } else {
-                logoVal = lang.substring(0, 3).toUpperCase();
-              }
-
-              return {
+              const docRef = doc(collection(db, "skills"));
+              batch.set(docRef, {
                 name: lang,
                 logo: logoVal,
-                percent: 70
-              };
+                percent: 70,
+                createdAt: serverTimestamp()
+              });
             });
+            await batch.commit();
 
-            const { error } = await supabase.from("skills").insert(insertData);
-            if (error) throw error;
-
-            showToast(`Berhasil mengimpor ${insertData.length} skill baru!`, "success");
+            showToast(`Berhasil mengimpor ${newLanguages.length} skill baru!`, "success");
             fetchData();
           } catch (err) {
             showToast("Gagal sinkronisasi skill: " + (err as Error).message, "error");
@@ -380,8 +401,7 @@ export default function AdminDashboard() {
       "Apakah Anda yakin ingin menghapus keahlian ini? Tindakan ini tidak dapat dibatalkan.",
       async () => {
         try {
-          const { error } = await supabase.from("skills").delete().eq("id", id);
-          if (error) throw error;
+          await deleteDoc(doc(db, "skills", id));
           showToast("Skill berhasil dihapus!", "success");
           fetchData();
         } catch (err) {
@@ -399,16 +419,18 @@ export default function AdminDashboard() {
     const finalPercent = parseInt(data.percent as any) || 0;
     try {
       if (isEdit) {
-        const { error } = await supabase
-          .from("skills")
-          .update({ name: data.name, logo: data.logo, percent: finalPercent })
-          .eq("id", data.id);
-        if (error) throw error;
+        await updateDoc(doc(db, "skills", data.id), {
+          name: data.name,
+          logo: data.logo,
+          percent: finalPercent
+        });
       } else {
-        const { error } = await supabase
-          .from("skills")
-          .insert([{ name: data.name, logo: data.logo, percent: finalPercent }]);
-        if (error) throw error;
+        await addDoc(collection(db, "skills"), {
+          name: data.name,
+          logo: data.logo,
+          percent: finalPercent,
+          createdAt: serverTimestamp()
+        });
       }
       setSkillModal({ ...skillModal, isOpen: false });
       showToast("Skill berhasil disimpan!", "success");
@@ -441,8 +463,7 @@ export default function AdminDashboard() {
       "Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.",
       async () => {
         try {
-          const { error } = await supabase.from("projects").delete().eq("id", id);
-          if (error) throw error;
+          await deleteDoc(doc(db, "projects", id));
           showToast("Proyek berhasil dihapus!", "success");
           fetchData();
         } catch (err) {
@@ -490,26 +511,20 @@ export default function AdminDashboard() {
     const finalImage = data.image || "/assets/portofolio.png";
     try {
       if (isEdit) {
-        const { error } = await supabase
-          .from("projects")
-          .update({
-            title: data.title,
-            description: data.description,
-            image: finalImage,
-            link: data.link,
-          })
-          .eq("id", data.id);
-        if (error) throw error;
+        await updateDoc(doc(db, "projects", data.id), {
+          title: data.title,
+          description: data.description,
+          image: finalImage,
+          link: data.link
+        });
       } else {
-        const { error } = await supabase
-          .from("projects")
-          .insert([{
-            title: data.title,
-            description: data.description,
-            image: finalImage,
-            link: data.link,
-          }]);
-        if (error) throw error;
+        await addDoc(collection(db, "projects"), {
+          title: data.title,
+          description: data.description,
+          image: finalImage,
+          link: data.link,
+          createdAt: serverTimestamp()
+        });
       }
       setProjectModal({ ...projectModal, isOpen: false });
       showToast("Proyek berhasil disimpan!", "success");
