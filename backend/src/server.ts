@@ -23,13 +23,23 @@ if (!fs.existsSync(uploadsDir)) {
 // Serve static uploads
 app.use("/uploads", express.static(uploadsDir));
 
+// Root & Health check routes
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "Portfolio Admin API Server", version: "1.0.0" });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "online", timestamp: new Date().toISOString() });
+});
+
 // Configure Multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "_" + file.originalname.replace(/\s+/g, "_");
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const uniqueSuffix = Date.now() + "_" + safeName;
     cb(null, uniqueSuffix);
   },
 });
