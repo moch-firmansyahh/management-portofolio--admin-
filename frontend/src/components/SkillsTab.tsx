@@ -1,7 +1,7 @@
 import React from "react";
-import { Plus, Edit3, Trash2, RefreshCw } from "lucide-react";
+import { Plus, Edit3, Trash2, RefreshCw, Code2 } from "lucide-react";
 
-interface Skill {
+export interface Skill {
   id: string;
   name: string;
   logo: string;
@@ -10,6 +10,7 @@ interface Skill {
 
 interface SkillsTabProps {
   skills: Skill[];
+  searchQuery: string;
   syncingSkills: boolean;
   handleSyncSkillsGitHub: () => void;
   openAddSkill: () => void;
@@ -19,29 +20,51 @@ interface SkillsTabProps {
 
 export default function SkillsTab({
   skills,
+  searchQuery,
   syncingSkills,
   handleSyncSkillsGitHub,
   openAddSkill,
   openEditSkill,
   handleDeleteSkill,
 }: SkillsTabProps) {
+  const filteredSkills = skills.filter((skill) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      skill.name.toLowerCase().includes(query) ||
+      skill.logo.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h3 className="font-bold text-lg text-gray-900">Keahlian Terdaftar</h3>
-          <p className="text-xs text-gray-500">Total {skills.length} keahlian aktif di database.</p>
+          <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
+            <Code2 className="h-5 w-5 text-[#4f46e5]" />
+            <span>Keahlian Terdaftar</span>
+          </h3>
+          <p className="text-xs text-gray-500">
+            Total {skills.length} keahlian aktif di database Firebase.
+            {searchQuery && (
+              <span className="text-[#4f46e5] font-semibold ml-1">
+                (Menampilkan {filteredSkills.length} hasil pencarian)
+              </span>
+            )}
+          </p>
         </div>
-        <div className="flex gap-2.5">
+
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={handleSyncSkillsGitHub}
             disabled={syncingSkills}
             className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-2.5 rounded-xl text-xs font-bold transition border border-gray-200 shadow-sm disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncingSkills ? "animate-spin" : ""}`} />
-            <span>Sinkronisasi Skill GitHub</span>
+            <span>{syncingSkills ? "Menyinkronkan..." : "Sinkronisasi Skill GitHub"}</span>
           </button>
-          <button 
+          
+          <button
             onClick={openAddSkill}
             className="flex items-center gap-1.5 bg-[#1e1b4b] hover:bg-[#1a1843] text-white px-3.5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"
           >
@@ -63,7 +86,7 @@ export default function SkillsTab({
             </tr>
           </thead>
           <tbody>
-            {skills.map((skill) => (
+            {filteredSkills.map((skill) => (
               <tr key={skill.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition duration-150">
                 <td className="py-4 px-4">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 border border-indigo-100 text-xs font-bold uppercase text-[#4f46e5]">
@@ -75,7 +98,7 @@ export default function SkillsTab({
                   <div className="flex items-center gap-3">
                     <span className="font-bold w-10 text-xs text-gray-700">{skill.percent}%</span>
                     <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="bg-[#4f46e5] h-full" style={{ width: `${skill.percent}%` }}></div>
+                      <div className="bg-[#4f46e5] h-full" style={{ width: `${Math.min(100, Math.max(0, skill.percent))}%` }}></div>
                     </div>
                   </div>
                 </td>
@@ -84,14 +107,14 @@ export default function SkillsTab({
                     <button 
                       onClick={() => openEditSkill(skill)}
                       className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5] transition shadow-sm"
-                      title="Edit"
+                      title="Edit Skill"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                     </button>
                     <button 
                       onClick={() => handleDeleteSkill(skill.id)}
                       className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-red-500 hover:text-red-500 transition shadow-sm"
-                      title="Delete"
+                      title="Hapus Skill"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -99,9 +122,13 @@ export default function SkillsTab({
                 </td>
               </tr>
             ))}
-            {skills.length === 0 && (
+            {filteredSkills.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-gray-400">Belum ada data skill di Supabase.</td>
+                <td colSpan={4} className="py-10 text-center text-gray-400 text-sm">
+                  {searchQuery 
+                    ? `Tidak ada skill yang cocok dengan kata kunci "${searchQuery}".` 
+                    : "Belum ada data skill di database Firebase."}
+                </td>
               </tr>
             )}
           </tbody>

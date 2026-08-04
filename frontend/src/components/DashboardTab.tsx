@@ -2,7 +2,7 @@ import React from "react";
 import { GitHubCalendar } from "react-github-calendar";
 import { Github, ExternalLink } from "lucide-react";
 
-interface GitHubProfile {
+export interface GitHubProfile {
   login: string;
   name: string;
   avatar_url: string;
@@ -36,7 +36,7 @@ export default function DashboardTab({
             <Github className="h-5 w-5 text-[#4f46e5]" />
             <span>GitHub Contributions</span>
           </h3>
-          <span className="text-xs text-gray-500">Username: moch-firmansyahh</span>
+          <span className="text-xs text-gray-500 font-medium">Username: moch-firmansyahh</span>
         </div>
         
         <div className="flex justify-center py-4 overflow-x-auto w-full">
@@ -89,10 +89,19 @@ export default function DashboardTab({
         <div className="border-t border-gray-100 pt-4 mt-6">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Repositori Terbaru</span>
           <div className="space-y-2">
-            {gitRepos.slice(0, 3).map((r: any) => (
+            {gitRepos.slice(0, 4).map((r: any) => (
               <div key={r.id} className="flex justify-between items-center text-xs">
-                <span className="font-bold truncate text-gray-700 w-44">{r.name}</span>
-                <span className="text-[10px] bg-indigo-50 border border-indigo-100 text-[#4f46e5] font-bold px-2 py-0.5 rounded-full uppercase">{r.language || "JS"}</span>
+                <a
+                  href={r.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold truncate text-gray-700 hover:text-[#4f46e5] transition max-w-[180px]"
+                >
+                  {r.name}
+                </a>
+                <span className="text-[10px] bg-indigo-50 border border-indigo-100 text-[#4f46e5] font-bold px-2 py-0.5 rounded-full uppercase shrink-0">
+                  {r.language || "JS"}
+                </span>
               </div>
             ))}
             {gitRepos.length === 0 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { db } from "../lib/firebase";
 import { 
   collection, 
@@ -12,70 +12,31 @@ import {
   writeBatch,
   serverTimestamp 
 } from "firebase/firestore";
-import { GitHubCalendar } from "react-github-calendar";
 import { 
-  LayoutDashboard, 
-  Code2, 
   Briefcase, 
-  Settings, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  RefreshCw, 
-  Github, 
-  Users, 
+  Code2, 
   FolderGit2, 
-  ExternalLink,
-  ChevronDown,
-  LogOut,
-  Bell,
-  Search,
-  CheckCircle,
-  AlertCircle,
-  Upload
+  Users, 
+  Github, 
+  Search, 
+  Bell, 
+  RefreshCw, 
+  AlertCircle, 
+  X,
+  Info
 } from "lucide-react";
 
-interface Skill {
-  id: string;
-  name: string;
-  logo: string;
-  percent: number;
-}
+import Sidebar from "../components/Sidebar";
+import DashboardTab, { GitHubProfile } from "../components/DashboardTab";
+import SkillsTab, { Skill } from "../components/SkillsTab";
+import ProjectsTab, { Project } from "../components/ProjectsTab";
+import SkillModal, { PopularSkill } from "../components/SkillModal";
+import ProjectModal from "../components/ProjectModal";
+import ConfirmModal from "../components/ConfirmModal";
+import Toast from "../components/Toast";
+import StatCard from "../components/StatCard";
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  link: string;
-}
-
-const getProjectPreview = (image: string, link: string) => {
-  if (!image || image === "/assets/portofolio.png") {
-    if (link && link.includes("github.com/")) {
-      const parts = link.split("github.com/");
-      if (parts.length > 1) {
-        const repoPath = parts[1].split("?")[0];
-        return `https://opengraph.githubassets.com/1/${repoPath}`;
-      }
-    } else if (link && link.startsWith("http")) {
-      return `https://api.microlink.io?url=${encodeURIComponent(link)}&screenshot=true&embed=screenshot.url`;
-    }
-  }
-  return image || "/assets/portofolio.png";
-};
-
-interface GitHubProfile {
-  name: string;
-  login: string;
-  avatar_url: string;
-  public_repos: number;
-  followers: number;
-  bio: string;
-  html_url: string;
-}
-
-const POPULAR_SKILLS = [
+const POPULAR_SKILLS: PopularSkill[] = [
   { name: "HTML", logo: "HTML" },
   { name: "CSS", logo: "CSS" },
   { name: "JavaScript", logo: "JS" },
@@ -94,8 +55,21 @@ const POPULAR_SKILLS = [
   { name: "Git", logo: "Git" }
 ];
 
+const getProjectPreview = (image: string, link: string) => {
+  if (!image || image === "/assets/portofolio.png") {
+    if (link && link.includes("github.com/")) {
+      const parts = link.split("github.com/");
+      if (parts.length > 1) {
+        const repoPath = parts[1].split("?")[0];
+        return `https://opengraph.githubassets.com/1/${repoPath}`;
+      }
+    }
+  }
+  return image || "/assets/portofolio.png";
+};
+
 export default function AdminDashboard() {
-  // Authentication states
+  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -110,10 +84,19 @@ export default function AdminDashboard() {
   const [syncingSkills, setSyncingSkills] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Active Menu sidebar
+  // Search & Navigation states
   const [activeMenu, setActiveMenu] = useState<"dashboard" | "skills" | "projects">("dashboard");
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Form Modal states
+  // Notifications Popover state
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationsList, setNotificationsList] = useState<string[]>([
+    "Sistem siap digunakan dengan database Firebase Firestore.",
+    "Buka tab Skills atau Projects untuk mengelola data."
+  ]);
+
+  // Modals state
   const [skillModal, setSkillModal] = useState<{
     isOpen: boolean;
     isEdit: boolean;
@@ -147,6 +130,8 @@ export default function AdminDashboard() {
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     setToast({ isOpen: true, message, type });
+    // Add to activity list
+    setNotificationsList(prev => [message, ...prev.slice(0, 9)]);
     setTimeout(() => {
       setToast(prev => ({ ...prev, isOpen: false }));
     }, 3000);
@@ -187,11 +172,11 @@ export default function AdminDashboard() {
     });
   };
 
-  // Fetch initial data
+  // Fetch initial data from Firebase & GitHub API
   const fetchData = async () => {
     setLoading(true);
     
-    // 1. Fetch Skills from Firebase
+    // 1. Fetch Skills from Firebase Firestore
     try {
       const skillsSnapshot = await getDocs(collection(db, "skills"));
       const skillsData = skillsSnapshot.docs.map(doc => {
@@ -210,7 +195,7 @@ export default function AdminDashboard() {
       console.warn("Error loading skills from Firebase:", err);
     }
 
-    // 2. Fetch Projects from Firebase
+    // 2. Fetch Projects from Firebase Firestore
     try {
       const projectsSnapshot = await getDocs(collection(db, "projects"));
       const projectsData = projectsSnapshot.docs.map(doc => {
@@ -254,6 +239,18 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  // Keyboard shortcut listener for Ctrl+K / Cmd+K search focus
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Simple local passcode check
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,7 +271,6 @@ export default function AdminDashboard() {
       
       const repos = await res.json();
       
-      // Filter out repos that are already in projects list (check by title or link)
       const existingLinks = new Set(projects.map(p => p.link.toLowerCase()));
       const newRepos = repos.filter((r: any) => !existingLinks.has(r.html_url.toLowerCase()));
 
@@ -323,7 +319,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Sync and analyze programming languages from GitHub public repositories as Skills
+  // Sync programming languages from GitHub public repositories as Skills
   const handleSyncSkillsGitHub = async () => {
     setSyncingSkills(true);
     try {
@@ -332,7 +328,6 @@ export default function AdminDashboard() {
       
       const repos = await res.json();
       
-      // Extract unique languages, filtering out null/empty values
       const languagesSet = new Set<string>();
       repos.forEach((r: any) => {
         if (r.language) {
@@ -348,7 +343,6 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Check which languages are already in existing skills (case-insensitive match)
       const existingSkillNames = new Set(skills.map(s => s.name.toLowerCase()));
       const newLanguages = detectedLanguages.filter(lang => !existingSkillNames.has(lang.toLowerCase()));
 
@@ -396,7 +390,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Skill CRUD operations
+  // Skill CRUD handlers
   const openAddSkill = () => {
     setSkillModal({
       isOpen: true,
@@ -434,7 +428,7 @@ export default function AdminDashboard() {
   const saveSkillModal = async (e: React.FormEvent) => {
     e.preventDefault();
     const { isEdit, data } = skillModal;
-    const finalPercent = parseInt(data.percent as any) || 0;
+    const finalPercent = Math.max(0, Math.min(100, parseInt(data.percent as any) || 0));
     try {
       if (isEdit) {
         await updateDoc(doc(db, "skills", data.id), {
@@ -450,7 +444,7 @@ export default function AdminDashboard() {
           createdAt: serverTimestamp()
         });
       }
-      setSkillModal({ ...skillModal, isOpen: false });
+      setSkillModal(prev => ({ ...prev, isOpen: false }));
       showToast("Skill berhasil disimpan!", "success");
       fetchData();
     } catch (err) {
@@ -458,7 +452,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Project CRUD operations
+  // Project CRUD handlers
   const openAddProject = () => {
     setProjectModal({
       isOpen: true,
@@ -508,12 +502,12 @@ export default function AdminDashboard() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Gagal mengunggah gambar");
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || "Gagal mengunggah gambar");
 
-      const data = await res.json();
       setProjectModal(prev => ({
         ...prev,
-        data: { ...prev.data, image: data.url }
+        data: { ...prev.data, image: resData.url }
       }));
       showToast("Gambar berhasil diunggah!", "success");
     } catch (err) {
@@ -544,7 +538,7 @@ export default function AdminDashboard() {
           createdAt: serverTimestamp()
         });
       }
-      setProjectModal({ ...projectModal, isOpen: false });
+      setProjectModal(prev => ({ ...prev, isOpen: false }));
       showToast("Proyek berhasil disimpan!", "success");
       fetchData();
     } catch (err) {
@@ -552,11 +546,17 @@ export default function AdminDashboard() {
     }
   };
 
-  // Login Screen Render
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.onerror = null;
+    target.src = "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
+  };
+
+  // Login Screen
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f3f4f6] px-4 font-sans">
-        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-2xl">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-2xl animate-fade-in-up">
           <div className="flex justify-center mb-6">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1e1b4b] text-white shadow-lg">
               <Github className="h-7 w-7" />
@@ -567,7 +567,7 @@ export default function AdminDashboard() {
             Analytical Board Admin
           </h2>
           <p className="mt-2 text-center text-sm text-gray-500">
-            Akses dashboard analitik portofolio & database Supabase.
+            Akses dashboard analitik portofolio & database Firebase.
           </p>
 
           <form onSubmit={handleLogin} className="mt-8 space-y-6">
@@ -605,706 +605,229 @@ export default function AdminDashboard() {
     );
   }
 
-  // Fallback image helper with error avoidance (prevents infinite loop spam)
-  const getAvatarUrl = () => {
-    return gitProfile?.avatar_url || "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
-  };
-
-  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.target as HTMLImageElement;
-    target.onerror = null; // Unbind error handler to prevent loop
-    target.src = "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
-  };
-
   return (
     <div className="flex min-h-screen bg-[#f3f4f6] text-gray-900 font-sans antialiased">
       
-      {/* Sidebar Panel */}
-      <aside className="w-64 border-r border-gray-200 bg-white flex flex-col justify-between shrink-0">
-        <div>
-          {/* Logo */}
-          <div className="p-6 border-b border-gray-150 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e1b4b] text-white">
-              <LayoutDashboard className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="font-bold text-sm tracking-wide text-gray-950">I-BOARD</h1>
-              <span className="text-[10px] text-[#4f46e5] font-bold uppercase tracking-widest">Analytics</span>
-            </div>
-          </div>
-
-          {/* Nav List */}
-          <nav className="p-4 space-y-1.5">
-            <span className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Main Menu</span>
-            
-            <button
-              onClick={() => setActiveMenu("dashboard")}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeMenu === "dashboard"
-                  ? "bg-[#1e1b4b] text-white shadow-md font-semibold"
-                  : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
-              }`}
-            >
-              <LayoutDashboard className="h-4.5 w-4.5" />
-              <span>Dashboard Analitik</span>
-            </button>
-
-            <button
-              onClick={() => setActiveMenu("skills")}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeMenu === "skills"
-                  ? "bg-[#1e1b4b] text-white shadow-md font-semibold"
-                  : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
-              }`}
-            >
-              <Code2 className="h-4.5 w-4.5" />
-              <span>Kelola Skills ({skills.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveMenu("projects")}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeMenu === "projects"
-                  ? "bg-[#1e1b4b] text-white shadow-md font-semibold"
-                  : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
-              }`}
-            >
-              <Briefcase className="h-4.5 w-4.5" />
-              <span>Kelola Projects ({projects.length})</span>
-            </button>
-          </nav>
-        </div>
-
-        {/* Profile Card & Logout */}
-        <div className="p-4 border-t border-gray-150 space-y-3">
-          <div className="flex items-center gap-3 px-2 py-1">
-            <img 
-              src={getAvatarUrl()} 
-              alt="avatar" 
-              className="h-10 w-10 rounded-full border border-gray-250 object-cover"
-              onError={handleImgError}
-            />
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold truncate text-gray-950">{gitProfile?.name || "Moch Firmansyah"}</p>
-              <span className="text-[10px] text-gray-400 font-medium">Super Admin</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setIsAuthenticated(false)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold bg-gray-50 border border-gray-200 text-red-600 hover:bg-red-50 hover:border-red-200 transition-all duration-200"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            <span>Keluar Dashboard</span>
-          </button>
-        </div>
-      </aside>
+      {/* Modular Sidebar Panel */}
+      <Sidebar 
+        activeMenu={activeMenu}
+        setActiveMenu={(menu) => {
+          setActiveMenu(menu);
+          setSearchQuery("");
+        }}
+        skillsCount={skills.length}
+        projectsCount={projects.length}
+        gitProfile={gitProfile}
+        handleImgError={handleImgError}
+        handleLogout={() => setIsAuthenticated(false)}
+      />
 
       {/* Main Panel Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        
         {/* Top Header Bar */}
-        <header className="h-20 border-b border-gray-200 bg-white/90 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-50">
-          <div className="flex items-center gap-3 bg-gray-100 border border-gray-200/50 rounded-xl px-3.5 py-2 w-80">
-            <Search className="h-4 w-4 text-gray-400" />
+        <header className="h-20 border-b border-gray-200 bg-white/90 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
+          <div className="flex items-center gap-3 bg-gray-100 border border-gray-200/60 rounded-xl px-3.5 py-2 w-80 focus-within:ring-2 focus-within:ring-[#4f46e5]/30 transition-all">
+            <Search className="h-4 w-4 text-gray-400 shrink-0" />
             <input 
+              ref={searchInputRef}
               type="text" 
-              placeholder="Search metrics, reports..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari skill, proyek, link..." 
               className="bg-transparent border-none text-xs outline-none text-gray-800 w-full placeholder-gray-400"
             />
-            <span className="text-[9px] font-bold text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm">⌘ K</span>
+            {searchQuery ? (
+              <button 
+                onClick={() => setSearchQuery("")} 
+                className="text-gray-400 hover:text-gray-600 text-xs"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            ) : (
+              <span className="text-[9px] font-bold text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm shrink-0">
+                ⌘ K
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-all shadow-sm">
+          <div className="flex items-center gap-4 relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-all shadow-sm relative"
+              title="Notifikasi Aktivitas"
+            >
               <Bell className="h-4.5 w-4.5" />
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#4f46e5]"></span>
             </button>
+
+            {/* Notifications Popover */}
+            {showNotifications && (
+              <div className="absolute top-12 right-12 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 z-50 animate-fade-in-up">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
+                    <Info className="h-4 w-4 text-[#4f46e5]" />
+                    <span>Aktivitas Terkini</span>
+                  </h4>
+                  <button 
+                    onClick={() => setShowNotifications(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {notificationsList.map((note, index) => (
+                    <div key={index} className="text-xs text-gray-600 bg-gray-50 p-2.5 rounded-xl border border-gray-100 leading-relaxed">
+                      {note}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button 
               onClick={fetchData} 
               className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-all shadow-sm"
               title="Refresh Data"
             >
-              <RefreshCw className="h-4.5 w-4.5" />
+              <RefreshCw className={`h-4.5 w-4.5 ${loading ? "animate-spin text-[#4f46e5]" : ""}`} />
             </button>
           </div>
         </header>
 
         {/* Content Area */}
         <div className="p-8 space-y-8 flex-1">
-          {/* Header Title */}
+          {/* Page Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">Your Analytical Board</h2>
-              <p className="text-sm text-gray-500 mt-1">Status dan ringkasan metrik pengembangan portofolio Anda secara terpusat.</p>
-            </div>
-            {activeMenu === "projects" && (
-              <button
-                onClick={handleSyncGitHub}
-                disabled={syncingGit}
-                className="flex items-center gap-2 bg-[#1e1b4b] hover:bg-[#1a1843] font-bold px-4 py-2.5 rounded-xl text-xs text-white shadow-lg transition-all duration-300 disabled:opacity-50"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${syncingGit ? "animate-spin" : ""}`} />
-                <span>{syncingGit ? "Menyinkronkan..." : "Sinkronisasi GitHub"}</span>
-              </button>
-            )}
-          </div>
-
-          {/* METRIC CARD ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm">
-              <div className="flex justify-between items-center text-gray-500">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Projects</span>
-                <Briefcase className="h-4.5 w-4.5 text-[#4f46e5]" />
-              </div>
-              <p className="text-3xl font-black mt-4 text-gray-950">{projects.length}</p>
-              <span className="text-[10px] text-gray-400 font-medium block mt-1">Tersimpan di database</span>
-            </div>
-
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm">
-              <div className="flex justify-between items-center text-gray-500">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Skills</span>
-                <Code2 className="h-4.5 w-4.5 text-[#4f46e5]" />
-              </div>
-              <p className="text-3xl font-black mt-4 text-gray-950">{skills.length}</p>
-              <span className="text-[10px] text-gray-400 font-medium block mt-1">Keahlian terdaftar</span>
-            </div>
-
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm">
-              <div className="flex justify-between items-center text-gray-500">
-                <span className="text-xs font-semibold uppercase tracking-wider">Git Repositories</span>
-                <FolderGit2 className="h-4.5 w-4.5 text-[#4f46e5]" />
-              </div>
-              <p className="text-3xl font-black mt-4 text-gray-950">{gitProfile?.public_repos || 0}</p>
-              <span className="text-[10px] text-gray-400 font-medium block mt-1">Repo Publik GitHub</span>
-            </div>
-
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm">
-              <div className="flex justify-between items-center text-gray-500">
-                <span className="text-xs font-semibold uppercase tracking-wider">Git Followers</span>
-                <Users className="h-4.5 w-4.5 text-[#4f46e5]" />
-              </div>
-              <p className="text-3xl font-black mt-4 text-gray-950">{gitProfile?.followers || 0}</p>
-              <span className="text-[10px] text-gray-400 font-medium block mt-1">Pengikut profil GitHub</span>
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
+                {activeMenu === "dashboard" && "Your Analytical Board"}
+                {activeMenu === "skills" && "Manajemen Skills"}
+                {activeMenu === "projects" && "Manajemen Projects"}
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Status dan ringkasan metrik pengembangan portofolio Anda secara terpusat.
+              </p>
             </div>
           </div>
 
-          {/* DYNAMIC CONTENT AREA */}
+          {/* Metric Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <StatCard 
+              title="Total Projects"
+              value={projects.length}
+              icon={<Briefcase className="h-4.5 w-4.5 text-[#4f46e5]" />}
+              subtitle="Tersimpan di Firebase"
+            />
+            <StatCard 
+              title="Total Skills"
+              value={skills.length}
+              icon={<Code2 className="h-4.5 w-4.5 text-[#4f46e5]" />}
+              subtitle="Keahlian terdaftar"
+            />
+            <StatCard 
+              title="Git Repositories"
+              value={gitProfile?.public_repos || 0}
+              icon={<FolderGit2 className="h-4.5 w-4.5 text-[#4f46e5]" />}
+              subtitle="Repo Publik GitHub"
+            />
+            <StatCard 
+              title="Git Followers"
+              value={gitProfile?.followers || 0}
+              icon={<Users className="h-4.5 w-4.5 text-[#4f46e5]" />}
+              subtitle="Pengikut GitHub"
+            />
+          </div>
+
+          {/* Tab Views */}
           {activeMenu === "dashboard" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* GitHub Contribution Calendar */}
-              <div className="lg:col-span-2 rounded-2xl border border-gray-150 bg-white p-6 shadow-sm space-y-6">
-                <div className="flex justify-between items-center border-b border-gray-100 pb-4">
-                  <h3 className="font-bold text-lg flex items-center gap-2 text-gray-900">
-                    <Github className="h-5 w-5 text-[#4f46e5]" />
-                    <span>GitHub Contributions</span>
-                  </h3>
-                  <span className="text-xs text-gray-500">Username: moch-firmansyahh</span>
-                </div>
-                
-                <div className="flex justify-center py-4 overflow-x-auto w-full">
-                  <GitHubCalendar 
-                    username="moch-firmansyahh" 
-                    theme={{
-                      light: ["#ebedf0", "#d6b5f2", "#b37ae6", "#8e05c2", "#5c037f"],
-                      dark: ["#ebedf0", "#d6b5f2", "#b37ae6", "#8e05c2", "#5c037f"]
-                    }}
-                    colorScheme="light"
-                  />
-                </div>
-              </div>
-
-              {/* GitHub Profile Details */}
-              <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
-                    <h3 className="font-bold text-lg text-gray-900">GitHub Info</h3>
-                    <a 
-                      href={gitProfile?.html_url || "https://github.com/moch-firmansyahh"} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-[#4f46e5] hover:underline text-xs flex items-center gap-1 font-bold"
-                    >
-                      <span>Lihat GitHub</span> <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={getAvatarUrl()} 
-                        alt="git avatar" 
-                        className="h-14 w-14 rounded-xl border border-gray-200 object-cover"
-                        onError={handleImgError}
-                      />
-                      <div>
-                        <h4 className="font-bold text-base text-gray-900">{gitProfile?.name || "Moch Firmansyah"}</h4>
-                        <span className="text-xs text-gray-400">@{gitProfile?.login || "moch-firmansyahh"}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-gray-600 leading-relaxed bg-gray-50 border border-gray-100 p-3 rounded-xl italic">
-                      "{gitProfile?.bio || "Front-End Developer Enthusiast."}"
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-100 pt-4 mt-6">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">Repositori Terbaru</span>
-                  <div className="space-y-2">
-                    {gitRepos.slice(0, 3).map((r: any) => (
-                      <div key={r.id} className="flex justify-between items-center text-xs">
-                        <span className="font-bold truncate text-gray-700 w-44">{r.name}</span>
-                        <span className="text-[10px] bg-indigo-50 border border-indigo-100 text-[#4f46e5] font-bold px-2 py-0.5 rounded-full uppercase">{r.language || "JS"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DashboardTab 
+              gitProfile={gitProfile}
+              gitRepos={gitRepos}
+              handleImgError={handleImgError}
+            />
           )}
 
-          {/* SKILLS TABLE TAB */}
           {activeMenu === "skills" && (
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold text-lg text-gray-900">Keahlian Terdaftar</h3>
-                  <p className="text-xs text-gray-500">Total {skills.length} keahlian aktif di database.</p>
-                </div>
-                <div className="flex gap-2.5">
-                  <button
-                    onClick={handleSyncSkillsGitHub}
-                    disabled={syncingSkills}
-                    className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3.5 py-2.5 rounded-xl text-xs font-bold transition border border-gray-200 shadow-sm disabled:opacity-50"
-                  >
-                    <RefreshCw className={`h-3.5 w-3.5 ${syncingSkills ? "animate-spin" : ""}`} />
-                    <span>Sinkronisasi Skill GitHub</span>
-                  </button>
-                  <button 
-                    onClick={openAddSkill}
-                    className="flex items-center gap-1.5 bg-[#1e1b4b] hover:bg-[#1a1843] text-white px-3.5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Tambah Skill</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-150 text-gray-400 font-bold text-xs uppercase tracking-wider">
-                      <th className="py-4 px-4">Singkatan</th>
-                      <th className="py-4 px-4">Nama Keahlian</th>
-                      <th className="py-4 px-4">Tingkat Penguasaan</th>
-                      <th className="py-4 px-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {skills.map((skill) => (
-                      <tr key={skill.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition duration-150">
-                        <td className="py-4 px-4">
-                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 border border-indigo-100 text-xs font-bold uppercase text-[#4f46e5]">
-                            {skill.logo}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 font-semibold text-gray-900">{skill.name}</td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <span className="font-bold w-10 text-xs text-gray-700">{skill.percent}%</span>
-                            <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
-                              <div className="bg-[#4f46e5] h-full" style={{ width: `${skill.percent}%` }}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button 
-                              onClick={() => openEditSkill(skill)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5] transition shadow-sm"
-                              title="Edit"
-                            >
-                              <Edit3 className="h-3.5 w-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteSkill(skill.id)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-red-500 hover:text-red-500 transition shadow-sm"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {skills.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="py-8 text-center text-gray-400">Belum ada data skill di Supabase.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <SkillsTab 
+              skills={skills}
+              searchQuery={searchQuery}
+              syncingSkills={syncingSkills}
+              handleSyncSkillsGitHub={handleSyncSkillsGitHub}
+              openAddSkill={openAddSkill}
+              openEditSkill={openEditSkill}
+              handleDeleteSkill={handleDeleteSkill}
+            />
           )}
 
-          {/* PROJECTS TABLE TAB */}
           {activeMenu === "projects" && (
-            <div className="rounded-2xl border border-gray-150 bg-white p-6 shadow-sm space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold text-lg text-gray-900">Proyek Terdaftar</h3>
-                  <p className="text-xs text-gray-500">Total {projects.length} proyek aktif di database.</p>
-                </div>
-                <button 
-                  onClick={openAddProject}
-                  className="flex items-center gap-1.5 bg-[#1e1b4b] hover:bg-[#1a1843] text-white px-3.5 py-2.5 rounded-xl text-xs font-bold transition shadow-sm"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Tambah Proyek</span>
-                </button>
-              </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-gray-150 text-gray-400 font-bold text-xs uppercase tracking-wider">
-                      <th className="py-4 px-4">Preview</th>
-                      <th className="py-4 px-4">Judul Proyek</th>
-                      <th className="py-4 px-4">Deskripsi</th>
-                      <th className="py-4 px-4">Link Demo</th>
-                      <th className="py-4 px-4 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projects.map((project) => (
-                      <tr key={project.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition duration-150">
-                        <td className="py-4 px-4">
-                          <img 
-                            src={getProjectPreview(project.image, project.link)} 
-                            alt={project.title} 
-                            className="h-10 w-16 object-cover rounded-lg border border-gray-200"
-                            onError={(e) => { 
-                              const img = e.target as HTMLImageElement; 
-                              img.onerror = null; 
-                              img.src = "/assets/portofolio.png"; 
-                            }}
-                          />
-                        </td>
-                        <td className="py-4 px-4 font-semibold truncate max-w-[150px] text-gray-900">{project.title}</td>
-                        <td className="py-4 px-4 text-gray-500 text-xs truncate max-w-[250px]" title={project.description}>
-                          {project.description}
-                        </td>
-                        <td className="py-4 px-4">
-                          {project.link !== "#" ? (
-                            <a 
-                              href={project.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              className="text-[#4f46e5] hover:underline flex items-center gap-1 text-xs font-semibold"
-                            >
-                              <span>Demo</span> <ExternalLink className="h-3 w-3" />
-                            </a>
-                          ) : (
-                            <span className="text-gray-400 text-xs">Tidak ada</span>
-                          )}
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button 
-                              onClick={() => openEditProject(project)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5] transition shadow-sm"
-                              title="Edit"
-                            >
-                              <Edit3 className="h-3.5 w-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteProject(project.id)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-red-500 hover:text-red-500 transition shadow-sm"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {projects.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="py-8 text-center text-gray-400">Belum ada data proyek di Supabase.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <ProjectsTab 
+              projects={projects}
+              searchQuery={searchQuery}
+              syncingGit={syncingGit}
+              handleSyncGitHub={handleSyncGitHub}
+              openAddProject={openAddProject}
+              openEditProject={openEditProject}
+              handleDeleteProject={handleDeleteProject}
+              getProjectPreview={getProjectPreview}
+            />
           )}
         </div>
       </main>
 
-      {/* Skill Modal */}
-      {skillModal.isOpen && (
-        <div className="admin-modal-overlay">
-          <form onSubmit={saveSkillModal} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5">
-            <h2 className="text-xl font-bold border-b border-gray-150 pb-3 text-gray-900">
-              {skillModal.isEdit ? "Edit Skill" : "Tambah Skill"}
-            </h2>
-            
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="skill-name" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Nama Skill</label>
-              <input
-                type="text"
-                id="skill-name"
-                list="popular-skills"
-                value={skillModal.data.name}
-                onChange={(e) => {
-                  const customName = e.target.value;
-                  
-                  // Auto-fill logo if customName matches one of our popular skills
-                  const foundPopular = POPULAR_SKILLS.find(s => s.name.toLowerCase() === customName.toLowerCase());
-                  let logoVal = skillModal.data.logo;
+      {/* Skill Form Modal */}
+      <SkillModal 
+        isOpen={skillModal.isOpen}
+        isEdit={skillModal.isEdit}
+        data={skillModal.data}
+        setData={(action) => {
+          if (typeof action === "function") {
+            setSkillModal(prev => ({ ...prev, data: action(prev.data) }));
+          } else {
+            setSkillModal(prev => ({ ...prev, data: action }));
+          }
+        }}
+        popularSkills={POPULAR_SKILLS}
+        onSubmit={saveSkillModal}
+        onClose={() => setSkillModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
-                  if (foundPopular) {
-                    logoVal = foundPopular.logo;
-                  } else {
-                    if (customName.length > 0) {
-                      const words = customName.split(" ").filter(w => w);
-                      if (words.length >= 2) {
-                        logoVal = (words[0][0] + words[1][0]).toUpperCase().substring(0, 3);
-                      } else {
-                        logoVal = customName.substring(0, 3).toUpperCase();
-                      }
-                    } else {
-                      logoVal = "";
-                    }
-                  }
+      {/* Project Form Modal */}
+      <ProjectModal 
+        isOpen={projectModal.isOpen}
+        isEdit={projectModal.isEdit}
+        data={projectModal.data}
+        setData={(action) => {
+          if (typeof action === "function") {
+            setProjectModal(prev => ({ ...prev, data: action(prev.data) }));
+          } else {
+            setProjectModal(prev => ({ ...prev, data: action }));
+          }
+        }}
+        uploadingImage={uploadingImage}
+        handleImageUpload={handleImageUpload}
+        onSubmit={saveProjectModal}
+        onClose={() => setProjectModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
-                  setSkillModal({
-                    ...skillModal,
-                    data: { ...skillModal.data, name: customName, logo: logoVal }
-                  });
-                }}
-                placeholder="Pilih atau ketik nama skill..."
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
-                required
-              />
-              <datalist id="popular-skills">
-                {POPULAR_SKILLS.map(s => (
-                  <option key={s.name} value={s.name} />
-                ))}
-              </datalist>
-            </div>
-
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="skill-logo" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Logo / Singkatan (Maksimal 3 karakter)</label>
-              <input
-                type="text"
-                id="skill-logo"
-                value={skillModal.data.logo}
-                onChange={(e) =>
-                  setSkillModal({ ...skillModal, data: { ...skillModal.data, logo: e.target.value.substring(0, 3) } })
-                }
-                placeholder="Contoh: JS, PY, Re"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
-                required
-              />
-            </div>
-
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="skill-percent" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Persentase Penguasaan (%)</label>
-              <input
-                type="number"
-                id="skill-percent"
-                min="0"
-                max="100"
-                value={skillModal.data.percent}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setSkillModal({
-                    ...skillModal,
-                    data: {
-                      ...skillModal.data,
-                      percent: val === "" ? "" as any : parseInt(val)
-                    }
-                  });
-                }}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
-                required
-              />
-            </div>
-
-            <div className="flex gap-3 pt-3 border-t border-gray-150">
-              <button
-                type="button"
-                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition"
-                onClick={() => setSkillModal({ ...skillModal, isOpen: false })}
-              >
-                Kembali
-              </button>
-              <button 
-                type="submit" 
-                className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition"
-              >
-                Simpan Keahlian
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Project Modal */}
-      {projectModal.isOpen && (
-        <div className="admin-modal-overlay">
-          <form onSubmit={saveProjectModal} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5">
-            <h2 className="text-xl font-bold border-b border-gray-150 pb-3 text-gray-900">
-              {projectModal.isEdit ? "Edit Proyek" : "Tambah Proyek"}
-            </h2>
-            
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="project-title" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Judul Proyek</label>
-              <input
-                type="text"
-                id="project-title"
-                value={projectModal.data.title}
-                onChange={(e) =>
-                  setProjectModal({ ...projectModal, data: { ...projectModal.data, title: e.target.value } })
-                }
-                placeholder="Contoh: E-Commerce Web App"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
-                required
-              />
-            </div>
-
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="project-desc" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Deskripsi Singkat</label>
-              <textarea
-                id="project-desc"
-                value={projectModal.data.description}
-                onChange={(e) =>
-                  setProjectModal({ ...projectModal, data: { ...projectModal.data, description: e.target.value } })
-                }
-                placeholder="Tulis deskripsi proyek..."
-                rows={3}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition resize-none"
-                required
-              ></textarea>
-            </div>
-
-            <div className="admin-input-group space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Gambar Proyek</label>
-              
-              {/* Image Preview */}
-              {projectModal.data.image && (
-                <div className="relative h-32 w-full rounded-xl overflow-hidden border border-gray-150 bg-gray-50 flex items-center justify-center">
-                  <img
-                    src={projectModal.data.image}
-                    alt="Preview"
-                    className="max-h-full max-w-full object-contain"
-                    onError={(e) => {
-                      (e.target as any).onerror = null;
-                      (e.target as any).src = "https://api.dicebear.com/7.x/identicon/svg";
-                    }}
-                  />
-                  <div className="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white font-semibold">
-                    Aktif
-                  </div>
-                </div>
-              )}
-
-              {/* File Input Zone */}
-              <div className="relative">
-                <input
-                  type="file"
-                  id="project-image-file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="project-image-file"
-                  className="flex items-center justify-center gap-2 cursor-pointer w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-[#4f46e5] bg-gray-50 px-4 py-3.5 text-xs text-gray-600 hover:text-[#4f46e5] transition font-bold"
-                >
-                  <Upload className="h-4 w-4 text-gray-400" />
-                  <span>{uploadingImage ? "Mengunggah..." : "Pilih File Gambar (PNG, JPG)"}</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="admin-input-group space-y-1.5">
-              <label htmlFor="project-link" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Link Proyek / Demo</label>
-              <input
-                type="text"
-                id="project-link"
-                value={projectModal.data.link}
-                onChange={(e) =>
-                  setProjectModal({ ...projectModal, data: { ...projectModal.data, link: e.target.value } })
-                }
-                placeholder="https://github.com/..."
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
-                required
-              />
-            </div>
-
-            <div className="flex gap-3 pt-3 border-t border-gray-150">
-              <button
-                type="button"
-                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition"
-                onClick={() => setProjectModal({ ...projectModal, isOpen: false })}
-              >
-                Kembali
-              </button>
-              <button 
-                type="submit" 
-                className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition"
-              >
-                Simpan Proyek
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        isDanger={confirmModal.isDanger}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
 
       {/* Toast Notification */}
-      {toast.isOpen && (
-        <div className="fixed bottom-5 right-5 z-[9999] flex items-center gap-3 bg-white border border-gray-200 px-5 py-3.5 rounded-2xl shadow-xl animate-fade-in-up">
-          {toast.type === "success" && <CheckCircle className="h-5 w-5 text-green-500" />}
-          {toast.type === "error" && <AlertCircle className="h-5 w-5 text-red-500" />}
-          {toast.type === "info" && <RefreshCw className="h-5 w-5 text-[#4f46e5] animate-spin" />}
-          <span className="text-sm font-semibold text-gray-800">{toast.message}</span>
-        </div>
-      )}
-
-      {/* Custom Confirmation Modal */}
-      {confirmModal.isOpen && (
-        <div className="admin-modal-overlay">
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-5">
-            <h3 className="text-lg font-bold text-gray-900">{confirmModal.title}</h3>
-            <p className="text-sm text-gray-500 leading-relaxed">{confirmModal.message}</p>
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                className="flex-1 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 py-2.5 text-xs font-bold text-gray-700 transition"
-                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                className={`flex-1 rounded-xl py-2.5 text-xs font-bold text-white transition shadow-md ${
-                  confirmModal.isDanger 
-                    ? "bg-red-600 hover:bg-red-700" 
-                    : "bg-[#1e1b4b] hover:bg-[#1a1843]"
-                }`}
-                onClick={confirmModal.onConfirm}
-              >
-                {confirmModal.confirmText || "Konfirmasi"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Toast 
+        isOpen={toast.isOpen}
+        message={toast.message}
+        type={toast.type}
+      />
     </div>
   );
 }

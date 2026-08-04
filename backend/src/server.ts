@@ -34,7 +34,20 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Hanya file gambar (JPG, PNG, WEBP, GIF, SVG) yang diperbolehkan!"));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+});
 
 // API upload route
 app.post("/api/upload", upload.single("file"), (req: any, res: any) => {
@@ -43,7 +56,11 @@ app.post("/api/upload", upload.single("file"), (req: any, res: any) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    const host = req.get("host");
+    const protocol = req.protocol;
+    const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    
     return res.json({ url: fileUrl });
   } catch (error: any) {
     console.error("Upload handler error:", error);
@@ -51,7 +68,21 @@ app.post("/api/upload", upload.single("file"), (req: any, res: any) => {
   }
 });
 
+// Express global error handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ error: "Ukuran file terlalu besar! Maksimal 5 MB." });
+    }
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  } else if (err) {
+    return res.status(400).json({ error: err.message || "Terjadi kesalahan server" });
+  }
+  next();
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Backend Express server is running on http://localhost:${PORT}`);
 });
+

@@ -1,13 +1,13 @@
 import React from "react";
 
-interface Skill {
+export interface Skill {
   id: string;
   name: string;
   logo: string;
   percent: number;
 }
 
-interface PopularSkill {
+export interface PopularSkill {
   name: string;
   logo: string;
 }
@@ -62,9 +62,21 @@ export default function SkillModal({
     }));
   };
 
+  const handlePercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    if (rawVal === "") {
+      setData(prev => ({ ...prev, percent: 0 }));
+      return;
+    }
+    const val = parseInt(rawVal, 10);
+    if (isNaN(val)) return;
+    const clamped = Math.max(0, Math.min(100, val));
+    setData(prev => ({ ...prev, percent: clamped }));
+  };
+
   return (
     <div className="admin-modal-overlay">
-      <form onSubmit={onSubmit} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5">
+      <form onSubmit={onSubmit} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5 animate-fade-in-up">
         <h2 className="text-xl font-bold border-b border-gray-150 pb-3 text-gray-900">
           {isEdit ? "Edit Skill" : "Tambah Skill"}
         </h2>
@@ -110,14 +122,9 @@ export default function SkillModal({
             id="skill-percent"
             min="0"
             max="100"
-            value={data.percent}
-            onChange={(e) => {
-              const val = e.target.value;
-              setData(prev => ({
-                ...prev,
-                percent: val === "" ? "" as any : parseInt(val)
-              }));
-            }}
+            value={data.percent === 0 ? "" : data.percent}
+            onChange={handlePercentChange}
+            placeholder="0 - 100"
             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
             required
           />
@@ -133,7 +140,7 @@ export default function SkillModal({
           </button>
           <button 
             type="submit" 
-            className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition"
+            className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition shadow-md"
           >
             Simpan Keahlian
           </button>

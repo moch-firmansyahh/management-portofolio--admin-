@@ -1,15 +1,13 @@
 import React from "react";
 import { LayoutDashboard, Code2, Briefcase, LogOut } from "lucide-react";
+import { GitHubProfile } from "./DashboardTab";
 
 interface SidebarProps {
   activeMenu: "dashboard" | "skills" | "projects";
   setActiveMenu: (menu: "dashboard" | "skills" | "projects") => void;
   skillsCount: number;
   projectsCount: number;
-  gitProfile: {
-    name?: string;
-    avatar_url?: string;
-  } | null;
+  gitProfile: GitHubProfile | null;
   handleImgError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   handleLogout: () => void;
 }
@@ -28,20 +26,20 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="w-64 border-r border-gray-200 bg-white flex flex-col justify-between shrink-0">
+    <aside className="w-64 border-r border-gray-200 bg-white flex flex-col justify-between shrink-0 min-h-screen">
       <div>
-        {/* Logo */}
+        {/* Logo Header */}
         <div className="p-6 border-b border-gray-150 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e1b4b] text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e1b4b] text-white shadow-md">
             <LayoutDashboard className="h-5 w-5" />
           </div>
           <div>
             <h1 className="font-bold text-sm tracking-wide text-gray-950">I-BOARD</h1>
-            <span className="text-[10px] text-[#4f46e5] font-bold uppercase tracking-widest">Analytics</span>
+            <span className="text-[10px] text-[#4f46e5] font-bold uppercase tracking-widest block">Analytics</span>
           </div>
         </div>
 
-        {/* Nav List */}
+        {/* Navigation List */}
         <nav className="p-4 space-y-1.5">
           <span className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Main Menu</span>
           
@@ -89,12 +87,12 @@ export default function Sidebar({
           <img 
             src={getAvatarUrl()} 
             alt="avatar" 
-            className="h-10 w-10 rounded-full border border-gray-250 object-cover"
+            className="h-10 w-10 rounded-full border border-gray-250 object-cover shrink-0"
             onError={handleImgError}
           />
           <div className="overflow-hidden">
             <p className="text-xs font-bold truncate text-gray-950">{gitProfile?.name || "Moch Firmansyah"}</p>
-            <span className="text-[10px] text-gray-400 font-medium">Super Admin</span>
+            <span className="text-[10px] text-gray-400 font-medium block">Super Admin</span>
           </div>
         </div>
 

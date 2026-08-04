@@ -1,13 +1,6 @@
 import React from "react";
-import { Upload } from "lucide-react";
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  link: string;
-}
+import { Upload, Loader2 } from "lucide-react";
+import { Project } from "./ProjectsTab";
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -34,7 +27,7 @@ export default function ProjectModal({
 
   return (
     <div className="admin-modal-overlay">
-      <form onSubmit={onSubmit} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5">
+      <form onSubmit={onSubmit} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5 animate-fade-in-up">
         <h2 className="text-xl font-bold border-b border-gray-150 pb-3 text-gray-900">
           {isEdit ? "Edit Proyek" : "Tambah Proyek"}
         </h2>
@@ -81,7 +74,7 @@ export default function ProjectModal({
                 className="max-h-full max-w-full object-contain"
                 onError={(e) => {
                   (e.target as any).onerror = null;
-                  (e.target as any).src = "https://api.dicebear.com/7.x/identicon/svg";
+                  (e.target as any).src = "/assets/portofolio.png";
                 }}
               />
               <div className="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white font-semibold">
@@ -97,14 +90,26 @@ export default function ProjectModal({
               id="project-image-file"
               accept="image/*"
               onChange={handleImageUpload}
+              disabled={uploadingImage}
               className="hidden"
             />
             <label
               htmlFor="project-image-file"
-              className="flex items-center justify-center gap-2 cursor-pointer w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-[#4f46e5] bg-gray-50 px-4 py-3.5 text-xs text-gray-600 hover:text-[#4f46e5] transition font-bold"
+              className={`flex items-center justify-center gap-2 cursor-pointer w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-[#4f46e5] bg-gray-50 px-4 py-3.5 text-xs text-gray-600 hover:text-[#4f46e5] transition font-bold ${
+                uploadingImage ? "opacity-60 pointer-events-none" : ""
+              }`}
             >
-              <Upload className="h-4 w-4 text-gray-400" />
-              <span>{uploadingImage ? "Mengunggah..." : "Pilih File Gambar (PNG, JPG)"}</span>
+              {uploadingImage ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin text-[#4f46e5]" />
+                  <span>Mengunggah Gambar...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 text-gray-400" />
+                  <span>Pilih File Gambar (PNG, JPG, WEBP)</span>
+                </>
+              )}
             </label>
           </div>
         </div>
@@ -134,7 +139,8 @@ export default function ProjectModal({
           </button>
           <button 
             type="submit" 
-            className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition"
+            disabled={uploadingImage}
+            className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition shadow-md disabled:opacity-50"
           >
             Simpan Proyek
           </button>
