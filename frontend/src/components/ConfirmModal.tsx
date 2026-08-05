@@ -1,4 +1,5 @@
 import React from "react";
+import { AlertTriangle } from "lucide-react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -23,23 +24,37 @@ export default function ConfirmModal({
 
   return (
     <div className="admin-modal-overlay">
-      <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl max-w-sm w-full space-y-5 animate-fade-in-up">
-        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-500 leading-relaxed">{message}</p>
-        <div className="flex gap-3 pt-2">
+      <div className="bg-white border border-zinc-200/90 p-6 rounded-xl shadow-xl max-w-sm w-full space-y-4 animate-dialog-show">
+        <div className="flex items-start gap-3">
+          <div
+            className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 border ${
+              isDanger
+                ? "bg-red-50 text-red-600 border-red-200"
+                : "bg-zinc-100 text-zinc-900 border-zinc-200"
+            }`}
+          >
+            <AlertTriangle className="h-4.5 w-4.5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-zinc-900">{title}</h3>
+            <p className="text-xs text-zinc-500 mt-1 leading-relaxed">{message}</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2 pt-3 border-t border-zinc-150 justify-end">
           <button
             type="button"
-            className="flex-1 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 py-2.5 text-xs font-bold text-gray-700 transition"
+            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 py-2 text-xs font-medium text-zinc-700 transition"
             onClick={onCancel}
           >
             Batal
           </button>
           <button
             type="button"
-            className={`flex-1 rounded-xl py-2.5 text-xs font-bold text-white transition shadow-md ${
+            className={`rounded-lg px-3.5 py-2 text-xs font-medium text-white transition shadow-2xs ${
               isDanger 
                 ? "bg-red-600 hover:bg-red-700" 
-                : "bg-[#1e1b4b] hover:bg-[#1a1843]"
+                : "bg-zinc-900 hover:bg-zinc-800"
             }`}
             onClick={onConfirm}
           >

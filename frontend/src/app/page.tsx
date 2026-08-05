@@ -23,7 +23,10 @@ import {
   RefreshCw, 
   AlertCircle, 
   X,
-  Info
+  Info,
+  Command,
+  Lock,
+  ArrowRight
 } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
@@ -37,22 +40,22 @@ import Toast from "../components/Toast";
 import StatCard from "../components/StatCard";
 
 const POPULAR_SKILLS: PopularSkill[] = [
-  { name: "HTML", logo: "HTML" },
+  { name: "HTML", logo: "HTM" },
   { name: "CSS", logo: "CSS" },
   { name: "JavaScript", logo: "JS" },
   { name: "TypeScript", logo: "TS" },
   { name: "React", logo: "RE" },
   { name: "Next.js", logo: "NX" },
   { name: "Node.js", logo: "ND" },
-  { name: "Go", logo: "Go" },
-  { name: "C++", logo: "C++" },
+  { name: "Go", logo: "GO" },
+  { name: "C++", logo: "CPP" },
   { name: "Python", logo: "PY" },
   { name: "Figma", logo: "FG" },
   { name: "Canva", logo: "CN" },
   { name: "PHP", logo: "PHP" },
-  { name: "Laravel", logo: "LA" },
+  { name: "Laravel", logo: "LAR" },
   { name: "MySQL", logo: "SQL" },
-  { name: "Git", logo: "Git" }
+  { name: "Git", logo: "GIT" }
 ];
 
 const getProjectPreview = (image: string, link: string) => {
@@ -92,7 +95,7 @@ export default function AdminDashboard() {
   // Notifications Popover state
   const [showNotifications, setShowNotifications] = useState(false);
   const [notificationsList, setNotificationsList] = useState<string[]>([
-    "Sistem siap digunakan dengan database Firebase Firestore.",
+    "Sistem siap digunakan dengan Firebase Firestore.",
     "Buka tab Skills atau Projects untuk mengelola data."
   ]);
 
@@ -130,7 +133,6 @@ export default function AdminDashboard() {
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     setToast({ isOpen: true, message, type });
-    // Add to activity list
     setNotificationsList(prev => [message, ...prev.slice(0, 9)]);
     setTimeout(() => {
       setToast(prev => ({ ...prev, isOpen: false }));
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Simple local passcode check
+  // Passcode check
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordInput === "admin123") {
@@ -552,28 +554,27 @@ export default function AdminDashboard() {
     target.src = "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
   };
 
-  // Login Screen
+  // Modern Shadcn Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f3f4f6] px-4 font-sans">
-        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-2xl animate-fade-in-up">
-          <div className="flex justify-center mb-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1e1b4b] text-white shadow-lg">
-              <Github className="h-7 w-7" />
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 font-sans select-none">
+        <div className="w-full max-w-sm rounded-xl border border-zinc-200/90 bg-white p-8 shadow-xl animate-dialog-show space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-2xs">
+              <Lock className="h-5 w-5" />
             </div>
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+              Admin Suite Login
+            </h2>
+            <p className="text-xs text-zinc-500">
+              Akses panel manajemen portofolio & Firestore.
+            </p>
           </div>
-          
-          <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
-            Analytical Board Admin
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-500">
-            Akses dashboard analitik portofolio & database Firebase.
-          </p>
 
-          <form onSubmit={handleLogin} className="mt-8 space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Password Admin
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                Password Akses
               </label>
               <input
                 type="password"
@@ -581,13 +582,13 @@ export default function AdminDashboard() {
                 placeholder="Masukkan password admin..."
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition duration-300 focus:border-[#4f46e5] focus:bg-white focus:ring-1 focus:ring-[#4f46e5]"
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
                 required
               />
             </div>
 
             {loginError && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">
+              <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 p-2.5 text-xs text-red-600">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{loginError}</span>
               </div>
@@ -595,9 +596,10 @@ export default function AdminDashboard() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-[#1e1b4b] py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-[#1a1843] active:scale-95 transition-all duration-300"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 py-2.5 text-xs font-medium text-white shadow-2xs hover:bg-zinc-800 active:scale-98 transition-all"
             >
-              Masuk ke Dashboard
+              <span>Masuk Dashboard</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </form>
         </div>
@@ -606,9 +608,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f3f4f6] text-gray-900 font-sans antialiased">
+    <div className="flex min-h-screen bg-zinc-50 text-zinc-900 font-sans antialiased">
       
-      {/* Modular Sidebar Panel */}
+      {/* Sidebar Panel */}
       <Sidebar 
         activeMenu={activeMenu}
         setActiveMenu={(menu) => {
@@ -626,59 +628,59 @@ export default function AdminDashboard() {
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         
         {/* Top Header Bar */}
-        <header className="h-20 border-b border-gray-200 bg-white/90 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
-          <div className="flex items-center gap-3 bg-gray-100 border border-gray-200/60 rounded-xl px-3.5 py-2 w-80 focus-within:ring-2 focus-within:ring-[#4f46e5]/30 transition-all">
-            <Search className="h-4 w-4 text-gray-400 shrink-0" />
+        <header className="h-16 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40">
+          <div className="flex items-center gap-2.5 bg-zinc-100/70 border border-zinc-200/80 rounded-lg px-3 py-1.5 w-72 focus-within:ring-2 focus-within:ring-zinc-900 focus-within:bg-white transition-all">
+            <Search className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
             <input 
               ref={searchInputRef}
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari skill, proyek, link..." 
-              className="bg-transparent border-none text-xs outline-none text-gray-800 w-full placeholder-gray-400"
+              placeholder="Cari data skill, proyek..." 
+              className="bg-transparent border-none text-xs outline-none text-zinc-800 w-full placeholder:text-zinc-400"
             />
             {searchQuery ? (
               <button 
                 onClick={() => setSearchQuery("")} 
-                className="text-gray-400 hover:text-gray-600 text-xs"
+                className="text-zinc-400 hover:text-zinc-600 text-xs"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             ) : (
-              <span className="text-[9px] font-bold text-gray-400 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm shrink-0">
-                ⌘ K
-              </span>
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-zinc-200 bg-white px-1.5 text-[10px] font-mono text-zinc-500 shadow-2xs">
+                <Command className="h-2.5 w-2.5" /> K
+              </kbd>
             )}
           </div>
 
-          <div className="flex items-center gap-4 relative">
+          <div className="flex items-center gap-3 relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-all shadow-sm relative"
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-white border border-zinc-200/80 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-all shadow-2xs relative"
               title="Notifikasi Aktivitas"
             >
-              <Bell className="h-4.5 w-4.5" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#4f46e5]"></span>
+              <Bell className="h-4 w-4" />
+              <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-zinc-900"></span>
             </button>
 
             {/* Notifications Popover */}
             {showNotifications && (
-              <div className="absolute top-12 right-12 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 z-50 animate-fade-in-up">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-3">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
-                    <Info className="h-4 w-4 text-[#4f46e5]" />
+              <div className="absolute top-11 right-10 w-80 bg-white border border-zinc-200 rounded-xl shadow-xl p-4 z-50 animate-dialog-show space-y-3">
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                  <h4 className="font-semibold text-xs text-zinc-800 flex items-center gap-1.5">
+                    <Info className="h-3.5 w-3.5 text-zinc-900" />
                     <span>Aktivitas Terkini</span>
                   </h4>
                   <button 
                     onClick={() => setShowNotifications(false)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-zinc-400 hover:text-zinc-600"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-1.5 max-h-60 overflow-y-auto">
                   {notificationsList.map((note, index) => (
-                    <div key={index} className="text-xs text-gray-600 bg-gray-50 p-2.5 rounded-xl border border-gray-100 leading-relaxed">
+                    <div key={index} className="text-xs text-zinc-600 bg-zinc-50 p-2.5 rounded-lg border border-zinc-150 leading-relaxed">
                       {note}
                     </div>
                   ))}
@@ -688,55 +690,53 @@ export default function AdminDashboard() {
 
             <button 
               onClick={fetchData} 
-              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-all shadow-sm"
-              title="Refresh Data"
+              className="h-9 w-9 flex items-center justify-center rounded-lg bg-white border border-zinc-200/80 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-all shadow-2xs"
+              title="Segarkan Data"
             >
-              <RefreshCw className={`h-4.5 w-4.5 ${loading ? "animate-spin text-[#4f46e5]" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-zinc-900" : ""}`} />
             </button>
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="p-8 space-y-8 flex-1">
-          {/* Page Header */}
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
-                {activeMenu === "dashboard" && "Your Analytical Board"}
-                {activeMenu === "skills" && "Manajemen Skills"}
-                {activeMenu === "projects" && "Manajemen Projects"}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Status dan ringkasan metrik pengembangan portofolio Anda secara terpusat.
-              </p>
-            </div>
+        <div className="p-8 space-y-6 flex-1">
+          {/* Page Title */}
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
+              {activeMenu === "dashboard" && "Dashboard Analitik & Ringkasan"}
+              {activeMenu === "skills" && "Manajemen Keahlian & Skills"}
+              {activeMenu === "projects" && "Manajemen Proyek & Portofolio"}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-1">
+              Ringkasan metrik pengembangan dan manajemen database portofolio secara terpusat.
+            </p>
           </div>
 
           {/* Metric Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard 
               title="Total Projects"
               value={projects.length}
-              icon={<Briefcase className="h-4.5 w-4.5 text-[#4f46e5]" />}
-              subtitle="Tersimpan di Firebase"
+              icon={<Briefcase className="h-4 w-4 text-zinc-700" />}
+              subtitle="Tersimpan di Firestore"
             />
             <StatCard 
               title="Total Skills"
               value={skills.length}
-              icon={<Code2 className="h-4.5 w-4.5 text-[#4f46e5]" />}
-              subtitle="Keahlian terdaftar"
+              icon={<Code2 className="h-4 w-4 text-zinc-700" />}
+              subtitle="Tersimpan di Firestore"
             />
             <StatCard 
-              title="Git Repositories"
+              title="Repositori GitHub"
               value={gitProfile?.public_repos || 0}
-              icon={<FolderGit2 className="h-4.5 w-4.5 text-[#4f46e5]" />}
-              subtitle="Repo Publik GitHub"
+              icon={<FolderGit2 className="h-4 w-4 text-zinc-700" />}
+              subtitle="Repo Publik Active"
             />
             <StatCard 
-              title="Git Followers"
+              title="Pengikut GitHub"
               value={gitProfile?.followers || 0}
-              icon={<Users className="h-4.5 w-4.5 text-[#4f46e5]" />}
-              subtitle="Pengikut GitHub"
+              icon={<Users className="h-4 w-4 text-zinc-700" />}
+              subtitle="GitHub Profile Followers"
             />
           </div>
 

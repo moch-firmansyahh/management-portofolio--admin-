@@ -1,4 +1,5 @@
 import React from "react";
+import { X } from "lucide-react";
 
 export interface Skill {
   id: string;
@@ -36,7 +37,7 @@ export default function SkillModal({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const customName = e.target.value;
     
-    // Auto-fill logo if customName matches one of our popular skills
+    // Auto-fill logo if customName matches one of popular skills
     const foundPopular = popularSkills.find(s => s.name.toLowerCase() === customName.toLowerCase());
     let logoVal = data.logo;
 
@@ -76,13 +77,29 @@ export default function SkillModal({
 
   return (
     <div className="admin-modal-overlay">
-      <form onSubmit={onSubmit} className="admin-modal max-w-md w-full bg-white border border-gray-200 p-6 rounded-2xl shadow-2xl space-y-5 animate-fade-in-up">
-        <h2 className="text-xl font-bold border-b border-gray-150 pb-3 text-gray-900">
-          {isEdit ? "Edit Skill" : "Tambah Skill"}
-        </h2>
+      <form onSubmit={onSubmit} className="max-w-md w-full bg-white border border-zinc-200/90 p-6 rounded-xl shadow-xl space-y-4 animate-dialog-show">
+        <div className="flex items-center justify-between border-b border-zinc-150 pb-3">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900">
+              {isEdit ? "Edit Keahlian" : "Tambah Keahlian Baru"}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              Isi data keahlian dan persentase penguasaan.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-zinc-400 hover:text-zinc-700 p-1 rounded-md transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
         
-        <div className="admin-input-group space-y-1.5">
-          <label htmlFor="skill-name" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Nama Skill</label>
+        <div className="space-y-1.5">
+          <label htmlFor="skill-name" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            Nama Skill
+          </label>
           <input
             type="text"
             id="skill-name"
@@ -90,7 +107,7 @@ export default function SkillModal({
             value={data.name}
             onChange={handleNameChange}
             placeholder="Pilih atau ketik nama skill..."
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
             required
           />
           <datalist id="popular-skills">
@@ -100,8 +117,10 @@ export default function SkillModal({
           </datalist>
         </div>
 
-        <div className="admin-input-group space-y-1.5">
-          <label htmlFor="skill-logo" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Logo / Singkatan (Maksimal 3 karakter)</label>
+        <div className="space-y-1.5">
+          <label htmlFor="skill-logo" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            Badge / Singkatan (Maks 3 Karakter)
+          </label>
           <input
             type="text"
             id="skill-logo"
@@ -109,14 +128,16 @@ export default function SkillModal({
             onChange={(e) =>
               setData(prev => ({ ...prev, logo: e.target.value.substring(0, 3) }))
             }
-            placeholder="Contoh: JS, PY, Re"
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
+            placeholder="Contoh: TS, PY, GO"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
             required
           />
         </div>
 
-        <div className="admin-input-group space-y-1.5">
-          <label htmlFor="skill-percent" className="text-xs font-semibold uppercase tracking-wider text-gray-500">Persentase Penguasaan (%)</label>
+        <div className="space-y-1.5">
+          <label htmlFor="skill-percent" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            Persentase Penguasaan (%)
+          </label>
           <input
             type="number"
             id="skill-percent"
@@ -125,24 +146,24 @@ export default function SkillModal({
             value={data.percent === 0 ? "" : data.percent}
             onChange={handlePercentChange}
             placeholder="0 - 100"
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-[#4f46e5] focus:bg-white transition"
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
             required
           />
         </div>
 
-        <div className="flex gap-3 pt-3 border-t border-gray-150">
+        <div className="flex gap-2 pt-3 border-t border-zinc-150 justify-end">
           <button
             type="button"
-            className="flex-1 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 py-3 text-sm font-semibold text-gray-700 transition"
+            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2 text-xs font-medium text-zinc-700 transition"
             onClick={onClose}
           >
-            Kembali
+            Batal
           </button>
           <button 
             type="submit" 
-            className="flex-1.5 rounded-xl bg-[#1e1b4b] hover:bg-[#1a1843] py-3 text-sm font-semibold text-white transition shadow-md"
+            className="rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition"
           >
-            Simpan Keahlian
+            Simpan Skill
           </button>
         </div>
       </form>
