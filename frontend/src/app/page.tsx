@@ -241,12 +241,17 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
-  // Keyboard shortcut listener for Ctrl+K / Cmd+K search focus
+  // Keyboard shortcut listener for Ctrl+K / Cmd+K search focus & Escape key dismiss
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         searchInputRef.current?.focus();
+      } else if (e.key === "Escape") {
+        setShowNotifications(false);
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current?.blur();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
