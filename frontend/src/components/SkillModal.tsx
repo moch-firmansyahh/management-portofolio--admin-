@@ -143,7 +143,7 @@ export default function SkillModal({
             id="skill-percent"
             min="0"
             max="100"
-            value={data.percent === 0 ? "" : data.percent}
+            value={data.percent}
             onChange={handlePercentChange}
             placeholder="0 - 100"
             className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"

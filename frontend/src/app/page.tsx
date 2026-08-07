@@ -516,6 +516,7 @@ export default function AdminDashboard() {
       showToast("Gagal unggah: " + (err as Error).message, "error");
     } finally {
       setUploadingImage(false);
+      e.target.value = "";
     }
   };
 
