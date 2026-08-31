@@ -43,9 +43,10 @@ export default function Sidebar({
               </span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-600 border border-zinc-200">
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700 border border-zinc-200 shadow-2xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <Shield className="h-2.5 w-2.5 text-zinc-500" />
-            <span>v2.0</span>
+            <span>v2.1</span>
           </span>
         </div>
 
