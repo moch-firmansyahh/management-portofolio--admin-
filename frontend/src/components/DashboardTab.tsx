@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { GitHubCalendar } from "react-github-calendar";
-import { Github, ExternalLink, GitBranch, ShieldCheck } from "lucide-react";
+import { Github, ExternalLink, GitBranch, ShieldCheck, Download, Server, HardDrive, Database, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Skill } from "./SkillsTab";
+import { Project } from "./ProjectsTab";
 
 export interface GitHubProfile {
   login: string;
@@ -15,14 +17,71 @@ export interface GitHubProfile {
 interface DashboardTabProps {
   gitProfile: GitHubProfile | null;
   gitRepos: any[];
+  skills: Skill[];
+  projects: Project[];
   handleImgError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
 export default function DashboardTab({
   gitProfile,
   gitRepos,
+  skills,
+  projects,
   handleImgError,
+  showToast,
 }: DashboardTabProps) {
+  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
+  const [backendLatency, setBackendLatency] = useState<number | null>(null);
+
+  useEffect(() => {
+    const checkBackend = async () => {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3002";
+      const start = performance.now();
+      try {
+        const res = await fetch(`${backendUrl}/api/health`, { method: "GET", cache: "no-store" });
+        const latency = Math.round(performance.now() - start);
+        if (res.ok) {
+          setBackendStatus("online");
+          setBackendLatency(latency);
+        } else {
+          setBackendStatus("offline");
+        }
+      } catch (_) {
+        setBackendStatus("offline");
+      }
+    };
+
+    checkBackend();
+  }, []);
+
+  const handleExportBackup = () => {
+    try {
+      const backupData = {
+        exportedAt: new Date().toISOString(),
+        version: "2.0.0",
+        stats: {
+          skillsCount: skills.length,
+          projectsCount: projects.length,
+        },
+        skills,
+        projects,
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `portfolio-backup-${new Date().toISOString().split("T")[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      showToast("Berhasil mengekspor data backup JSON!", "success");
+    } catch (err: any) {
+      showToast("Gagal mengekspor data: " + err.message, "error");
+    }
+  };
+
   const getAvatarUrl = () => {
     return gitProfile?.avatar_url || "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
   };
@@ -122,6 +181,71 @@ export default function DashboardTab({
               <p className="text-xs text-zinc-400 italic">Tidak ada data repositori.</p>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* System Status & Quick Tools */}
+      <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Backend & Cloud Database Status */}
+        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <div className={`h-10 w-10 rounded-lg flex items-center justify-center border ${
+              backendStatus === "online" 
+                ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
+                : backendStatus === "offline"
+                ? "bg-red-50 text-red-600 border-red-200"
+                : "bg-zinc-100 text-zinc-600 border-zinc-200"
+            }`}>
+              <Server className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-xs text-zinc-900">Status Backend API</h4>
+                <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                  backendStatus === "online"
+                    ? "bg-emerald-100/70 text-emerald-700"
+                    : backendStatus === "offline"
+                    ? "bg-red-100/70 text-red-700"
+                    : "bg-zinc-100 text-zinc-600"
+                }`}>
+                  {backendStatus === "online" && <CheckCircle2 className="h-2.5 w-2.5" />}
+                  {backendStatus === "offline" && <AlertTriangle className="h-2.5 w-2.5" />}
+                  {backendStatus === "online" ? `Online (${backendLatency}ms)` : backendStatus === "offline" ? "Offline" : "Memeriksa..."}
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                Express Multer Server di port 3002 & Firebase Firestore Cloud DB.
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200/70">
+            <Database className="h-3.5 w-3.5 text-zinc-500" />
+            <span>Firestore Live</span>
+          </div>
+        </div>
+
+        {/* Data Backup & Export Tool */}
+        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-zinc-900 text-white border border-zinc-900 shadow-2xs">
+              <HardDrive className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-xs text-zinc-900">Cadangan Data Portofolio</h4>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                Ekspor seluruh data ({skills.length} skills & {projects.length} proyek) ke format JSON.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleExportBackup}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium border border-zinc-200 transition active:scale-98 cursor-pointer"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Ekspor JSON</span>
+          </button>
         </div>
       </div>
     </div>

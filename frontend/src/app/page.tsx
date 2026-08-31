@@ -751,7 +751,10 @@ export default function AdminDashboard() {
             <DashboardTab 
               gitProfile={gitProfile}
               gitRepos={gitRepos}
+              skills={skills}
+              projects={projects}
               handleImgError={handleImgError}
+              showToast={showToast}
             />
           )}
 

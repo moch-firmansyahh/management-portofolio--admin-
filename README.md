@@ -1,4 +1,4 @@
-﻿# ⚡ Management Portfolio Admin Dashboard
+# ⚡ Management Portfolio Admin Dashboard
 
 <div align="center">
 
@@ -180,7 +180,9 @@ npm run dev
 | :--- | :--- | :--- | :--- |
 | `GET` | `/` | API status message | None |
 | `GET` | `/api/health` | Server health check endpoint | None |
+| `GET` | `/api/stats` | Server runtime statistics & storage metrics | None |
 | `POST` | `/api/upload` | Upload single project image | Multipart form (`file`: JPG, PNG, WEBP max 5MB) |
+| `DELETE` | `/api/upload/:filename` | Delete uploaded project image | None |
 | `GET` | `/uploads/:filename` | Serve uploaded static image file | None |
 
 ---

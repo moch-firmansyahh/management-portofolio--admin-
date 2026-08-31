@@ -32,6 +32,33 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "online", timestamp: new Date().toISOString() });
 });
 
+// API stats route
+app.get("/api/stats", (req, res) => {
+  try {
+    const files = fs.existsSync(uploadsDir) ? fs.readdirSync(uploadsDir) : [];
+    let totalSize = 0;
+    files.forEach((file) => {
+      try {
+        const stats = fs.statSync(path.join(uploadsDir, file));
+        totalSize += stats.size;
+      } catch (_) {}
+    });
+
+    res.json({
+      status: "online",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      uploads: {
+        count: files.length,
+        totalSizeBytes: totalSize,
+        totalSizeFormatted: `${(totalSize / (1024 * 1024)).toFixed(2)} MB`
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Configure Multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -71,9 +98,28 @@ app.post("/api/upload", upload.single("file"), (req: any, res: any) => {
     const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
     const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
     
-    return res.json({ url: fileUrl });
+    return res.json({ url: fileUrl, filename: req.file.filename });
   } catch (error: any) {
     console.error("Upload handler error:", error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// API delete uploaded file route
+app.delete("/api/upload/:filename", (req: any, res: any) => {
+  try {
+    const { filename } = req.params;
+    const sanitizedFilename = path.basename(filename);
+    const filePath = path.join(uploadsDir, sanitizedFilename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    fs.unlinkSync(filePath);
+    return res.json({ status: "success", message: `File ${sanitizedFilename} deleted successfully` });
+  } catch (error: any) {
+    console.error("Delete handler error:", error);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -95,4 +141,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.listen(PORT, () => {
   console.log(`Backend Express server is running on http://localhost:${PORT}`);
 });
+
 
