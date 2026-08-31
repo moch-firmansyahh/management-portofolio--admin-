@@ -117,8 +117,26 @@ export default function AdminDashboard() {
   }>({
     isOpen: false,
     isEdit: false,
-    data: { id: "", title: "", description: "", image: "", link: "" },
+    data: {
+      id: "",
+      title: "",
+      subtitle: "",
+      description: "",
+      longDescription: "",
+      tags: [],
+      category: "Web App",
+      featured: false,
+      image: "",
+      link: "",
+      demoUrl: "",
+      githubUrl: "",
+      metrics: "",
+      highlights: [],
+      year: new Date().getFullYear().toString(),
+    },
   });
+
+  const [isSeeding, setIsSeeding] = useState(false);
 
   // Toast state
   const [toast, setToast] = useState<{
@@ -205,9 +223,19 @@ export default function AdminDashboard() {
         return {
           id: doc.id,
           title: data.title || "",
+          subtitle: data.subtitle || "",
           description: data.description || "",
+          longDescription: data.longDescription || "",
+          tags: Array.isArray(data.tags) ? data.tags : (data.tags ? [data.tags] : []),
+          category: data.category || "Web App",
+          featured: !!data.featured,
           image: data.image || "",
-          link: data.link || "",
+          link: data.link || data.demoUrl || "",
+          demoUrl: data.demoUrl || data.link || "",
+          githubUrl: data.githubUrl || "",
+          metrics: data.metrics || "",
+          highlights: Array.isArray(data.highlights) ? data.highlights : [],
+          year: data.year || "",
           createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(0)
         };
       });
@@ -278,7 +306,7 @@ export default function AdminDashboard() {
       
       const repos = await res.json();
       
-      const existingLinks = new Set(projects.map(p => p.link.toLowerCase()));
+      const existingLinks = new Set(projects.map(p => (p.link || p.demoUrl || "").toLowerCase()));
       const newRepos = repos.filter((r: any) => !existingLinks.has(r.html_url.toLowerCase()));
 
       if (newRepos.length === 0) {
@@ -464,7 +492,23 @@ export default function AdminDashboard() {
     setProjectModal({
       isOpen: true,
       isEdit: false,
-      data: { id: "", title: "", description: "", image: "", link: "" },
+      data: {
+        id: "",
+        title: "",
+        subtitle: "",
+        description: "",
+        longDescription: "",
+        tags: [],
+        category: "Web App",
+        featured: false,
+        image: "",
+        link: "",
+        demoUrl: "",
+        githubUrl: "",
+        metrics: "",
+        highlights: [],
+        year: new Date().getFullYear().toString(),
+      },
     });
   };
 
@@ -529,20 +573,32 @@ export default function AdminDashboard() {
     e.preventDefault();
     const { isEdit, data } = projectModal;
     const finalImage = data.image || "/assets/portofolio.png";
+    const payload = {
+      title: data.title || "",
+      subtitle: data.subtitle || "",
+      description: data.description || "",
+      longDescription: data.longDescription || "",
+      tags: data.tags || [],
+      category: data.category || "Web App",
+      featured: !!data.featured,
+      image: finalImage,
+      link: data.demoUrl || data.link || "",
+      demoUrl: data.demoUrl || data.link || "",
+      githubUrl: data.githubUrl || "",
+      metrics: data.metrics || "",
+      highlights: data.highlights || [],
+      year: data.year || new Date().getFullYear().toString(),
+    };
+
     try {
       if (isEdit) {
         await updateDoc(doc(db, "projects", data.id), {
-          title: data.title,
-          description: data.description,
-          image: finalImage,
-          link: data.link
+          ...payload,
+          updatedAt: serverTimestamp()
         });
       } else {
         await addDoc(collection(db, "projects"), {
-          title: data.title,
-          description: data.description,
-          image: finalImage,
-          link: data.link,
+          ...payload,
           createdAt: serverTimestamp()
         });
       }
@@ -552,6 +608,83 @@ export default function AdminDashboard() {
     } catch (err) {
       showToast("Gagal menyimpan: " + (err as Error).message, "error");
     }
+  };
+
+  // Seed default portfolio web data
+  const handleSeedDefaultData = async () => {
+    triggerConfirm(
+      "Impor Data Bawaan Web",
+      "Apakah Anda ingin mengimpor data proyek bawaan dari portfolio-web ke Firestore? Proyek yang sudah ada tidak akan terhapus.",
+      async () => {
+        setIsSeeding(true);
+        try {
+          const defaultSeedProjects = [
+            {
+              title: "Kontrakan Pa Iman",
+              subtitle: "Sistem Manajemen Kost Digital Modern & Responsif",
+              description: "Aplikasi web Full-Stack Digital Management yang dirancang khusus untuk pemilik kost dalam mengelola unit kamar, data penghuni (aktif & alumni), dan pencatatan riwayat pembayaran bulanan secara efisien, terstruktur, dan otomatis.",
+              longDescription: "Kontrakan Pa Iman adalah aplikasi web Full-Stack Digital Management yang dirancang khusus untuk pemilik kost dalam mengelola unit kamar, data penghuni (aktif & alumni), dan pencatatan riwayat pembayaran bulanan secara efisien, terstruktur, dan otomatis. Dibangun dengan arsitektur modern Next.js 16, Express.js 5, Prisma ORM, dan PostgreSQL Supabase untuk menyederhanakan operasional bisnis sewa properti.",
+              tags: ["Next.js 16", "TypeScript", "Tailwind CSS v4", "Express.js 5", "Prisma ORM", "PostgreSQL (Supabase)", "Shadcn UI", "JWT Auth", "PWA Ready"],
+              category: "Web App",
+              featured: true,
+              image: "/projects/manajemen-kontrakan.png",
+              link: "https://manajemen-kontrakan-iman.vercel.app/",
+              demoUrl: "https://manajemen-kontrakan-iman.vercel.app/",
+              githubUrl: "https://github.com/moch-firmansyahh/manajemen-kost-v2",
+              metrics: "Full-Stack • Real-time Stats • PWA Ready",
+              highlights: [
+                "Dashboard Ringkasan Real-Time dengan 4 Stat Card interaktif, monitoring tagihan sewa pending, dan popover notifikasi",
+                "Manajemen Unit Kamar: Filter & instant search nomor/tipe kamar, modal operasi CRUD, serta histori lengkap transaksi kamar",
+                "Manajemen Penghuni: Pengelompokan tab Penghuni Aktif & Alumni, profil identitas lengkap, dan sistem checkout otomatis",
+                "Manajemen Pembayaran & Struk: Pencatatan status tagihan sewa bulanan, filter periode transaksi, dan halaman cetak invoice",
+                "Keunggulan UI/UX: Dual Theme (Dark/Light mode) mulus, animasi welcome screen & loader kustom, serta instalasi PWA standalone"
+              ],
+              year: "2026",
+            },
+            {
+              title: "Voluntrip",
+              subtitle: "Aplikasi Perencana Trip, Rundown Perjalanan Interaktif & Manajemen Budget Kelompok",
+              description: "Platform perencana perjalanan modern yang dirancang untuk mempermudah traveler dan kelompok perjalanan dalam menyusun jadwal kegiatan (rundown), mengelola anggaran (budgeting), dan melacak pengeluaran secara real-time.",
+              longDescription: "Voluntrip adalah platform perencana perjalanan modern yang dirancang untuk mempermudah traveler dan kelompok perjalanan dalam menyusun jadwal kegiatan (rundown), mengelola anggaran (budgeting), dan melacak pengeluaran secara real-time. Dengan antarmuka interaktif yang intuitif, Voluntrip memastikan itinerary bebas bentrok jam, fleksibel untuk diubah lewat fitur drag & drop, serta mudah dibagikan ke anggota trip lainnya.",
+              tags: ["Next.js 16 (App Router)", "TypeScript", "Tailwind CSS", "Supabase PostgreSQL", "Dnd Kit", "PWA Ready", "JWT Auth", "Leaflet"],
+              category: "Web App",
+              featured: true,
+              image: "/projects/voluntrip.png",
+              link: "https://voluntrip-five.vercel.app/",
+              demoUrl: "https://voluntrip-five.vercel.app/",
+              githubUrl: "https://github.com/moch-firmansyahh/voluntrip",
+              metrics: "Drag & Drop • Real-time Budgeting • PWA Ready",
+              highlights: [
+                "Interactive Itinerary & Rundown Builder dengan Drag & Drop (Dnd-Kit) dan Auto-Reschedule sekuensial bebas tabrakan jam",
+                "Autocomplete lokasi destinasi terintegrasi Photon OpenStreetMap API (Komoot) dan visualisasi titik peta Leaflet",
+                "Expense Tracker, Budgeting & Split Bill kalkulator otomatis untuk pembagian tagihan rata (equal share) antar anggota trip",
+                "Sistem Autentikasi JWT terenkripsi dengan HTTP-only cookie, opsi Ingat Saya 30 hari, dan instant logout",
+                "Dukungan Progressive Web App (PWA Standalone), Traveloka-Style Splash Screen, serta Public Share Link dengan token unik"
+              ],
+              year: "2026",
+            }
+          ];
+
+          const batch = writeBatch(db);
+          for (const item of defaultSeedProjects) {
+            const newDocRef = doc(collection(db, "projects"));
+            batch.set(newDocRef, {
+              ...item,
+              createdAt: serverTimestamp()
+            });
+          }
+          await batch.commit();
+          showToast("Data bawaan web berhasil disinkronkan ke Firestore!", "success");
+          fetchData();
+        } catch (err) {
+          showToast("Gagal impor data: " + (err as Error).message, "error");
+        } finally {
+          setIsSeeding(false);
+        }
+      },
+      false,
+      "Impor Data"
+    );
   };
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -780,6 +913,8 @@ export default function AdminDashboard() {
               openEditProject={openEditProject}
               handleDeleteProject={handleDeleteProject}
               getProjectPreview={getProjectPreview}
+              handleSeedDefaultData={handleSeedDefaultData}
+              isSeeding={isSeeding}
             />
           )}
         </div>
