@@ -1,12 +1,16 @@
 import React from "react";
-import { LayoutDashboard, Code2, Briefcase, LogOut, Shield, ChevronRight } from "lucide-react";
+import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, Shield, ChevronRight } from "lucide-react";
 import { GitHubProfile } from "./DashboardTab";
 
+export type AdminTab = "dashboard" | "about" | "skills" | "projects" | "experience" | "messages";
+
 interface SidebarProps {
-  activeMenu: "dashboard" | "skills" | "projects";
-  setActiveMenu: (menu: "dashboard" | "skills" | "projects") => void;
+  activeMenu: AdminTab;
+  setActiveMenu: (menu: AdminTab) => void;
   skillsCount: number;
   projectsCount: number;
+  experienceCount: number;
+  unreadMessagesCount: number;
   gitProfile: GitHubProfile | null;
   handleImgError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   handleLogout: () => void;
@@ -17,6 +21,8 @@ export default function Sidebar({
   setActiveMenu,
   skillsCount,
   projectsCount,
+  experienceCount,
+  unreadMessagesCount,
   gitProfile,
   handleImgError,
   handleLogout,
@@ -39,28 +45,28 @@ export default function Sidebar({
                 Admin Board
               </h1>
               <span className="text-[10px] text-zinc-500 font-medium tracking-wide uppercase mt-1 block">
-                Portfolio Suite
+                Portfolio CMS Suite
               </span>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700 border border-zinc-200 shadow-2xs">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <Shield className="h-2.5 w-2.5 text-zinc-500" />
-            <span>v2.1</span>
+            <span>v2.2</span>
           </span>
         </div>
 
         {/* Navigation Sections */}
-        <div className="p-3 space-y-6">
-          {/* Main Menu */}
+        <div className="p-3 space-y-5">
+          {/* Main Analytics Menu */}
           <div>
-            <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Ringkasan Utama
+            <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+              Ringkasan
             </div>
             <nav className="space-y-1">
               <button
                 onClick={() => setActiveMenu("dashboard")}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeMenu === "dashboard"
                     ? "bg-zinc-900 text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
@@ -74,18 +80,76 @@ export default function Sidebar({
                   <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
                 )}
               </button>
+
+              <button
+                onClick={() => setActiveMenu("messages")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  activeMenu === "messages"
+                    ? "bg-zinc-900 text-white shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Inbox className="h-4 w-4" />
+                  <span>Pesan Masuk</span>
+                </div>
+                {unreadMessagesCount > 0 ? (
+                  <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-2xs animate-pulse">
+                    {unreadMessagesCount}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-zinc-400">0</span>
+                )}
+              </button>
             </nav>
           </div>
 
-          {/* Management Menu */}
+          {/* Content Management Menu */}
           <div>
-            <div className="px-3 mb-2 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-              Manajemen Data
+            <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+              Manajemen Konten
             </div>
             <nav className="space-y-1">
               <button
+                onClick={() => setActiveMenu("about")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  activeMenu === "about"
+                    ? "bg-zinc-900 text-white shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <User className="h-4 w-4" />
+                  <span>Profil &amp; About</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setActiveMenu("projects")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  activeMenu === "projects"
+                    ? "bg-zinc-900 text-white shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Briefcase className="h-4 w-4" />
+                  <span>Proyek &amp; Portofolio</span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
+                    activeMenu === "projects"
+                      ? "bg-zinc-800 text-zinc-200"
+                      : "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                  }`}
+                >
+                  {projectsCount}
+                </span>
+              </button>
+
+              <button
                 onClick={() => setActiveMenu("skills")}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeMenu === "skills"
                     ? "bg-zinc-900 text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
@@ -93,7 +157,7 @@ export default function Sidebar({
               >
                 <div className="flex items-center gap-2.5">
                   <Code2 className="h-4 w-4" />
-                  <span>Keahlian & Skills</span>
+                  <span>Keahlian &amp; Skills</span>
                 </div>
                 <span
                   className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
@@ -107,25 +171,25 @@ export default function Sidebar({
               </button>
 
               <button
-                onClick={() => setActiveMenu("projects")}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
-                  activeMenu === "projects"
+                onClick={() => setActiveMenu("experience")}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  activeMenu === "experience"
                     ? "bg-zinc-900 text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Briefcase className="h-4 w-4" />
-                  <span>Proyek & Portofolio</span>
+                  <GraduationCap className="h-4 w-4" />
+                  <span>Pengalaman &amp; Karier</span>
                 </div>
                 <span
                   className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
-                    activeMenu === "projects"
+                    activeMenu === "experience"
                       ? "bg-zinc-800 text-zinc-200"
                       : "bg-zinc-100 text-zinc-600 border border-zinc-200"
                   }`}
                 >
-                  {projectsCount}
+                  {experienceCount}
                 </span>
               </button>
             </nav>
@@ -154,7 +218,7 @@ export default function Sidebar({
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 bg-white border border-zinc-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-150 shadow-2xs"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 bg-white border border-zinc-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-150 shadow-2xs cursor-pointer"
         >
           <LogOut className="h-3.5 w-3.5" />
           <span>Keluar Sesi</span>

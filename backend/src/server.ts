@@ -10,22 +10,32 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Enable CORS
-app.use(cors());
+// Enable CORS for frontend and website
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
-// Ensure uploads folder exists
+// Ensure uploads folder exists in backend
 const uploadsDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Serve static uploads
+// Project public folders
+const webPublicProjectsDir = path.resolve(__dirname, "../../../portofolio-web/public/projects");
+const adminPublicProjectsDir = path.resolve(__dirname, "../../frontend/public/projects");
+
+// Serve static uploads directly from backend
 app.use("/uploads", express.static(uploadsDir));
 
 // Root & Health check routes
 app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "Portfolio Admin API Server", version: "1.1.0" });
+  res.json({ status: "ok", message: "Portfolio Admin API Server", version: "1.2.0" });
 });
 
 app.get("/api/health", (req, res) => {
@@ -51,8 +61,8 @@ app.get("/api/stats", (req, res) => {
       uploads: {
         count: files.length,
         totalSizeBytes: totalSize,
-        totalSizeFormatted: `${(totalSize / (1024 * 1024)).toFixed(2)} MB`
-      }
+        totalSizeFormatted: `${(totalSize / (1024 * 1024)).toFixed(2)} MB`,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -65,15 +75,26 @@ const storage = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const uniqueSuffix = Date.now() + "_" + safeName;
+    const ext = path.extname(file.originalname).toLowerCase() || ".png";
+    const baseName = path
+      .basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9_-]/g, "_")
+      .toLowerCase();
+    const uniqueSuffix = Date.now() + "_" + baseName + ext;
     cb(null, uniqueSuffix);
   },
 });
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/svg+xml",
+  ];
+  if (allowedMimeTypes.includes(file.mimetype.toLowerCase())) {
     cb(null, true);
   } else {
     cb(new Error("Hanya file gambar (JPG, PNG, WEBP, GIF, SVG) yang diperbolehkan!"));
@@ -83,25 +104,49 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB limit
 });
 
-// API upload route
-app.post("/api/upload", upload.single("file"), (req: any, res: any) => {
+// API upload route - Accept any file field name ('image', 'file', 'photo', etc.)
+app.post("/api/upload", upload.any(), (req: any, res: any) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+    const file = req.files && req.files.length > 0 ? req.files[0] : req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: "Tidak ada file gambar yang diunggah." });
+    }
+
+    const filename = file.filename;
+    const uploadedFilePath = path.join(uploadsDir, filename);
+
+    // Sync file to portofolio-web and portofolio-admin public folders
+    try {
+      if (fs.existsSync(webPublicProjectsDir)) {
+        fs.copyFileSync(uploadedFilePath, path.join(webPublicProjectsDir, filename));
+      }
+      if (fs.existsSync(adminPublicProjectsDir)) {
+        fs.copyFileSync(uploadedFilePath, path.join(adminPublicProjectsDir, filename));
+      }
+    } catch (syncErr) {
+      console.warn("Notice: could not copy to public folder, serving via Express /uploads:", syncErr);
     }
 
     const host = req.get("host");
     const protocol = req.protocol;
     const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
-    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
-    
-    return res.json({ url: fileUrl, filename: req.file.filename });
+    const fileUrl = `${baseUrl}/uploads/${filename}`;
+    const localProjectUrl = `/projects/${filename}`;
+
+    return res.json({
+      success: true,
+      url: fileUrl,
+      imageUrl: fileUrl,
+      localUrl: localProjectUrl,
+      filename: filename,
+    });
   } catch (error: any) {
     console.error("Upload handler error:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message || "Gagal mengupload gambar" });
   }
 });
 
@@ -112,12 +157,20 @@ app.delete("/api/upload/:filename", (req: any, res: any) => {
     const sanitizedFilename = path.basename(filename);
     const filePath = path.join(uploadsDir, sanitizedFilename);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "File not found" });
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
 
-    fs.unlinkSync(filePath);
-    return res.json({ status: "success", message: `File ${sanitizedFilename} deleted successfully` });
+    // Also remove from public folders if exists
+    try {
+      const webPath = path.join(webPublicProjectsDir, sanitizedFilename);
+      if (fs.existsSync(webPath)) fs.unlinkSync(webPath);
+
+      const adminPath = path.join(adminPublicProjectsDir, sanitizedFilename);
+      if (fs.existsSync(adminPath)) fs.unlinkSync(adminPath);
+    } catch (_) {}
+
+    return res.json({ status: "success", message: `File ${sanitizedFilename} berhasil dihapus.` });
   } catch (error: any) {
     console.error("Delete handler error:", error);
     return res.status(500).json({ error: error.message });
@@ -128,11 +181,11 @@ app.delete("/api/upload/:filename", (req: any, res: any) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({ error: "Ukuran file terlalu besar! Maksimal 5 MB." });
+      return res.status(400).json({ error: "Ukuran file terlalu besar! Maksimal 15 MB." });
     }
     return res.status(400).json({ error: `Upload error: ${err.message}` });
   } else if (err) {
-    return res.status(400).json({ error: err.message || "Terjadi kesalahan server" });
+    return res.status(400).json({ error: err.message || "Terjadi kesalahan server backend" });
   }
   next();
 });
@@ -141,5 +194,3 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.listen(PORT, () => {
   console.log(`Backend Express server is running on http://localhost:${PORT}`);
 });
-
-

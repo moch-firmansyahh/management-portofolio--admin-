@@ -373,8 +373,8 @@ export default function ProjectModal({
             </button>
             <button
               type="submit"
-              disabled={uploadingImage}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-50"
+              disabled={uploadingImage || !data.title.trim() || !data.description.trim()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               <span>Simpan Proyek</span>

@@ -4,7 +4,7 @@ node_modules/
 
 # next.js build output
 .next/
-**/ .next/
+**/.next/
 
 # typescript/build output
 dist/
@@ -19,6 +19,10 @@ build/
 **/.env
 **/.env.local
 **/.env*.local
+
+# backend uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # logs
 *.log
