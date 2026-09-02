@@ -1,4 +1,4 @@
-# ⚡ Management Portfolio Admin Dashboard
+# ⚡ Management Portfolio Admin Dashboard Suite
 
 <div align="center">
 
@@ -10,115 +10,160 @@
 ![Express.js](https://img.shields.io/badge/Express.js-4.19-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
 
-**A powerful full-stack administrative dashboard to manage portfolio content, sync GitHub repositories, update technical skill masteries, and handle secure media uploads in real time.**
+**Sistem All-in-One Content Management System (CMS) & Analytical Dashboard modern untuk mengelola seluruh konten website portofolio, sinkronisasi repositori GitHub, keahlian 5 kategori, riwayat karier, upload gambar, dan inbox pesan masuk pengunjung secara real-time.**
 
-[Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Getting Started](#-getting-started) • [API Documentation](#-api-endpoints) • [Project Structure](#-project-structure)
+[Fitur Utama](#-fitur-utama) • [Arsitektur Sistem](#-arsitektur-sistem) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Struktur Proyek](#-struktur-proyek) • [Panduan Instalasi](#-panduan-instalasi--menjalankan) • [Dokumentasi API](#-dokumentasi-api-backend) • [Kredensial Akses](#-kredensial-akses)
 
 </div>
 
 ---
 
-## 📖 Overview
+## 📖 Ringkasan
 
-**Management Portfolio Admin** is an analytical and content management dashboard built for modern developer portfolios. It features a **Next.js 16 (App Router)** frontend with **React 19**, **Firebase Firestore** for real-time cloud data synchronization, and an **Express.js (TypeScript)** backend for secure multipart image uploads with automatic sanitization.
+**Management Portfolio Admin Suite** dirancang untuk memberikan kendali penuh terhadap seluruh elemen dinamis pada website portofolio developer ([`portofolio-web`](https://github.com/moch-firmansyahh/Portofolio-fixed-new)). 
 
----
-
-## ⚡ Key Features
-
-- **🔐 Passcode Gatekeeper**: Protected administrative authentication modal preventing unauthorized access.
-- **📊 Real-Time Analytics & Stats**: Immediate overview of total projects, active skills, public GitHub repositories, and follower counts.
-- **📅 GitHub Contribution Calendar**: Integrated visual contribution activity graph powered by `react-github-calendar`.
-- **🔄 One-Click GitHub Sync**:
-  - **Projects Sync**: Imports public repositories directly into Firestore with auto-generated descriptions and OpenGraph thumbnail previews.
-  - **Skills Analysis**: Scans repository language distributions to populate technical skill categories automatically.
-- **🛠️ Full CRUD Management**:
-  - **Skills Studio**: Create, edit, and delete technical competencies with percentage mastery sliders (0–100%) and acronym badge generators.
-  - **Projects Studio**: Manage showcase case studies with custom descriptions, direct live URLs, GitHub source links, and local image uploads.
-- **🔍 Global Search (`Ctrl + K` / `Cmd + K`)**: Instant live search filtering across all skills, project titles, and descriptions.
-- **🔔 Live Action Notifications**: Activity tracking popover recording recent additions, edits, and GitHub synchronization jobs.
-- **🖼️ Express + Multer Upload Server**: Dedicated backend service featuring MIME type verification, 5MB file limits, safe filename generation, and static file hosting.
+Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)** & **React 19**, penyimpanan cloud real-time **Google Firebase Cloud Firestore**, serta server backend **Express.js (TypeScript)** dengan **Multer** untuk upload file gambar berkinerja tinggi yang tersinkronisasi otomatis antar folder proyek.
 
 ---
 
-## 📐 System Architecture
+## ⚡ Fitur Utama
+
+### 1. 📊 Dashboard Analitik & GitHub Overview
+- **Statistik Cepat**: Pemantauan real-time total proyek tersimpan, jumlah keahlian aktif, riwayat karier, dan jumlah pesan masuk pengunjung.
+- **Profil GitHub Live**: Sinkronisasi foto profil, bio, lokasi, dan statistik repositori publik.
+- **GitHub Activity Calendar**: Visualisasi kontribusi GitHub setahun penuh menggunakan `react-github-calendar`.
+
+### 2. 👤 Manajemen Profil & Tentang Saya (`About`)
+- **Identitas & Headline**: Atur nama lengkap, nama panggilan, profesi/role utama, dan headline tagline yang tampil di bagian Hero web.
+- **Deskripsi Bio**: Editor narasi paragraf tentang latar belakang akademik dan keahlian teknis.
+- **Kontak & Sosial Media**: Pengelolaan alamat email, nomor telepon, tautan GitHub, LinkedIn, Instagram, dan TikTok.
+- **4 Metrik Statistik**: Pengaturan angka dan label untuk kartu statistik beranda (Tahun Berkarya, Proyek Selesai, Lighthouse Score, dll).
+
+### 3. 🎯 Manajemen Keahlian & Skills (5 Kategori)
+- **Kategorisasi Standar**:
+  1. `Front-End Web Development`
+  2. `Programming Languages`
+  3. `Developer Tools`
+  4. `Soft Skills & Professional`
+  5. `Achievements & Certifications`
+- **Pill Filter & Counter Badge**: Filter cepat berdasarkan kategori dengan badge jumlah skill aktif.
+- **Dukungan Kategori Kustom**: Tombol `+ Kategori Baru` untuk membuat kategori baru secara fleksibel.
+- **Impor Sertifikasi Resmi**: Tombol satu klik untuk menyinkronkan seluruh 16 sertifikasi Google AI & Network Security ke Firestore.
+- **Sinkronisasi Bahasa GitHub**: Deteksi otomatis bahasa pemrograman dari repositori GitHub publik.
+
+### 4. 💼 Manajemen Proyek & Portofolio (`Projects`)
+- **Operasi CRUD Lengkap**: Tambah, edit, dan hapus proyek dengan status featured, kategori, tahun, dan sorotan teknis (*highlights*).
+- **Upload Gambar Cover**: Didukung server Express + Multer dengan preview instan dan proteksi format (JPG, PNG, WEBP, GIF, SVG maks 15 MB).
+- **Sinkronisasi Otomatis Aset**: Gambar yang diunggah otomatis tersedia di direktori publik website portofolio.
+- **Impor Proyek Bawaan**: Tombol satu klik untuk memuat proyek unggulan asli web (Kontrakan Pa Iman & Voluntrip).
+
+### 5. 🎓 Manajemen Riwayat Pengalaman (`Experience`)
+- **Timeline Karier & Pendidikan**: Manajemen riwayat kerja, magang, dan studi grup organisasi.
+- **Metadata Lengkap**: Periode waktu, peran/posisi, nama instansi/perusahaan, lokasi, deskripsi tugas, dan tags teknologi yang digunakan.
+- **Impor Riwayat Bawaan**: Tombol untuk memuat data pengalaman historis ke timeline web.
+
+### 6. 📬 Inbox Pesan Masuk Pengunjung (`Messages`)
+- **Penerimaan Pesan Real-Time**: Pesan yang dikirim pengunjung melalui form kontak website langsung masuk ke dashboard admin.
+- **Indikator Unread**: Badge notifikasi denyut biru di sidebar dan bell header saat ada pesan baru.
+- **Pembaca Pesan Detail**: Modal membaca isi pesan, subjek, identitas pengirim, dan tanggal masuk.
+- **Balas Cepat (Mailto)**: Tombol untuk langsung membalas pesan ke email pengirim melalui aplikasi email default.
+- **Manajemen Status**: Tombol tandai sudah/belum dibaca dan hapus pesan permanen.
+
+### 7. 🚀 Optimasi & UX
+- **Zero-Lag Modal Overlay**: Animasi pop-up berbasis GPU yang ringan dan responsif tanpa lag.
+- **Global Search (`Ctrl + K`)**: Pencarian instan melintasi data proyek, skill, dan pesan.
+- **Sistem Konfirmasi Aman**: Modal dialog konfirmasi sebelum melakukan aksi hapus data penting.
+
+---
+
+## 📐 Arsitektur Sistem
 
 ```mermaid
 graph TD
-    A[Admin User / Browser] -->|Auth & UI Interaction| B[Next.js 16 Frontend App]
-    B -->|Real-time CRUD & Sync| C[(Firebase Firestore Cloud DB)]
-    B -->|REST API Image Uploads| D[Express.js Node Backend]
-    B -->|Fetch Profile & Repos| E[GitHub REST API v3]
-    D -->|Store Image Files| F[Local /uploads Storage]
+    User[Pengunjung Web] -->|Kirim Pesan / Lihat Portofolio| Web[Next.js Portofolio Web :3000]
+    Admin[Admin / Firman] -->|Kelola Konten & Data| AdminApp[Next.js Admin Dashboard :3001]
+    
+    Web <-->|Baca Konten & Tulis Pesan| Firestore[(Firebase Firestore Cloud DB)]
+    AdminApp <-->|Real-time CRUD & Sinkronisasi| Firestore
+    
+    AdminApp -->|Upload Gambar Proyek| Backend[Express.js API Server :3002]
+    Backend -->|Simpan Aset| UploadsDir[Folder /uploads]
+    Backend -->|Salin Aset Otomatis| PublicWeb[portofolio-web/public/projects/]
+    
+    AdminApp -->|Fetch Repos & Stats| GitHubAPI[GitHub REST API v3]
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend Architecture
-- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
-- **UI Library**: [React 19](https://react.dev/)
+### Frontend Dashboard
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/) & [React 19](https://react.dev/)
 - **Styling**: [TailwindCSS 3.4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Cloud Database**: [Firebase Firestore SDK v12](https://firebase.google.com/)
-- **Activity Graph**: [react-github-calendar](https://www.npmjs.com/package/react-github-calendar)
+- **Database Client**: [Firebase Firestore SDK v12](https://firebase.google.com/)
+- **Activity Calendar**: [react-github-calendar](https://www.npmjs.com/package/react-github-calendar)
 
-### Backend REST API
+### Backend API Server
 - **Runtime**: [Node.js](https://nodejs.org/) & [Express.js 4](https://expressjs.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/) with `ts-node-dev`
-- **File Upload Handler**: [Multer](https://github.com/expressjs/multer)
-- **Middleware**: `cors`, `dotenv`
+- **Language**: [TypeScript](https://www.typescriptlang.org/) dengan `ts-node-dev`
+- **File Upload Handler**: [Multer](https://github.com/expressjs/multer) (Multi-field support)
+- **Utilities**: `cors`, `dotenv`
 
 ---
 
-## 📁 Project Structure
+## 📁 Struktur Proyek
 
 ```text
 portofolio-admin/
-├── backend/                  # Express.js REST API Server
+├── backend/                  # Server REST API Upload & Servis File
 │   ├── src/
-│   │   └── server.ts         # Express server & Multer upload handling
-│   ├── uploads/              # Stored uploaded project images
+│   │   └── server.ts         # Server Express & endpoint upload Multer
+│   ├── uploads/              # Penyimpanan lokal file upload
 │   ├── package.json
 │   └── tsconfig.json
-├── frontend/                 # Next.js Frontend Web Application
-│   ├── public/               # Static assets & fallback icons
+├── frontend/                 # Aplikasi Next.js Admin Dashboard
+│   ├── public/               # Aset publik & preview gambar proyek
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── globals.css   # TailwindCSS & theme variables
-│   │   │   ├── layout.tsx    # Root layout configuration
-│   │   │   └── page.tsx      # Main Admin Dashboard page
-│   │   ├── components/       # Modular UI Components
-│   │   │   ├── Sidebar.tsx
-│   │   │   ├── DashboardTab.tsx
-│   │   │   ├── SkillsTab.tsx
-│   │   │   ├── ProjectsTab.tsx
-│   │   │   ├── SkillModal.tsx
-│   │   │   ├── ProjectModal.tsx
-│   │   │   ├── ConfirmModal.tsx
-│   │   │   ├── StatCard.tsx
-│   │   │   └── Toast.tsx
+│   │   │   ├── globals.css   # Variabel tema, animasi modal GPU, & Tailwind
+│   │   │   ├── layout.tsx    # Root layout aplikasi
+│   │   │   └── page.tsx      # Entry point controller dashboard admin
+│   │   ├── components/       # Modul UI CMS
+│   │   │   ├── Sidebar.tsx           # Navigasi & badge unread inbox
+│   │   │   ├── DashboardTab.tsx      # Analisis ringkasan & kalender GitHub
+│   │   │   ├── AboutTab.tsx          # Form profil, bio, & 4 kartu metrik
+│   │   │   ├── SkillsTab.tsx         # Manajemen keahlian 5 kategori
+│   │   │   ├── SkillModal.tsx        # Modal tambah/edit skill & kategori kustom
+│   │   │   ├── ProjectsTab.tsx       # Manajemen proyek & portofolio
+│   │   │   ├── ProjectModal.tsx      # Modal proyek & uploader cover
+│   │   │   ├── ExperienceTab.tsx     # Tabel riwayat pengalaman karier
+│   │   │   ├── ExperienceModal.tsx   # Modal riwayat karier
+│   │   │   ├── MessagesTab.tsx       # Inbox pesan masuk pengunjung web
+│   │   │   ├── MessageModal.tsx      # Modal detail baca pesan & balas
+│   │   │   ├── ConfirmModal.tsx      # Dialog konfirmasi aksi berbahaya
+│   │   │   ├── StatCard.tsx          # Kartu statistik ringkasan
+│   │   │   └── Toast.tsx             # Pop-up notifikasi status aksi
 │   │   └── lib/
-│   │       └── firebase.ts   # Firebase app & Firestore initialization
-│   ├── .env.local            # Frontend environment variables
+│   │       └── firebase.ts   # Inisialisasi Firebase App & Firestore
+│   ├── .env.local            # Kredensial Firebase & URL Backend
 │   ├── package.json
 │   └── tsconfig.json
+├── .gitignore
 └── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Panduan Instalasi & Menjalankan
 
-### Prerequisites
-Make sure you have installed:
-- **Node.js**: `v18.x` or `v20.x`
-- **npm**: `v9.x` or `v10.x`
+### Kebutuhan Sistem:
+- **Node.js**: `v18.x` atau `v20.x`
+- **npm**: `v9.x` atau `v10.x`
 
 ---
 
-### 1. Clone the Repository
+### 1. Clone Repositori
 ```bash
 git clone https://github.com/moch-firmansyahh/management-portofolio--admin-.git
 cd management-portofolio--admin-
@@ -126,34 +171,34 @@ cd management-portofolio--admin-
 
 ---
 
-### 2. Backend Setup (`/backend`)
+### 2. Konfigurasi Backend Server (`/backend`)
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file inside `/backend`:
+Buat file `.env` di dalam folder `backend`:
 ```env
 PORT=3002
 BASE_URL=http://localhost:3002
 ```
 
-Start the Express development server:
+Jalankan server backend:
 ```bash
 npm run dev
 ```
-> Server runs at `http://localhost:3002`
+> Server backend aktif di: **`http://localhost:3002`**
 
 ---
 
-### 3. Frontend Setup (`/frontend`)
-Open a new terminal window:
+### 3. Konfigurasi Frontend Admin (`/frontend`)
+Buka jendela terminal baru:
 ```bash
 cd frontend
 npm install
 ```
 
-Ensure `.env.local` inside `/frontend` is configured with your Firebase credentials:
+Pastikan file `.env.local` di dalam folder `frontend` telah memuat konfigurasi Firebase Firestore Anda:
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -166,37 +211,37 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3002
 ```
 
-Start the Next.js frontend application:
+Jalankan dashboard admin:
 ```bash
-npm run dev
+npm run dev -p 3001
 ```
-> App runs at `http://localhost:3000`
+> Dashboard admin aktif di: **`http://localhost:3001`** *(port 3001 agar tidak bentrok dengan portofolio web di port 3000)*.
 
 ---
 
-## 📡 API Endpoints (Backend Server)
+## 📡 Dokumentasi API Backend
 
-| Method | Endpoint | Description | Request Body / Form |
+| Metode | Endpoint | Deskripsi | Format Request Body |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/` | API status message | None |
-| `GET` | `/api/health` | Server health check endpoint | None |
-| `GET` | `/api/stats` | Server runtime statistics & storage metrics | None |
-| `POST` | `/api/upload` | Upload single project image | Multipart form (`file`: JPG, PNG, WEBP max 5MB) |
-| `DELETE` | `/api/upload/:filename` | Delete uploaded project image | None |
-| `GET` | `/uploads/:filename` | Serve uploaded static image file | None |
+| `GET` | `/` | Informasi status API server | Tidak ada |
+| `GET` | `/api/health` | Pemeriksaan kesehatan server (*health check*) | Tidak ada |
+| `GET` | `/api/stats` | Informasi statistik runtime & total ukuran penyimpanan upload | Tidak ada |
+| `POST` | `/api/upload` | Mengunggah gambar cover proyek | Multipart form (`file` / `image`: JPG, PNG, WEBP maks 15 MB) |
+| `DELETE` | `/api/upload/:filename` | Menghapus file gambar yang telah diunggah | Tidak ada |
+| `GET` | `/uploads/:filename` | Menyajikan file gambar statis publik | Tidak ada |
 
 ---
 
-## 🔐 Credentials & Default Access
+## 🔐 Kredensial Akses
 
-- **Admin Password**: `admin123` *(Configurable in `frontend/src/app/page.tsx`)*
+- **Password Masuk Admin**: `admin123` *(dapat disesuaikan pada `frontend/src/app/page.tsx`)*
 
 ---
 
-## 📄 License
+## 📄 Lisensi
 
-This project is open-source and available under the [MIT License](LICENSE).
+Proyek ini bersifat sumber terbuka di bawah lisensi [MIT License](LICENSE).
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/moch-firmansyahh">Moch Firmansyah</a></sub>
+  <sub>Dibuat dengan ❤️ oleh <a href="https://github.com/moch-firmansyahh">Moch. Firmansyah</a></sub>
 </div>
