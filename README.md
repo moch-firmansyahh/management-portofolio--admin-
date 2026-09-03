@@ -9,6 +9,7 @@
 ![Firebase](https://img.shields.io/badge/Firebase_Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 ![Express.js](https://img.shields.io/badge/Express.js-4.19-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 **Sistem All-in-One Content Management System (CMS) & Analytical Dashboard modern untuk mengelola seluruh konten website portofolio, sinkronisasi repositori GitHub, keahlian 5 kategori, riwayat karier, upload gambar, dan inbox pesan masuk pengunjung secara real-time.**
 
