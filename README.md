@@ -215,9 +215,9 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:3002
 
 Jalankan dashboard admin:
 ```bash
-npm run dev -p 3001
+npm run dev
 ```
-> Dashboard admin aktif di: **`http://localhost:3001`** *(port 3001 agar tidak bentrok dengan portofolio web di port 3000)*.
+> Dashboard admin otomatis aktif di: **`http://localhost:3001`** *(port 3001 telah terkonfigurasi di `package.json` agar tidak bentrok dengan portofolio web di port 3000)*.
 
 ---
 
@@ -245,5 +245,5 @@ npm run dev -p 3001
 Proyek ini bersifat sumber terbuka di bawah lisensi [MIT License](LICENSE).
 
 <div align="center">
-  <sub>Dibuat dengan ❤️ oleh <a href="https://github.com/moch-firmansyahh">Moch. Firmansyah</a></sub>
+  <sub>Dibuat dengan ❤️ oleh <a href="https://github.com/moch-firmansyahh">Moch. Firmansyah</a> • © 2025 - 2026</sub>
 </div>
