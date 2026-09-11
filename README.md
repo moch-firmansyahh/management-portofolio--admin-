@@ -10,7 +10,7 @@
 ![Express.js](https://img.shields.io/badge/Express.js-4.19-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active%20v2.2.1-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active%20v2.2.2-success?style=for-the-badge)
 
 
 [Fitur Utama](#-fitur-utama) • [Arsitektur Sistem](#-arsitektur-sistem) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Struktur Proyek](#-struktur-proyek) • [Panduan Instalasi](#-panduan-instalasi--menjalankan) • [Dokumentasi API](#-dokumentasi-api-backend) • [Kredensial Akses](#-kredensial-akses) • [GitHub](https://github.com/moch-firmansyahh/management-portofolio--admin-)
