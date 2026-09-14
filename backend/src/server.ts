@@ -35,7 +35,7 @@ app.use("/uploads", express.static(uploadsDir));
 
 // Root & Health check routes
 app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "Portfolio Admin API Server", version: "1.2.0" });
+  res.json({ status: "ok", message: "Portfolio Admin API Server", version: "2.2.3" });
 });
 
 app.get("/api/health", (req, res) => {

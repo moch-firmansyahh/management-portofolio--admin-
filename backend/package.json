@@ -1,6 +1,6 @@
 {
   "name": "portofolio-admin-be",
-  "version": "1.0.0",
+  "version": "2.2.3",
   "description": "Backend API for portofolio admin dashboard",
   "main": "dist/server.js",
   "scripts": {
