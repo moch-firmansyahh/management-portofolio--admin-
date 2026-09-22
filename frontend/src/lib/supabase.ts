@@ -5,6 +5,7 @@ const supabaseUrl =
 const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-  "";
+  "sb_publishable_8B0fFkdbM16eYuHmBz5FPQ_LGvHKBha";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
