@@ -116,15 +116,14 @@ export default function MessageModal({
             </button>
           </div>
 
-          <a
-            href={gmailHref}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => window.open(gmailHref, "_blank", "noopener,noreferrer")}
             className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2 text-xs font-medium text-white shadow-2xs transition cursor-pointer"
           >
             <Reply className="h-3.5 w-3.5" />
             <span>Balas via Gmail</span>
-          </a>
+          </button>
         </div>
       </div>
     </div>

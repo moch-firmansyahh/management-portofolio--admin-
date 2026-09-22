@@ -124,15 +124,17 @@ export default function MessagesTab({
                     {msg.read ? <Mail className="h-3.5 w-3.5" /> : <MailOpen className="h-3.5 w-3.5" />}
                   </button>
 
-                  <a
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(`Re: ${msg.subject || "Pesan dari Portofolio"}`)}&body=${encodeURIComponent(`\n\n---\nPada ${msg.createdAt ? new Date(msg.createdAt).toLocaleDateString("id-ID") : "hari ini"}, ${msg.name} menulis:\n${msg.message}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
-                    title="Balas via Gmail"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(`Re: ${msg.subject || "Pesan dari Portofolio"}`)}&body=${encodeURIComponent(`\n\n---\nPada ${msg.createdAt ? new Date(msg.createdAt).toLocaleDateString("id-ID") : "hari ini"}, ${msg.name} menulis:\n${msg.message}`)}`;
+                      window.open(gmailUrl, "_blank", "noopener,noreferrer");
+                    }}
+                    className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                    title="Balas langsung di Gmail Web"
                   >
                     <Reply className="h-3.5 w-3.5" />
-                  </a>
+                  </button>
 
                   <button
                     onClick={() => onDeleteMessage(msg.id)}
