@@ -157,15 +157,34 @@ export default function AboutTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                Headline / Tagline Utama
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                  Headline / Tagline Utama (Judul Besar Seksi About)
+                </label>
+                <span className="text-[10px] text-zinc-400">Tampil di About section</span>
+              </div>
               <input
                 type="text"
                 value={profile.tagline || ""}
                 onChange={(e) => setProfile((p) => ({ ...p, tagline: e.target.value }))}
                 placeholder="Code that looks good. Systems that stay safe."
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                  Tentang Saya Singkat (Tampil di Hero Section)
+                </label>
+                <span className="text-[10px] text-zinc-400">Di bawah teks "Hi, I am [Role]"</span>
+              </div>
+              <textarea
+                rows={3}
+                value={profile.about || ""}
+                onChange={(e) => setProfile((p) => ({ ...p, about: e.target.value }))}
+                placeholder="Mahasiswa Informatika Telkom University yang fokus memadukan Frontend Development modern dengan pemahaman Network & Web Security untuk menciptakan aplikasi web yang responsif, interaktif, dan aman."
+                className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all leading-relaxed"
               />
             </div>
 

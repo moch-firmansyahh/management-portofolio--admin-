@@ -77,6 +77,7 @@ export interface ProfileData {
   shortName: string;
   role: string;
   tagline: string;
+  about?: string;
   bio: string;
   status: string;
   location: string;
