@@ -347,10 +347,14 @@ export default function AdminDashboard() {
       // 3. Fetch Profile / About
       const { data: profileRow } = await supabase.from("profile").select("*").eq("id", "main").maybeSingle();
       if (profileRow) {
-        const pData = profileRow as ProfileData;
+        const pData = profileRow as any;
         setProfile({
           ...DEFAULT_PROFILE,
           ...pData,
+          name: pData.name || DEFAULT_PROFILE.name,
+          role: pData.role || DEFAULT_PROFILE.role,
+          tagline: pData.tagline || DEFAULT_PROFILE.tagline,
+          bio: pData.bio || DEFAULT_PROFILE.bio,
           socialLinks: { ...DEFAULT_PROFILE.socialLinks, ...(pData.socialLinks || {}) },
           stats: (pData.stats && pData.stats.length > 0) ? pData.stats : DEFAULT_PROFILE.stats,
         });
@@ -444,12 +448,36 @@ export default function AdminDashboard() {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      const { error } = await supabase.from("profile").upsert({
+      const payload: Record<string, any> = {
         id: "main",
         ...profile,
         updatedAt: new Date().toISOString(),
-      });
-      if (error) throw error;
+      };
+
+      let result = await supabase.from("profile").upsert(payload);
+
+      // Auto-retry if any column is missing in Supabase schema cache (e.g. location)
+      if (result.error && result.error.message && result.error.message.includes("Could not find the '")) {
+        const missingCols: string[] = [];
+        let currentError: any = result.error;
+        while (currentError && currentError.message && currentError.message.includes("Could not find the '")) {
+          const match = currentError.message.match(/Could not find the '([^']+)' column/i);
+          if (match && match[1]) {
+            const col = match[1];
+            missingCols.push(col);
+            delete payload[col];
+            const retry: any = await supabase.from("profile").upsert(payload);
+            currentError = retry.error;
+          } else {
+            break;
+          }
+        }
+        if (currentError) throw currentError;
+        showToast("Profil tersimpan! (Catatan: jalankan SQL migration di Supabase untuk: " + missingCols.join(", ") + ")", "info");
+        return;
+      }
+
+      if (result.error) throw result.error;
       showToast("Profil dan informasi Tentang Saya berhasil disimpan!", "success");
     } catch (err: any) {
       showToast("Gagal menyimpan profil: " + err.message, "error");
