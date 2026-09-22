@@ -40,6 +40,11 @@ export async function deleteSkill(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function deleteSkillsByCategory(category: string): Promise<void> {
+  const { error } = await supabase.from("skills").delete().eq("category", category);
+  if (error) throw error;
+}
+
 export async function seedSkills(): Promise<number> {
   const items = POPULAR_SKILLS.map((s) => ({
     name: s.name,

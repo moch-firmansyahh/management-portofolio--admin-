@@ -137,6 +137,7 @@ export default function AdminDashboard() {
     fetchSkills,
     handleSaveSkill,
     handleDeleteSkill: deleteSkillItem,
+    handleDeleteCategory: deleteCategoryItem,
     handleSeedDefaultSkills,
     isSeedingSkills,
   } = useSkills(showToast);
@@ -364,6 +365,21 @@ export default function AdminDashboard() {
       () => deleteSkillItem(id),
       true,
       "Hapus"
+    );
+  };
+
+  const handleDeleteCategory = (category: string) => {
+    if (!category || category === "Semua") return;
+    const count = skills.filter(
+      (s) => (s.category || "").toLowerCase() === category.toLowerCase()
+    ).length;
+
+    triggerConfirm(
+      `Hapus Kategori "${category}"`,
+      `Apakah Anda yakin ingin menghapus kategori "${category}" beserta ${count} keahlian di dalamnya dari database? Tindakan ini tidak dapat dibatalkan.`,
+      () => deleteCategoryItem(category),
+      true,
+      "Hapus Kategori"
     );
   };
 
@@ -883,6 +899,7 @@ export default function AdminDashboard() {
               openAddSkill={openAddSkill}
               openEditSkill={openEditSkill}
               handleDeleteSkill={handleDeleteSkill}
+              handleDeleteCategory={handleDeleteCategory}
               handleSeedDefaultSkills={handleSeedDefaultSkills}
               isSeedingSkills={isSeedingSkills}
             />

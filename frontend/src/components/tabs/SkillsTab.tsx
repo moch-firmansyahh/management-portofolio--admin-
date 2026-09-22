@@ -11,6 +11,7 @@ interface SkillsTabProps {
   openAddSkill: (defaultCategory?: string) => void;
   openEditSkill: (skill: Skill) => void;
   handleDeleteSkill: (id?: string) => void;
+  handleDeleteCategory?: (category: string) => void;
   handleSeedDefaultSkills?: () => void;
   isSeedingSkills?: boolean;
 }
@@ -23,6 +24,7 @@ export default function SkillsTab({
   openAddSkill,
   openEditSkill,
   handleDeleteSkill,
+  handleDeleteCategory,
   handleSeedDefaultSkills,
   isSeedingSkills = false,
 }: SkillsTabProps) {
@@ -92,6 +94,20 @@ export default function SkillsTab({
             <RefreshCw className={`h-3.5 w-3.5 ${syncingSkills ? "animate-spin" : ""}`} />
             <span>{syncingSkills ? "Menyinkronkan..." : "Impor GitHub"}</span>
           </button>
+
+          {handleDeleteCategory && activeCategory !== "Semua" && (
+            <button
+              onClick={() => {
+                handleDeleteCategory(activeCategory);
+                setActiveCategory("Semua");
+              }}
+              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-700 px-3.5 py-2 rounded-lg text-xs font-medium border border-red-200/80 shadow-2xs transition active:scale-98 cursor-pointer"
+              title={`Hapus kategori "${activeCategory}" dan seluruh skill di dalamnya`}
+            >
+              <Trash2 className="h-3.5 w-3.5 text-red-600" />
+              <span>Hapus Kategori &ldquo;{activeCategory}&rdquo;</span>
+            </button>
+          )}
           
           <button
             onClick={() => openAddSkill(activeCategory !== "Semua" ? activeCategory : "Front-End Web Development")}
@@ -116,7 +132,7 @@ export default function SkillsTab({
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 cursor-pointer flex items-center gap-1.5 group/pill ${
                 isActive
                   ? "bg-zinc-900 text-white shadow-xs"
                   : "bg-white text-zinc-600 hover:text-zinc-900 border border-zinc-200/90 hover:border-zinc-400"
@@ -130,6 +146,20 @@ export default function SkillsTab({
               >
                 {count}
               </span>
+              {cat !== "Semua" && handleDeleteCategory && (
+                <span
+                  role="button"
+                  title={`Hapus kategori "${cat}"`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCategory(cat);
+                    if (activeCategory === cat) setActiveCategory("Semua");
+                  }}
+                  className="ml-0.5 p-0.5 rounded-full hover:bg-red-500 hover:text-white transition cursor-pointer text-zinc-400"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </span>
+              )}
             </button>
           );
         })}

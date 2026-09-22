@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Skill } from "../types";
-import { getSkills, createSkill, updateSkill, deleteSkill, seedSkills } from "../lib/api/skills";
+import { getSkills, createSkill, updateSkill, deleteSkill, deleteSkillsByCategory, seedSkills } from "../lib/api/skills";
 
 export function useSkills(showToast: (msg: string, type?: "success" | "error" | "info") => void) {
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -61,6 +61,18 @@ export function useSkills(showToast: (msg: string, type?: "success" | "error" | 
     }
   }, [showToast]);
 
+  const handleDeleteCategory = useCallback(async (category: string) => {
+    try {
+      await deleteSkillsByCategory(category);
+      setSkills((prev) => prev.filter((s) => (s.category || "").toLowerCase() !== category.toLowerCase()));
+      showToast(`Kategori "${category}" dan keahlian di dalamnya berhasil dihapus.`, "success");
+      return true;
+    } catch (err: any) {
+      showToast("Gagal menghapus kategori: " + err.message, "error");
+      return false;
+    }
+  }, [showToast]);
+
   const handleSeed = useCallback(async () => {
     setIsSeedingSkills(true);
     try {
@@ -83,6 +95,7 @@ export function useSkills(showToast: (msg: string, type?: "success" | "error" | 
     fetchSkills,
     handleSaveSkill,
     handleDeleteSkill: handleDelete,
+    handleDeleteCategory,
     handleSeedDefaultSkills: handleSeed,
   };
 }
