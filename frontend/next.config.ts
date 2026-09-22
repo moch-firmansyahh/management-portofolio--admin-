@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "firebasestorage.googleapis.com",
+        hostname: "*.supabase.co",
       },
       {
         protocol: "https",
@@ -14,11 +14,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "opengraph.githubassets.com",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3002",
       },
     ],
   },

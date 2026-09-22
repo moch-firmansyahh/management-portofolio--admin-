@@ -6,14 +6,13 @@
 ![React](https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase_Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![Express.js](https://img.shields.io/badge/Express.js-4.19-000000?style=for-the-badge&logo=express&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active%20v2.2.4-success?style=for-the-badge)
 
 
-[Fitur Utama](#-fitur-utama) • [Arsitektur Sistem](#-arsitektur-sistem) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Struktur Proyek](#-struktur-proyek) • [Panduan Instalasi](#-panduan-instalasi--menjalankan) • [Dokumentasi API](#-dokumentasi-api-backend) • [Kredensial Akses](#-kredensial-akses) • [GitHub](https://github.com/moch-firmansyahh/management-portofolio--admin-)
+[Fitur Utama](#-fitur-utama) • [Arsitektur Sistem](#-arsitektur-sistem) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Struktur Proyek](#-struktur-proyek) • [Panduan Instalasi](#-panduan-instalasi--menjalankan) • [Kredensial Akses](#-kredensial-akses) • [GitHub](https://github.com/moch-firmansyahh/management-portofolio--admin-)
 
 </div>
 
@@ -23,7 +22,7 @@
 
 **Management Portfolio Admin Suite** dirancang untuk memberikan kendali penuh terhadap seluruh elemen dinamis pada website portofolio developer ([`portofolio-web`](https://github.com/moch-firmansyahh/Portofolio-fixed-new)). 
 
-Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)** & **React 19**, penyimpanan cloud real-time **Google Firebase Cloud Firestore**, serta server backend **Express.js (TypeScript)** dengan **Multer** untuk upload file gambar berkinerja tinggi yang tersinkronisasi otomatis antar folder proyek.
+Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)** & **React 19**, penyimpanan cloud database **PostgreSQL Supabase**, serta **Supabase Storage** untuk upload gambar cover proyek berkinerja tinggi yang serverless dan 100% gratis.
 
 ---
 
@@ -81,15 +80,14 @@ Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)
 
 ```mermaid
 graph TD
-    User[Pengunjung Web] -->|Kirim Pesan / Lihat Portofolio| Web[Next.js Portofolio Web :3000]
-    Admin[Admin / Firman] -->|Kelola Konten & Data| AdminApp[Next.js Admin Dashboard :3001]
+    User[Pengunjung Web] -->|Kirim Pesan / Lihat Portofolio| Web[Next.js Portofolio Web]
+    Admin[Admin / Firman] -->|Kelola Konten & Data| AdminApp[Next.js Admin Dashboard]
     
-    Web <-->|Baca Konten & Tulis Pesan| Firestore[(Firebase Firestore Cloud DB)]
-    AdminApp <-->|Real-time CRUD & Sinkronisasi| Firestore
+    Web <-->|Baca Konten & Tulis Pesan| SupabaseDB[(PostgreSQL Supabase Database)]
+    AdminApp <-->|Real-time CRUD & Sinkronisasi| SupabaseDB
     
-    AdminApp -->|Upload Gambar Proyek| Backend[Express.js API Server :3002]
-    Backend -->|Simpan Aset| UploadsDir[Folder /uploads]
-    Backend -->|Salin Aset Otomatis| PublicWeb[portofolio-web/public/projects/]
+    AdminApp -->|Upload Cover Proyek| SupabaseStorage[(Supabase Storage Bucket)]
+    Web -->|Ambil Gambar Publik| SupabaseStorage
     
     AdminApp -->|Fetch Repos & Stats| GitHubAPI[GitHub REST API v3]
 ```
@@ -102,14 +100,9 @@ graph TD
 - **Framework**: [Next.js 16 (App Router)](https://nextjs.org/) & [React 19](https://react.dev/)
 - **Styling**: [TailwindCSS 3.4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Database Client**: [Firebase Firestore SDK v12](https://firebase.google.com/)
+- **Database & Storage Client**: [@supabase/supabase-js](https://supabase.com/)
 - **Activity Calendar**: [react-github-calendar](https://www.npmjs.com/package/react-github-calendar)
 
-### Backend API Server
-- **Runtime**: [Node.js](https://nodejs.org/) & [Express.js 4](https://expressjs.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/) dengan `ts-node-dev`
-- **File Upload Handler**: [Multer](https://github.com/expressjs/multer) (Multi-field support)
-- **Utilities**: `cors`, `dotenv`
 
 ---
 
