@@ -3,6 +3,7 @@ import { GitHubCalendar } from "react-github-calendar";
 import { Github, ExternalLink, GitBranch, ShieldCheck, Download, Server, HardDrive, Database, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Skill } from "./SkillsTab";
 import { Project } from "./ProjectsTab";
+import { supabase } from "../lib/supabase";
 
 export interface GitHubProfile {
   login: string;
@@ -35,13 +36,12 @@ export default function DashboardTab({
   const [backendLatency, setBackendLatency] = useState<number | null>(null);
 
   useEffect(() => {
-    const checkBackend = async () => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3002";
+    const checkSupabase = async () => {
       const start = performance.now();
       try {
-        const res = await fetch(`${backendUrl}/api/health`, { method: "GET", cache: "no-store" });
+        const { error } = await supabase.from("projects").select("id").limit(1);
         const latency = Math.round(performance.now() - start);
-        if (res.ok) {
+        if (!error) {
           setBackendStatus("online");
           setBackendLatency(latency);
         } else {
@@ -52,7 +52,7 @@ export default function DashboardTab({
       }
     };
 
-    checkBackend();
+    checkSupabase();
   }, []);
 
   const handleExportBackup = () => {
@@ -186,7 +186,7 @@ export default function DashboardTab({
 
       {/* System Status & Quick Tools */}
       <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Backend & Cloud Database Status */}
+        {/* Supabase Cloud Database & Storage Status */}
         <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex items-center justify-between">
           <div className="flex items-center gap-3.5">
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center border ${
@@ -200,7 +200,7 @@ export default function DashboardTab({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-xs text-zinc-900">Status Backend API</h4>
+                <h4 className="font-semibold text-xs text-zinc-900">Status Supabase Cloud</h4>
                 <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
                   backendStatus === "online"
                     ? "bg-emerald-100/70 text-emerald-700"
@@ -214,14 +214,14 @@ export default function DashboardTab({
                 </span>
               </div>
               <p className="text-[11px] text-zinc-500 mt-0.5">
-                Express Multer Server di port 3002 & Firebase Firestore Cloud DB.
+                PostgreSQL Database &amp; Supabase Storage (Serverless Live).
               </p>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-200/70">
-            <Database className="h-3.5 w-3.5 text-zinc-500" />
-            <span>Firestore Live</span>
+          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/70">
+            <Database className="h-3.5 w-3.5 text-emerald-600" />
+            <span>Supabase Live</span>
           </div>
         </div>
 
