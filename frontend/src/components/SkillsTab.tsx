@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Edit3, Trash2, RefreshCw, Code2, Sparkles } from "lucide-react";
+import { Plus, Edit3, Trash2, RefreshCw, Code2 } from "lucide-react";
 import { SKILL_CATEGORIES } from "./SkillModal";
 
 export interface Skill {
@@ -69,7 +69,7 @@ export default function SkillsTab({
             <span>Keahlian &amp; Technical Skills</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Total {skills.length} keahlian terkelola dalam 5 kategori teknis di Firestore.
+            Total {skills.length} keahlian terkelola dalam 5 kategori teknis di Supabase.
             {searchQuery && (
               <span className="text-zinc-900 font-medium ml-1">
                 (Menampilkan {filteredSkills.length} hasil)
@@ -84,7 +84,7 @@ export default function SkillsTab({
               onClick={handleSeedDefaultSkills}
               disabled={isSeedingSkills}
               className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-xs font-medium border border-emerald-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
-              title="Impor seluruh keahlian bawaan website ke Firestore"
+              title="Impor seluruh keahlian bawaan website ke Supabase"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isSeedingSkills ? "animate-spin" : ""}`} />
               <span>{isSeedingSkills ? "Menyinkronkan..." : "Impor Skill Bawaan Web"}</span>

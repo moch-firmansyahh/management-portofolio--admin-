@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Save, Sparkles, MapPin, Mail, Phone, Globe, Github, Linkedin, Instagram, FileText, CheckCircle2 } from "lucide-react";
+import { User, Save, Sparkles, Mail, Phone, Globe, Github, Linkedin, Instagram, FileText } from "lucide-react";
 
 export interface ProfileData {
   name: string;
@@ -421,7 +421,7 @@ export default function AboutTab({
             className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 text-xs font-medium shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
           >
             <Save className="h-4 w-4" />
-            <span>{savingProfile ? "Menyimpan ke Firestore..." : "Simpan Perubahan Profil"}</span>
+            <span>{savingProfile ? "Menyimpan ke Supabase..." : "Simpan Perubahan Profil"}</span>
           </button>
         </div>
       </form>

@@ -47,7 +47,7 @@ export default function DashboardTab({
         } else {
           setBackendStatus("offline");
         }
-      } catch (_) {
+      } catch {
         setBackendStatus("offline");
       }
     };
@@ -149,7 +149,7 @@ export default function DashboardTab({
             </div>
 
             <div className="p-3 bg-zinc-50 border border-zinc-200/60 rounded-lg text-xs text-zinc-600 leading-relaxed italic">
-              "{gitProfile?.bio || "Front-End Developer Enthusiast."}"
+              &ldquo;{gitProfile?.bio || "Front-End Developer Enthusiast."}&rdquo;
             </div>
           </div>
         </div>

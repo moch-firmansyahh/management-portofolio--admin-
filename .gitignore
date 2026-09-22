@@ -20,9 +20,6 @@ build/
 **/.env.local
 **/.env*.local
 
-# backend uploads
-backend/uploads/*
-!backend/uploads/.gitkeep
 
 # logs
 *.log

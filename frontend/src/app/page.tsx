@@ -5,21 +5,18 @@ import { supabase } from "../lib/supabase";
 import { 
   Briefcase, 
   Code2, 
-  FolderGit2, 
-  Users, 
-  Search, 
-  Bell, 
-  RefreshCw, 
-  AlertCircle, 
-  X,
-  Info,
-  Command,
+  GraduationCap, 
+  Mail,
   Lock,
+  AlertCircle,
   ArrowRight,
-  User,
-  GraduationCap,
+  Search,
+  Command,
+  Bell,
+  Info,
+  X,
   Inbox,
-  Mail
+  RefreshCw
 } from "lucide-react";
 
 import Sidebar, { AdminTab } from "../components/Sidebar";
@@ -1263,13 +1260,13 @@ export default function AdminDashboard() {
               title="Total Projects"
               value={projects.length}
               icon={<Briefcase className="h-4 w-4 text-zinc-700" />}
-              subtitle="Tersimpan di Firestore"
+              subtitle="Tersimpan di Supabase"
             />
             <StatCard 
               title="Total Skills"
               value={skills.length}
               icon={<Code2 className="h-4 w-4 text-zinc-700" />}
-              subtitle="Tersimpan di Firestore"
+              subtitle="Tersimpan di Supabase"
             />
             <StatCard 
               title="Riwayat Karier"

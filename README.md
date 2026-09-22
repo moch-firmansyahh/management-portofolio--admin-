@@ -11,7 +11,6 @@
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active%20v2.2.4-success?style=for-the-badge)
 
-
 [Fitur Utama](#-fitur-utama) • [Arsitektur Sistem](#-arsitektur-sistem) • [Tech Stack](#%EF%B8%8F-tech-stack) • [Struktur Proyek](#-struktur-proyek) • [Panduan Instalasi](#-panduan-instalasi--menjalankan) • [Kredensial Akses](#-kredensial-akses) • [GitHub](https://github.com/moch-firmansyahh/management-portofolio--admin-)
 
 </div>
@@ -22,7 +21,7 @@
 
 **Management Portfolio Admin Suite** dirancang untuk memberikan kendali penuh terhadap seluruh elemen dinamis pada website portofolio developer ([`portofolio-web`](https://github.com/moch-firmansyahh/Portofolio-fixed-new)). 
 
-Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)** & **React 19**, penyimpanan cloud database **PostgreSQL Supabase**, serta **Supabase Storage** untuk upload gambar cover proyek berkinerja tinggi yang serverless dan 100% gratis.
+Aplikasi ini menggabungkan antarmuka frontend modern berbasis **Next.js 16 (App Router)** & **React 19**, penyimpanan cloud database **PostgreSQL Supabase**, serta **Supabase Storage** untuk upload gambar cover proyek secara serverless tanpa memerlukan server backend tambahan.
 
 ---
 
@@ -32,6 +31,7 @@ Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)
 - **Statistik Cepat**: Pemantauan real-time total proyek tersimpan, jumlah keahlian aktif, riwayat karier, dan jumlah pesan masuk pengunjung.
 - **Profil GitHub Live**: Sinkronisasi foto profil, bio, lokasi, dan statistik repositori publik.
 - **GitHub Activity Calendar**: Visualisasi kontribusi GitHub setahun penuh menggunakan `react-github-calendar`.
+- **Latency Checker**: Pemeriksaan konektivitas real-time langsung ke Supabase Cloud.
 
 ### 2. 👤 Manajemen Profil & Tentang Saya (`About`)
 - **Identitas & Headline**: Atur nama lengkap, nama panggilan, profesi/role utama, dan headline tagline yang tampil di bagian Hero web.
@@ -48,13 +48,12 @@ Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)
   5. `Achievements & Certifications`
 - **Pill Filter & Counter Badge**: Filter cepat berdasarkan kategori dengan badge jumlah skill aktif.
 - **Dukungan Kategori Kustom**: Tombol `+ Kategori Baru` untuk membuat kategori baru secara fleksibel.
-- **Impor Sertifikasi Resmi**: Tombol satu klik untuk menyinkronkan seluruh 16 sertifikasi Google AI & Network Security ke Firestore.
+- **Impor Sertifikasi Resmi**: Tombol satu klik untuk menyinkronkan seluruh 16 sertifikasi Google AI & Network Security ke Supabase.
 - **Sinkronisasi Bahasa GitHub**: Deteksi otomatis bahasa pemrograman dari repositori GitHub publik.
 
 ### 4. 💼 Manajemen Proyek & Portofolio (`Projects`)
 - **Operasi CRUD Lengkap**: Tambah, edit, dan hapus proyek dengan status featured, kategori, tahun, dan sorotan teknis (*highlights*).
-- **Upload Gambar Cover**: Didukung server Express + Multer dengan preview instan dan proteksi format (JPG, PNG, WEBP, GIF, SVG maks 15 MB).
-- **Sinkronisasi Otomatis Aset**: Gambar yang diunggah otomatis tersedia di direktori publik website portofolio.
+- **Upload Cover Proyek**: Menggunakan **Supabase Storage Bucket (`projects`)** dengan preview instan dan link CDN publik.
 - **Impor Proyek Bawaan**: Tombol satu klik untuk memuat proyek unggulan asli web (Kontrakan Pa Iman & Voluntrip).
 
 ### 5. 🎓 Manajemen Riwayat Pengalaman (`Experience`)
@@ -64,9 +63,9 @@ Aplikasi ini menggabungkan antarmuka frontend berbasis **Next.js 16 (App Router)
 
 ### 6. 📬 Inbox Pesan Masuk Pengunjung (`Messages`)
 - **Penerimaan Pesan Real-Time**: Pesan yang dikirim pengunjung melalui form kontak website langsung masuk ke dashboard admin.
-- **Indikator Unread**: Badge notifikasi denyut biru di sidebar dan bell header saat ada pesan baru.
+- **Indikator Unread**: Badge notifikasi denyut biru di sidebar saat ada pesan baru.
 - **Pembaca Pesan Detail**: Modal membaca isi pesan, subjek, identitas pengirim, dan tanggal masuk.
-- **Balas Cepat (Mailto)**: Tombol untuk langsung membalas pesan ke email pengirim melalui aplikasi email default.
+- **Balas Cepat (Mailto)**: Tombol untuk langsung membalas pesan ke email pengirim.
 - **Manajemen Status**: Tombol tandai sudah/belum dibaca dan hapus pesan permanen.
 
 ### 7. 🚀 Optimasi & UX
@@ -86,7 +85,7 @@ graph TD
     Web <-->|Baca Konten & Tulis Pesan| SupabaseDB[(PostgreSQL Supabase Database)]
     AdminApp <-->|Real-time CRUD & Sinkronisasi| SupabaseDB
     
-    AdminApp -->|Upload Cover Proyek| SupabaseStorage[(Supabase Storage Bucket)]
+    AdminApp -->|Upload Cover Proyek| SupabaseStorage[(Supabase Storage: projects)]
     Web -->|Ambil Gambar Publik| SupabaseStorage
     
     AdminApp -->|Fetch Repos & Stats| GitHubAPI[GitHub REST API v3]
@@ -103,44 +102,37 @@ graph TD
 - **Database & Storage Client**: [@supabase/supabase-js](https://supabase.com/)
 - **Activity Calendar**: [react-github-calendar](https://www.npmjs.com/package/react-github-calendar)
 
-
 ---
 
 ## 📁 Struktur Proyek
 
 ```text
 portofolio-admin/
-├── backend/                  # Server REST API Upload & Servis File
-│   ├── src/
-│   │   └── server.ts         # Server Express & endpoint upload Multer
-│   ├── uploads/              # Penyimpanan lokal file upload
-│   ├── package.json
-│   └── tsconfig.json
 ├── frontend/                 # Aplikasi Next.js Admin Dashboard
-│   ├── public/               # Aset publik & preview gambar proyek
+│   ├── public/               # Aset gambar & proyek
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── globals.css   # Variabel tema, animasi modal GPU, & Tailwind
+│   │   │   ├── globals.css   # Tema Tailwind & animasi dialog
 │   │   │   ├── layout.tsx    # Root layout aplikasi
 │   │   │   └── page.tsx      # Entry point controller dashboard admin
-│   │   ├── components/       # Modul UI CMS
+│   │   ├── components/       # Komponen modular UI Admin
 │   │   │   ├── Sidebar.tsx           # Navigasi & badge unread inbox
-│   │   │   ├── DashboardTab.tsx      # Analisis ringkasan & kalender GitHub
+│   │   │   ├── DashboardTab.tsx      # Ringkasan analitik & kalender GitHub
 │   │   │   ├── AboutTab.tsx          # Form profil, bio, & 4 kartu metrik
 │   │   │   ├── SkillsTab.tsx         # Manajemen keahlian 5 kategori
-│   │   │   ├── SkillModal.tsx        # Modal tambah/edit skill & kategori kustom
-│   │   │   ├── ProjectsTab.tsx       # Manajemen proyek & portofolio
-│   │   │   ├── ProjectModal.tsx      # Modal proyek & uploader cover
-│   │   │   ├── ExperienceTab.tsx     # Tabel riwayat pengalaman karier
+│   │   │   ├── SkillModal.tsx        # Modal tambah/edit skill
+│   │   │   ├── ProjectsTab.tsx       # Manajemen katalog proyek
+│   │   │   ├── ProjectModal.tsx      # Modal proyek & upload cover
+│   │   │   ├── ExperienceTab.tsx     # Tabel riwayat karier/pendidikan
 │   │   │   ├── ExperienceModal.tsx   # Modal riwayat karier
-│   │   │   ├── MessagesTab.tsx       # Inbox pesan masuk pengunjung web
+│   │   │   ├── MessagesTab.tsx       # Inbox pesan masuk pengunjung
 │   │   │   ├── MessageModal.tsx      # Modal detail baca pesan & balas
-│   │   │   ├── ConfirmModal.tsx      # Dialog konfirmasi aksi berbahaya
-│   │   │   ├── StatCard.tsx          # Kartu statistik ringkasan
-│   │   │   └── Toast.tsx             # Pop-up notifikasi status aksi
+│   │   │   ├── ConfirmModal.tsx      # Dialog konfirmasi aksi hapus
+│   │   │   ├── StatCard.tsx          # Kartu statistik metrik
+│   │   │   └── Toast.tsx             # Notifikasi toast status aksi
 │   │   └── lib/
-│   │       └── firebase.ts   # Inisialisasi Firebase App & Firestore
-│   ├── .env.local            # Kredensial Firebase & URL Backend
+│   │       └── supabase.ts   # Inisialisasi Supabase client
+│   ├── .env.local            # Kredensial Supabase
 │   ├── package.json
 │   └── tsconfig.json
 ├── .gitignore
@@ -165,70 +157,29 @@ cd management-portofolio--admin-
 
 ---
 
-### 2. Konfigurasi Backend Server (`/backend`)
-```bash
-cd backend
-npm install
-```
-
-Buat file `.env` di dalam folder `backend`:
-```env
-PORT=3002
-BASE_URL=http://localhost:3002
-```
-
-Jalankan server backend:
-```bash
-npm run dev
-```
-> Server backend aktif di: **`http://localhost:3002`**
-
----
-
-### 3. Konfigurasi Frontend Admin (`/frontend`)
-Buka jendela terminal baru:
+### 2. Jalankan Dashboard Admin (`/frontend`)
 ```bash
 cd frontend
 npm install
 ```
 
-Pastikan file `.env.local` di dalam folder `frontend` telah memuat konfigurasi Firebase Firestore Anda:
+Pastikan file `.env.local` di dalam folder `frontend` telah memuat konfigurasi Supabase Anda:
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3002
+NEXT_PUBLIC_SUPABASE_URL=https://cgnerlwoezzjqaqofzuy.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_8B0fFkdbM16eYuHmBz5FPQ_LGvHKBha
 ```
 
-Jalankan dashboard admin:
+Jalankan server development:
 ```bash
 npm run dev
 ```
-> Dashboard admin otomatis aktif di: **`http://localhost:3001`** *(port 3001 telah terkonfigurasi di `package.json` agar tidak bentrok dengan portofolio web di port 3000)*.
-
----
-
-## 📡 Dokumentasi API Backend
-
-| Metode | Endpoint | Deskripsi | Format Request Body |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/` | Informasi status API server | Tidak ada |
-| `GET` | `/api/health` | Pemeriksaan kesehatan server (*health check*) | Tidak ada |
-| `GET` | `/api/stats` | Informasi statistik runtime & total ukuran penyimpanan upload | Tidak ada |
-| `POST` | `/api/upload` | Mengunggah gambar cover proyek | Multipart form (`file` / `image`: JPG, PNG, WEBP maks 15 MB) |
-| `DELETE` | `/api/upload/:filename` | Menghapus file gambar yang telah diunggah | Tidak ada |
-| `GET` | `/uploads/:filename` | Menyajikan file gambar statis publik | Tidak ada |
+> Dashboard admin otomatis aktif di: **`http://localhost:3001`** *(port 3001 dikonfigurasi agar tidak bentrok dengan web portofolio di port 3000)*.
 
 ---
 
 ## 🔐 Kredensial Akses
 
-- **Password Masuk Admin**: `admin123` *(dapat disesuaikan pada `frontend/src/app/page.tsx`)*
+- **Password Masuk Admin**: `firman2026` atau `admin123` *(dapat disesuaikan pada `frontend/src/app/page.tsx`)*
 
 ---
 

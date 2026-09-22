@@ -56,7 +56,7 @@ export default function ProjectModal({
               <span>{isEdit ? "Edit Data Proyek" : "Tambah Proyek Baru"}</span>
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Data akan otomatis disinkronkan langsung ke Firestore & Website.
+              Data akan otomatis disinkronkan langsung ke Supabase & Website.
             </p>
           </div>
           <button

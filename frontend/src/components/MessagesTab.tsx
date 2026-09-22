@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, MailOpen, Trash2, Reply, Search, Calendar, User, CheckCircle2, Inbox } from "lucide-react";
+import { Mail, MailOpen, Trash2, Reply, Inbox } from "lucide-react";
 import { ContactMessage } from "./MessageModal";
 
 interface MessagesTabProps {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Plus, Check } from "lucide-react";
+import { X } from "lucide-react";
 
 export interface Skill {
   id: string;

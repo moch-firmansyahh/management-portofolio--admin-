@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Mail, Reply, Calendar, Trash2, CheckCircle2, User } from "lucide-react";
+import { X, Mail, Reply, Calendar, Trash2, CheckCircle2 } from "lucide-react";
 
 export interface ContactMessage {
   id: string;

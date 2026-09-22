@@ -70,7 +70,7 @@ export default function ProjectsTab({
             <span>Daftar Proyek & Portofolio</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Total {projects.length} proyek aktif tersimpan di Firestore dan terhubung ke Website.
+            Total {projects.length} proyek aktif tersimpan di Supabase dan terhubung ke Website.
             {searchQuery && (
               <span className="text-zinc-900 font-medium ml-1">
                 (Menampilkan {filteredProjects.length} hasil)
@@ -85,7 +85,7 @@ export default function ProjectsTab({
               onClick={handleSeedDefaultData}
               disabled={isSeeding}
               className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-xs font-medium border border-emerald-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98"
-              title="Sinkronkan data bawaan web ke Firestore"
+              title="Sinkronkan data bawaan web ke Supabase"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isSeeding ? "animate-spin" : ""}`} />
               <span>{isSeeding ? "Menyinkronkan..." : "Impor Data Bawaan Web"}</span>
@@ -241,7 +241,7 @@ export default function ProjectsTab({
                 <td colSpan={5} className="py-12 text-center text-zinc-400 text-xs">
                   {searchQuery
                     ? `Tidak ada proyek yang cocok dengan kata kunci "${searchQuery}".`
-                    : "Belum ada data proyek di database Firestore."}
+                    : "Belum ada data proyek di database Supabase."}
                 </td>
               </tr>
             )}
