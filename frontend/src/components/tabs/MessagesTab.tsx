@@ -125,11 +125,11 @@ export default function MessagesTab({
                   </button>
 
                   <a
-                    href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || "Pesan dari Portofolio")}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(msg.email)}&su=${encodeURIComponent(`Re: ${msg.subject || "Pesan dari Portofolio"}`)}&body=${encodeURIComponent(`\n\n---\nPada ${msg.createdAt ? new Date(msg.createdAt).toLocaleDateString("id-ID") : "hari ini"}, ${msg.name} menulis:\n${msg.message}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
-                    title="Balas via Email"
+                    title="Balas via Gmail"
                   >
                     <Reply className="h-3.5 w-3.5" />
                   </a>

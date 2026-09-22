@@ -20,9 +20,13 @@ export default function MessageModal({
 }: MessageModalProps) {
   if (!isOpen || !message) return null;
 
-  const mailtoHref = `mailto:${message.email}?subject=Re: ${encodeURIComponent(
-    message.subject || "Pesan dari Portofolio"
-  )}&body=${encodeURIComponent(`\n\n---\nPada ${formatDateTime(message.createdAt)}, ${message.name} menulis:\n${message.message}`)}`;
+  const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    message.email
+  )}&su=${encodeURIComponent(
+    `Re: ${message.subject || "Pesan dari Portofolio"}`
+  )}&body=${encodeURIComponent(
+    `\n\n---\nPada ${formatDateTime(message.createdAt)}, ${message.name} menulis:\n${message.message}`
+  )}`;
 
   return (
     <div className="admin-modal-overlay">
@@ -113,13 +117,13 @@ export default function MessageModal({
           </div>
 
           <a
-            href={mailtoHref}
+            href={gmailHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-4 py-2 text-xs font-medium text-white shadow-2xs transition cursor-pointer"
           >
             <Reply className="h-3.5 w-3.5" />
-            <span>Balas via Email</span>
+            <span>Balas via Gmail</span>
           </a>
         </div>
       </div>
