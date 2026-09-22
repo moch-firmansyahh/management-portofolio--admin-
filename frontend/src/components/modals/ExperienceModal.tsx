@@ -1,17 +1,6 @@
 import React from "react";
 import { X, CheckCircle2 } from "lucide-react";
-
-export interface Experience {
-  id: string;
-  period: string;
-  role: string;
-  company: string;
-  location: string;
-  description: string;
-  technologies: string[];
-  type: "Work" | "Education" | "Freelance";
-  createdAt?: any;
-}
+import { Experience } from "../../types";
 
 interface ExperienceModalProps {
   isOpen: boolean;
@@ -63,7 +52,7 @@ export default function ExperienceModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition"
+            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -128,7 +117,7 @@ export default function ExperienceModal({
                     type: e.target.value as "Work" | "Education" | "Freelance",
                   }))
                 }
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer"
               >
                 <option value="Work">Work / Organisasi</option>
                 <option value="Education">Education / Studi</option>
@@ -181,7 +170,7 @@ export default function ExperienceModal({
         <div className="flex items-center justify-end gap-2 p-4 px-6 border-t border-zinc-150 bg-zinc-50/50">
           <button
             type="button"
-            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2 text-xs font-medium text-zinc-700 transition"
+            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2 text-xs font-medium text-zinc-700 transition cursor-pointer"
             onClick={onClose}
           >
             Batal
@@ -189,7 +178,7 @@ export default function ExperienceModal({
           <button
             type="submit"
             disabled={!isFormValid}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
             <span>Simpan Pengalaman</span>

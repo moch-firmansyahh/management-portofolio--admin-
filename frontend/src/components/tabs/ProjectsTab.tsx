@@ -1,24 +1,6 @@
 import React from "react";
 import { Plus, Edit3, Trash2, RefreshCw, ExternalLink, Briefcase, Star, Github } from "lucide-react";
-
-export interface Project {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  longDescription?: string;
-  tags?: string[];
-  category?: "Web App" | "E-Commerce" | "Dashboard" | "Landing Page" | string;
-  featured?: boolean;
-  image: string;
-  link?: string;
-  demoUrl?: string;
-  githubUrl?: string;
-  metrics?: string;
-  highlights?: string[];
-  year?: string;
-  createdAt?: any;
-}
+import { Project } from "../../types";
 
 interface ProjectsTabProps {
   projects: Project[];
@@ -27,7 +9,7 @@ interface ProjectsTabProps {
   handleSyncGitHub: () => void;
   openAddProject: () => void;
   openEditProject: (project: Project) => void;
-  handleDeleteProject: (id: string) => void;
+  handleDeleteProject: (id?: string) => void;
   getProjectPreview: (image: string, link: string) => string;
   handleSeedDefaultData?: () => void;
   isSeeding?: boolean;
@@ -43,7 +25,7 @@ export default function ProjectsTab({
   handleDeleteProject,
   getProjectPreview,
   handleSeedDefaultData,
-  isSeeding,
+  isSeeding = false,
 }: ProjectsTabProps) {
   const filteredProjects = projects.filter((project) => {
     if (!searchQuery) return true;
@@ -67,7 +49,7 @@ export default function ProjectsTab({
         <div>
           <h3 className="font-semibold text-base text-zinc-900 flex items-center gap-2">
             <Briefcase className="h-4.5 w-4.5 text-zinc-900" />
-            <span>Daftar Proyek & Portofolio</span>
+            <span>Daftar Proyek &amp; Portofolio</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
             Total {projects.length} proyek aktif tersimpan di Supabase dan terhubung ke Website.
@@ -84,7 +66,7 @@ export default function ProjectsTab({
             <button
               onClick={handleSeedDefaultData}
               disabled={isSeeding}
-              className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-xs font-medium border border-emerald-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98"
+              className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-xs font-medium border border-emerald-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
               title="Sinkronkan data bawaan web ke Supabase"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isSeeding ? "animate-spin" : ""}`} />
@@ -95,7 +77,7 @@ export default function ProjectsTab({
           <button
             onClick={handleSyncGitHub}
             disabled={syncingGit}
-            className="inline-flex items-center gap-1.5 bg-white hover:bg-zinc-50 text-zinc-800 px-3 py-2 rounded-lg text-xs font-medium border border-zinc-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98"
+            className="inline-flex items-center gap-1.5 bg-white hover:bg-zinc-50 text-zinc-800 px-3 py-2 rounded-lg text-xs font-medium border border-zinc-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${syncingGit ? "animate-spin" : ""}`} />
             <span>{syncingGit ? "Menyinkronkan..." : "Impor Repositori GitHub"}</span>
@@ -103,7 +85,7 @@ export default function ProjectsTab({
 
           <button
             onClick={openAddProject}
-            className="inline-flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 rounded-lg text-xs font-medium shadow-2xs transition active:scale-98"
+            className="inline-flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 rounded-lg text-xs font-medium shadow-2xs transition active:scale-98 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Tambah Proyek</span>
@@ -111,14 +93,14 @@ export default function ProjectsTab({
         </div>
       </div>
 
-      {/* Shadcn Data Table */}
+      {/* Data Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="border-b border-zinc-200/80 bg-zinc-50/70 text-zinc-500 font-semibold tracking-wider uppercase text-[10px]">
               <th className="py-3 px-6">Preview</th>
-              <th className="py-3 px-6">Judul & Kategori</th>
-              <th className="py-3 px-6">Deskripsi & Tags</th>
+              <th className="py-3 px-6">Judul &amp; Kategori</th>
+              <th className="py-3 px-6">Deskripsi &amp; Tags</th>
               <th className="py-3 px-6">Tautan Live / Repo</th>
               <th className="py-3 px-6 text-right">Aksi</th>
             </tr>
@@ -128,7 +110,7 @@ export default function ProjectsTab({
               const previewUrl = getProjectPreview(project.image, project.demoUrl || project.link || "");
               return (
                 <tr
-                  key={project.id}
+                  key={project.id || project.title}
                   className="hover:bg-zinc-50/60 transition-colors"
                 >
                   <td className="py-3.5 px-6">
@@ -167,9 +149,7 @@ export default function ProjectsTab({
                       </p>
                     )}
                   </td>
-                  <td
-                    className="py-3.5 px-6 text-zinc-500 max-w-[280px]"
-                  >
+                  <td className="py-3.5 px-6 text-zinc-500 max-w-[280px]">
                     <p className="truncate text-zinc-700" title={project.description}>
                       {project.description}
                     </p>
@@ -193,7 +173,7 @@ export default function ProjectsTab({
                           href={project.demoUrl || project.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                         >
                           <span>Live Demo</span>
                           <ExternalLink className="h-3 w-3" />
@@ -204,7 +184,7 @@ export default function ProjectsTab({
                           href={project.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-950 hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-950 hover:underline cursor-pointer"
                         >
                           <Github className="h-3 w-3" />
                           <span>GitHub</span>
@@ -219,14 +199,14 @@ export default function ProjectsTab({
                     <div className="flex justify-end items-center gap-1">
                       <button
                         onClick={() => openEditProject(project)}
-                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition cursor-pointer"
                         title="Edit Proyek"
                       >
                         <Edit3 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteProject(project.id)}
-                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition cursor-pointer"
                         title="Hapus Proyek"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -251,4 +231,3 @@ export default function ProjectsTab({
     </div>
   );
 }
-

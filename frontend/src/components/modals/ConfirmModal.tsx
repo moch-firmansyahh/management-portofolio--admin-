@@ -44,14 +44,14 @@ export default function ConfirmModal({
         <div className="flex gap-2 pt-3 border-t border-zinc-150 justify-end">
           <button
             type="button"
-            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 py-2 text-xs font-medium text-zinc-700 transition"
+            className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 py-2 text-xs font-medium text-zinc-700 transition cursor-pointer"
             onClick={onCancel}
           >
             Batal
           </button>
           <button
             type="button"
-            className={`rounded-lg px-3.5 py-2 text-xs font-medium text-white transition shadow-2xs ${
+            className={`rounded-lg px-3.5 py-2 text-xs font-medium text-white transition shadow-2xs cursor-pointer ${
               isDanger 
                 ? "bg-red-600 hover:bg-red-700" 
                 : "bg-zinc-900 hover:bg-zinc-800"

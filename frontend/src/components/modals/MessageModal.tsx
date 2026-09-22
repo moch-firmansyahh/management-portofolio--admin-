@@ -1,15 +1,7 @@
 import React from "react";
 import { X, Mail, Reply, Calendar, Trash2, CheckCircle2 } from "lucide-react";
-
-export interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  subject?: string;
-  message: string;
-  read: boolean;
-  createdAt?: any;
-}
+import { ContactMessage } from "../../types";
+import { formatDateTime } from "../../lib/utils";
 
 interface MessageModalProps {
   isOpen: boolean;
@@ -28,20 +20,9 @@ export default function MessageModal({
 }: MessageModalProps) {
   if (!isOpen || !message) return null;
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return "Baru saja";
-    if (timestamp.toDate) {
-      return timestamp.toDate().toLocaleString("id-ID", {
-        dateStyle: "full",
-        timeStyle: "short",
-      });
-    }
-    return new Date(timestamp).toLocaleString("id-ID");
-  };
-
   const mailtoHref = `mailto:${message.email}?subject=Re: ${encodeURIComponent(
     message.subject || "Pesan dari Portofolio"
-  )}&body=${encodeURIComponent(`\n\n---\nPada ${formatDate(message.createdAt)}, ${message.name} menulis:\n${message.message}`)}`;
+  )}&body=${encodeURIComponent(`\n\n---\nPada ${formatDateTime(message.createdAt)}, ${message.name} menulis:\n${message.message}`)}`;
 
   return (
     <div className="admin-modal-overlay">
@@ -62,7 +43,7 @@ export default function MessageModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition"
+            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -75,7 +56,7 @@ export default function MessageModal({
             <div className="flex items-center justify-between text-zinc-500 text-[11px]">
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                <span>{formatDate(message.createdAt)}</span>
+                <span>{formatDateTime(message.createdAt)}</span>
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -123,10 +104,7 @@ export default function MessageModal({
 
             <button
               type="button"
-              onClick={() => {
-                onDelete(message.id);
-                onClose();
-              }}
+              onClick={() => onDelete(message.id)}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 bg-red-50/50 hover:bg-red-100 text-xs font-medium text-red-700 shadow-2xs transition cursor-pointer"
             >
               <Trash2 className="h-3.5 w-3.5" />

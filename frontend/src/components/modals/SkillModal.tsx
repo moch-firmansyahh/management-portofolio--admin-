@@ -1,27 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-
-export interface Skill {
-  id: string;
-  name: string;
-  logo: string;
-  percent: number | string;
-  category?: string;
-}
-
-export interface PopularSkill {
-  name: string;
-  logo: string;
-  category?: string;
-}
-
-export const SKILL_CATEGORIES = [
-  "Front-End Web Development",
-  "Programming Languages",
-  "Developer Tools",
-  "Soft Skills & Professional",
-  "Achievements & Certifications",
-];
+import { Skill, PopularSkill } from "../../types";
+import { SKILL_CATEGORIES } from "../../lib/constants";
 
 interface SkillModalProps {
   isOpen: boolean;
@@ -43,6 +23,14 @@ export default function SkillModal({
   onClose,
 }: SkillModalProps) {
   const [isCustomCategory, setIsCustomCategory] = useState(false);
+
+  // Reset custom category flag when opening modal or changing skill category
+  useEffect(() => {
+    if (isOpen) {
+      const isPre = SKILL_CATEGORIES.includes(data.category || "");
+      setIsCustomCategory(!isPre && !!data.category);
+    }
+  }, [isOpen, data.category]);
 
   if (!isOpen) return null;
 

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload, Loader2, X, Star, Link2, Code, FileText, CheckCircle2 } from "lucide-react";
-import { Project } from "./ProjectsTab";
+import { Project } from "../../types";
+import { PROJECT_CATEGORIES } from "../../lib/constants";
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -13,8 +14,6 @@ interface ProjectModalProps {
   onClose: () => void;
 }
 
-const CATEGORIES = ["Web App", "E-Commerce", "Dashboard", "Landing Page", "Mobile App", "Cyber Security"];
-
 export default function ProjectModal({
   isOpen,
   isEdit,
@@ -26,6 +25,13 @@ export default function ProjectModal({
   onClose,
 }: ProjectModalProps) {
   const [activeSection, setActiveSection] = useState<"general" | "details" | "links">("general");
+
+  // Reset to general section on modal open
+  useEffect(() => {
+    if (isOpen) {
+      setActiveSection("general");
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -56,13 +62,13 @@ export default function ProjectModal({
               <span>{isEdit ? "Edit Data Proyek" : "Tambah Proyek Baru"}</span>
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Data akan otomatis disinkronkan langsung ke Supabase & Website.
+              Data akan otomatis disinkronkan langsung ke Supabase &amp; Website.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition"
+            className="text-zinc-400 hover:text-zinc-700 p-1.5 rounded-lg hover:bg-zinc-100 transition cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -73,7 +79,7 @@ export default function ProjectModal({
           <button
             type="button"
             onClick={() => setActiveSection("general")}
-            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition ${
+            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
               activeSection === "general"
                 ? "border-zinc-900 text-zinc-900 font-semibold"
                 : "border-transparent text-zinc-500 hover:text-zinc-800"
@@ -86,27 +92,27 @@ export default function ProjectModal({
           <button
             type="button"
             onClick={() => setActiveSection("details")}
-            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition ${
+            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
               activeSection === "details"
                 ? "border-zinc-900 text-zinc-900 font-semibold"
                 : "border-transparent text-zinc-500 hover:text-zinc-800"
             }`}
           >
             <Code className="h-3.5 w-3.5" />
-            <span>Detail & Highlights</span>
+            <span>Detail &amp; Highlights</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveSection("links")}
-            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition ${
+            className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
               activeSection === "links"
                 ? "border-zinc-900 text-zinc-900 font-semibold"
                 : "border-transparent text-zinc-500 hover:text-zinc-800"
             }`}
           >
             <Link2 className="h-3.5 w-3.5" />
-            <span>Media & Tautan</span>
+            <span>Media &amp; Tautan</span>
           </button>
         </div>
 
@@ -136,9 +142,9 @@ export default function ProjectModal({
                   <select
                     value={data.category || "Web App"}
                     onChange={(e) => setData(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
+                    className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all cursor-pointer"
                   >
-                    {CATEGORIES.map(c => (
+                    {PROJECT_CATEGORIES.map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
@@ -178,7 +184,7 @@ export default function ProjectModal({
                       type="checkbox"
                       checked={!!data.featured}
                       onChange={(e) => setData(prev => ({ ...prev, featured: e.target.checked }))}
-                      className="rounded text-zinc-900 focus:ring-zinc-900 h-4 w-4"
+                      className="rounded text-zinc-900 focus:ring-zinc-900 h-4 w-4 cursor-pointer"
                     />
                     <div className="flex items-center gap-1.5 text-xs text-zinc-800 font-medium">
                       <Star className={`h-3.5 w-3.5 ${data.featured ? "text-amber-500 fill-amber-500" : "text-zinc-400"}`} />
@@ -235,7 +241,7 @@ export default function ProjectModal({
 
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Poin Highlights & Fitur Utama (1 baris per poin)
+                  Poin Highlights &amp; Fitur Utama (1 baris per poin)
                 </label>
                 <textarea
                   defaultValue={highlightsInputValue}
@@ -366,7 +372,7 @@ export default function ProjectModal({
           <div className="flex gap-2">
             <button
               type="button"
-              className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2 text-xs font-medium text-zinc-700 transition"
+              className="rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2 text-xs font-medium text-zinc-700 transition cursor-pointer"
               onClick={onClose}
             >
               Batal
@@ -374,7 +380,7 @@ export default function ProjectModal({
             <button
               type="submit"
               disabled={uploadingImage || !data.title.trim() || !data.description.trim()}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               <span>Simpan Proyek</span>
@@ -385,4 +391,3 @@ export default function ProjectModal({
     </div>
   );
 }
-

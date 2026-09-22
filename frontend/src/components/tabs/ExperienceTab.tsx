@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus, Edit3, Trash2, RefreshCw, Briefcase, MapPin, Calendar, Building2 } from "lucide-react";
-import { Experience } from "./ExperienceModal";
+import { Experience } from "../../types";
 
 interface ExperienceTabProps {
   experiences: Experience[];
@@ -9,7 +9,7 @@ interface ExperienceTabProps {
   handleSeedDefaultExperience: () => void;
   openAddExperience: () => void;
   openEditExperience: (exp: Experience) => void;
-  handleDeleteExperience: (id: string) => void;
+  handleDeleteExperience: (id?: string) => void;
 }
 
 export default function ExperienceTab({
@@ -97,7 +97,7 @@ export default function ExperienceTab({
               </tr>
             ) : (
               filteredExperiences.map((exp) => (
-                <tr key={exp.id} className="hover:bg-zinc-50/60 transition-colors group">
+                <tr key={exp.id || exp.role} className="hover:bg-zinc-50/60 transition-colors group">
                   <td className="py-4 px-6">
                     <div className="space-y-0.5">
                       <h4 className="font-semibold text-zinc-900 text-xs">{exp.role}</h4>

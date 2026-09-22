@@ -1,28 +1,6 @@
 import React, { useState } from "react";
 import { User, Save, Sparkles, Mail, Phone, Globe, Github, Linkedin, Instagram, FileText } from "lucide-react";
-
-export interface ProfileData {
-  name: string;
-  shortName: string;
-  role: string;
-  tagline: string;
-  bio: string;
-  status: string;
-  location: string;
-  email: string;
-  phone: string;
-  resumeUrl: string;
-  socialLinks: {
-    github: string;
-    linkedin: string;
-    instagram: string;
-    tiktok: string;
-  };
-  stats: {
-    label: string;
-    value: string;
-  }[];
-}
+import { ProfileData } from "../../types";
 
 interface AboutTabProps {
   profile: ProfileData;

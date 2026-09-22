@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { supabase } from "../lib/supabase";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { 
   Briefcase, 
   Code2, 
@@ -15,184 +14,185 @@ import {
   Bell,
   Info,
   X,
-  Inbox,
-  RefreshCw
+  RefreshCw,
+  Menu
 } from "lucide-react";
 
 import Sidebar, { AdminTab } from "../components/Sidebar";
-import DashboardTab, { GitHubProfile } from "../components/DashboardTab";
-import SkillsTab, { Skill } from "../components/SkillsTab";
-import ProjectsTab, { Project } from "../components/ProjectsTab";
-import AboutTab, { ProfileData } from "../components/AboutTab";
-import ExperienceTab from "../components/ExperienceTab";
-import ExperienceModal, { Experience } from "../components/ExperienceModal";
-import MessagesTab from "../components/MessagesTab";
-import MessageModal, { ContactMessage } from "../components/MessageModal";
-import SkillModal, { PopularSkill } from "../components/SkillModal";
-import ProjectModal from "../components/ProjectModal";
-import ConfirmModal from "../components/ConfirmModal";
-import Toast from "../components/Toast";
-import StatCard from "../components/StatCard";
+import DashboardTab from "../components/tabs/DashboardTab";
+import SkillsTab from "../components/tabs/SkillsTab";
+import ProjectsTab from "../components/tabs/ProjectsTab";
+import AboutTab from "../components/tabs/AboutTab";
+import ExperienceTab from "../components/tabs/ExperienceTab";
+import MessagesTab from "../components/tabs/MessagesTab";
 
-const POPULAR_SKILLS: PopularSkill[] = [
-  // 1. Front-End Web Development
-  { name: "HTML", logo: "HTM", category: "Front-End Web Development" },
-  { name: "CSS", logo: "CSS", category: "Front-End Web Development" },
-  { name: "JavaScript", logo: "JS", category: "Front-End Web Development" },
-  { name: "React", logo: "RE", category: "Front-End Web Development" },
-  { name: "Next.js", logo: "NX", category: "Front-End Web Development" },
-  { name: "Tailwind CSS", logo: "TW", category: "Front-End Web Development" },
-  { name: "TypeScript", logo: "TS", category: "Front-End Web Development" },
+import SkillModal from "../components/modals/SkillModal";
+import ProjectModal from "../components/modals/ProjectModal";
+import ExperienceModal from "../components/modals/ExperienceModal";
+import MessageModal from "../components/modals/MessageModal";
+import ConfirmModal from "../components/modals/ConfirmModal";
+import Toast from "../components/ui/Toast";
+import StatCard from "../components/ui/StatCard";
 
-  // 2. Programming Languages
-  { name: "C++", logo: "CPP", category: "Programming Languages" },
-  { name: "Python", logo: "PY", category: "Programming Languages" },
-  { name: "Java", logo: "JAV", category: "Programming Languages" },
-  { name: "Go (Golang)", logo: "GO", category: "Programming Languages" },
+import { 
+  Skill, 
+  Project, 
+  Experience, 
+  ContactMessage, 
+  GitHubProfile, 
+  GitHubRepo,
+  ToastState,
+  ConfirmModalState 
+} from "../types";
 
-  // 3. Developer Tools
-  { name: "Git / GitHub", logo: "GIT", category: "Developer Tools" },
-  { name: "VS Code", logo: "VSC", category: "Developer Tools" },
-  { name: "Postman", logo: "PST", category: "Developer Tools" },
-  { name: "Antigravity", logo: "AGY", category: "Developer Tools" },
-  { name: "Figma", logo: "FG", category: "Developer Tools" },
-  { name: "Wireshark", logo: "WSH", category: "Developer Tools" },
-  { name: "MySQL Workbench", logo: "SQL", category: "Developer Tools" },
+import { useAuth } from "../hooks/useAuth";
+import { useSkills } from "../hooks/useSkills";
+import { useProjects } from "../hooks/useProjects";
+import { useExperiences } from "../hooks/useExperiences";
+import { useMessages } from "../hooks/useMessages";
+import { useProfile } from "../hooks/useProfile";
 
-  // 4. Soft Skills & Professional
-  { name: "Technical Problem-Solving", logo: "TPS", category: "Soft Skills & Professional" },
-  { name: "Analytical Thinking", logo: "AT", category: "Soft Skills & Professional" },
-  { name: "Team Collaboration", logo: "TC", category: "Soft Skills & Professional" },
-  { name: "Time Management", logo: "TM", category: "Soft Skills & Professional" },
-  { name: "Client Management", logo: "CM", category: "Soft Skills & Professional" },
-
-  // 5. Achievements & Certifications (Semua 16 Sertifikasi Google AI & Security)
-  { name: "Sertifikat Profesional Google AI", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Google Network Security Spesialisasi", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI Fundamentals", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Network Architecture", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for Research and Insights", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Network Operations", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for Writing and Communicating", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Secure Against Network Intrusions", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for Content Creation", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Security Hardening", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for Data Analysis", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for App Building", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Network Monitoring and Analysis", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Network Traffic and Logs Using IDS and SIEM Tools", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "AI for Brainstorming and Planning", logo: "GOO", category: "Achievements & Certifications" },
-  { name: "Introduction to Detection and Incident Response", logo: "GOO", category: "Achievements & Certifications" },
-];
-
-const DEFAULT_PROFILE: ProfileData = {
-  name: "Moch. Firmansyah",
-  shortName: "Firman",
-  role: "Frontend Developer & Security Enthusiast",
-  tagline: "Code that looks good. Systems that stay safe.",
-  bio: "Sebagai mahasiswa Teknik Informatika di Telkom University, saya berdedikasi untuk menerapkan keterampilan analitis dan keahlian teknis saya dalam peran Front-End Developer di industri teknologi. Latar belakang akademik telah membekali saya dengan fondasi yang kuat dalam pemrograman, pengembangan web modern, dan pengelolaan basis data.\n\nSaya memiliki pengalaman langsung dalam membangun aplikasi web menggunakan React dan Next.js, didukung oleh pemahaman yang solid dalam pengembangan front-end maupun back-end, termasuk perancangan dan manajemen database.\n\nDi samping pengembangan antarmuka, saya memiliki ketertarikan mendalam pada Cyber Security dan Network Security. Berbekal sertifikasi spesialisasi dari Google, saya aktif menerapkan prinsip Secure Coding dan validasi data ketat guna memastikan setiap aplikasi web yang saya bangun tidak hanya estetik dan responsif, tetapi juga aman dan terlindungi.",
-  status: "Available for opportunities",
-  location: "Bandung, Indonesia",
-  email: "firmanajah366@gmail.com",
-  phone: "+62 812-3456-7890",
-  resumeUrl: "#contact",
-  socialLinks: {
-    github: "https://github.com/moch-firmansyahh",
-    linkedin: "https://www.linkedin.com/in/moch-firmansyah-532122323/",
-    instagram: "https://www.instagram.com/frmzyxx/",
-    tiktok: "https://www.tiktok.com/@frmnzy_",
-  },
-  stats: [
-    { label: "Tahun Belajar & Berkarya", value: "2+" },
-    { label: "Proyek Selesai", value: "5+" },
-    { label: "Lighthouse Performance", value: "98%" },
-    { label: "Dedikasi & Presisi", value: "100%" },
-  ],
-};
-
-const DEFAULT_EXPERIENCES: Omit<Experience, "id">[] = [
-  {
-    period: "Feb 2026 - Present",
-    role: "Study Group Member",
-    company: "Central Computer Improvement Telkom University",
-    location: "Bandung, West Java, Indonesia",
-    description: "Actively participated in the Central Computer Improvement (CCI) Study Group, specializing in modern web development. Gained hands-on experience building responsive user interfaces with Tailwind CSS and mastering the Next.js framework. Core focus areas included handling complex React state management, implementing dynamic routing architectures, and optimizing data fetching strategies (SSR & Client-Side) using Axios and Fetch to integrate REST APIs efficiently.",
-    technologies: ["Next.js", "React", "Tailwind CSS", "REST API", "Front-End Development", "Software System Analysis"],
-    type: "Work",
-  },
-  {
-    period: "Nov 2025 - Dec 2025",
-    role: "Study Group Member",
-    company: "Cyber Physical System Laboratory",
-    location: "Bandung, West Java, Indonesia",
-    description: "Actively participated in the Website Development Study Group to build web applications end-to-end. Hands-on practice included Front-End development with React.js and Tailwind CSS, Back-End (REST API) architecture with Node.js, Express.js, and MySQL, as well as API testing, integration, and public cloud deployment.",
-    technologies: ["React.js", "Tailwind CSS", "Node.js", "Express.js", "MySQL", "REST API", "Cloud Deployment"],
-    type: "Work",
-  },
-  {
-    period: "Nov 2024 - Jun 2025",
-    role: "Study Group Member",
-    company: "GDGoC Telkom University Bandung",
-    location: "Bandung, West Java, Indonesia",
-    description: "Active member of the Web Development Study Group at Google Developer Groups on Campus (GDGoC), learning and practicing modern web development alongside fellow members. Participated in group learning sessions, hands-on workshops, and collaborative projects focusing on web design and modern frontend engineering.",
-    technologies: ["Web Development", "Web Design", "JavaScript", "HTML/CSS", "Collaboration"],
-    type: "Work",
-  },
-];
-
-const getProjectPreview = (image: string, link: string) => {
-  if (image && (image.startsWith("/projects/") || image.startsWith("http"))) {
-    return image;
-  }
-  if (!image || image === "/assets/portofolio.png") {
-    if (link && link.includes("github.com/")) {
-      const parts = link.split("github.com/");
-      if (parts.length > 1) {
-        const repoPath = parts[1].split("?")[0];
-        return `https://opengraph.githubassets.com/1/${repoPath}`;
-      }
-    }
-  }
-  return image || "/projects/manajemen-kontrakan.png";
-};
+import { fetchGitHubProfile, fetchGitHubRepos } from "../lib/api/github";
+import { POPULAR_SKILLS, GITHUB_USERNAME } from "../lib/constants";
+import { getProjectPreview } from "../lib/utils";
+import { supabase } from "../lib/supabase";
 
 export default function AdminDashboard() {
-  // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // 1. Authentication via useAuth (server-side verification)
+  const {
+    isAuthenticated,
+    isLoadingAuth,
+    loginError,
+    login,
+    logout,
+  } = useAuth();
   const [passwordInput, setPasswordInput] = useState("");
-  const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Data states
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [profile, setProfile] = useState<ProfileData>(DEFAULT_PROFILE);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  // 2. Toast notification state with race-condition prevention (useRef timer)
+  const [toast, setToast] = useState<ToastState>({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showToast = useCallback((message: string, type: ToastState["type"] = "info") => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setToast({ isOpen: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, isOpen: false }));
+    }, 3500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 3. Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const triggerConfirm = useCallback(
+    (
+      title: string,
+      message: string,
+      onConfirm: () => void,
+      isDanger = false,
+      confirmText = "Konfirmasi",
+      onCancel?: () => void
+    ) => {
+      setConfirmModal({
+        isOpen: true,
+        title,
+        message,
+        confirmText,
+        isDanger,
+        onConfirm: () => {
+          onConfirm();
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        onCancel: () => {
+          if (onCancel) onCancel();
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
+    },
+    []
+  );
+
+  // 4. Domain Data Custom Hooks
+  const {
+    skills,
+    fetchSkills,
+    handleSaveSkill,
+    handleDeleteSkill: deleteSkillItem,
+    handleSeedDefaultSkills,
+    isSeedingSkills,
+  } = useSkills(showToast);
+
+  const {
+    projects,
+    fetchProjects,
+    handleSaveProject,
+    handleDeleteProject: deleteProjectItem,
+    handleUploadImage,
+    handleSeedDefaultProjects,
+    isSeedingProjects,
+    uploadingImage,
+  } = useProjects(showToast);
+
+  const {
+    experiences,
+    fetchExperiences,
+    handleSaveExperience,
+    handleDeleteExperience: deleteExperienceItem,
+    handleSeedDefaultExperience,
+    isSeedingExperiences,
+  } = useExperiences(showToast);
+
+  const {
+    messages,
+    unreadMessagesCount,
+    fetchMessages,
+    handleSetMessageReadStatus,
+    handleDeleteMessage: deleteMessageItem,
+  } = useMessages(showToast);
+
+  const {
+    profile,
+    setProfile,
+    savingProfile,
+    fetchProfile,
+    handleSaveProfile,
+    handleResetDefaultProfile,
+  } = useProfile(showToast);
+
+  // 5. GitHub Live Stats State
   const [gitProfile, setGitProfile] = useState<GitHubProfile | null>(null);
-  const [gitRepos, setGitRepos] = useState<any[]>([]);
-
-  // Loading & syncing states
-  const [loading, setLoading] = useState(true);
-  const [savingProfile, setSavingProfile] = useState(false);
+  const [gitRepos, setGitRepos] = useState<GitHubRepo[]>([]);
   const [syncingGit, setSyncingGit] = useState(false);
   const [syncingSkills, setSyncingSkills] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [isSeedingExperience, setIsSeedingExperience] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Search & Navigation states
+  // 6. Navigation, Search & Layout States
+  const [loading, setLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState<AdminTab>("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Notifications Popover state
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notificationsList, setNotificationsList] = useState<string[]>([
-    "Sistem CMS siap digunakan dengan PostgreSQL Supabase.",
-    "Buka tab Pesan Masuk untuk memeriksa kontak dari pengunjung."
-  ]);
 
-  // Modals state
+  // 7. Modals State
   const [skillModal, setSkillModal] = useState<{
     isOpen: boolean;
     isEdit: boolean;
@@ -200,9 +200,8 @@ export default function AdminDashboard() {
   }>({
     isOpen: false,
     isEdit: false,
-    data: { id: "", name: "", logo: "", percent: "", category: "Front-End Web Development" },
+    data: { name: "", logo: "", percent: 80, category: "Front-End Web Development" },
   });
-  const [isSeedingSkills, setIsSeedingSkills] = useState(false);
 
   const [projectModal, setProjectModal] = useState<{
     isOpen: boolean;
@@ -212,7 +211,6 @@ export default function AdminDashboard() {
     isOpen: false,
     isEdit: false,
     data: {
-      id: "",
       title: "",
       subtitle: "",
       description: "",
@@ -238,7 +236,6 @@ export default function AdminDashboard() {
     isOpen: false,
     isEdit: false,
     data: {
-      id: "",
       period: "",
       role: "",
       company: "",
@@ -252,66 +249,45 @@ export default function AdminDashboard() {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
-  // Toast state
-  const [toast, setToast] = useState<{
-    isOpen: boolean;
-    message: string;
-    type: "success" | "error" | "info";
-  }>({
-    isOpen: false,
-    message: "",
-    type: "info",
-  });
-
-  // Confirmation modal state
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    confirmText?: string;
-    isDanger?: boolean;
-    onConfirm: () => void;
-  }>({
-    isOpen: false,
-    title: "",
-    message: "",
-    onConfirm: () => {},
-  });
-
-  const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
-    setToast({ isOpen: true, message, type });
-    setTimeout(() => {
-      setToast(prev => ({ ...prev, isOpen: false }));
-    }, 3500);
-  };
-
-  const triggerConfirm = (
-    title: string,
-    message: string,
-    onConfirm: () => void,
-    isDanger: boolean = false,
-    confirmText: string = "Konfirmasi"
-  ) => {
-    setConfirmModal({
-      isOpen: true,
-      title,
-      message,
-      confirmText,
-      isDanger,
-      onConfirm: () => {
-        onConfirm();
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-      }
-    });
-  };
-
-  // Check Local Auth
-  useEffect(() => {
-    const authSession = localStorage.getItem("portfolio_admin_auth");
-    if (authSession === "true") {
-      setIsAuthenticated(true);
+  // 8. Dynamic Notifications List
+  const notificationsList = useMemo(() => {
+    const list: string[] = [
+      "Sistem CMS siap digunakan dengan PostgreSQL Supabase.",
+    ];
+    if (unreadMessagesCount > 0) {
+      list.push(`Terdapat ${unreadMessagesCount} pesan baru dari pengunjung web.`);
+    } else {
+      list.push("Tidak ada pesan baru yang belum dibaca.");
     }
-  }, []);
+    list.push(`Total ${projects.length} proyek dan ${skills.length} keahlian aktif tersinkronisasi.`);
+    return list;
+  }, [unreadMessagesCount, projects.length, skills.length]);
+
+  // 9. Initial Data Fetching
+  const fetchAllData = useCallback(async () => {
+    setLoading(true);
+    try {
+      await Promise.allSettled([
+        fetchSkills(),
+        fetchProjects(),
+        fetchExperiences(),
+        fetchMessages(),
+        fetchProfile(),
+        fetchGitHubProfile(GITHUB_USERNAME).then((res) => res && setGitProfile(res)),
+        fetchGitHubRepos(GITHUB_USERNAME).then((res) => setGitRepos(res)),
+      ]);
+    } catch (err: any) {
+      showToast("Gagal memuat seluruh data: " + err.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSkills, fetchProjects, fetchExperiences, fetchMessages, fetchProfile, showToast]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchAllData();
+    }
+  }, [isAuthenticated, fetchAllData]);
 
   // Keyboard shortcut Ctrl+K
   useEffect(() => {
@@ -325,117 +301,23 @@ export default function AdminDashboard() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Fetch all Supabase tables
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      // 1. Fetch Skills
-      const { data: skillsRows, error: sErr } = await supabase.from("skills").select("*").order("name");
-      if (!sErr && skillsRows) {
-        setSkills(skillsRows as Skill[]);
-      }
-
-      // 2. Fetch Projects
-      const { data: projectsRows, error: pErr } = await supabase
-        .from("projects")
-        .select("*")
-        .order("createdAt", { ascending: false });
-      if (!pErr && projectsRows) {
-        setProjects(projectsRows as Project[]);
-      }
-
-      // 3. Fetch Profile / About
-      const { data: profileRow } = await supabase.from("profile").select("*").eq("id", "main").maybeSingle();
-      if (profileRow) {
-        const pData = profileRow as any;
-        setProfile({
-          ...DEFAULT_PROFILE,
-          ...pData,
-          name: pData.name || DEFAULT_PROFILE.name,
-          role: pData.role || DEFAULT_PROFILE.role,
-          tagline: pData.tagline || DEFAULT_PROFILE.tagline,
-          bio: pData.bio || DEFAULT_PROFILE.bio,
-          socialLinks: { ...DEFAULT_PROFILE.socialLinks, ...(pData.socialLinks || {}) },
-          stats: (pData.stats && pData.stats.length > 0) ? pData.stats : DEFAULT_PROFILE.stats,
-        });
-      } else {
-        setProfile(DEFAULT_PROFILE);
-      }
-
-      // 4. Fetch Experiences
-      const { data: expRows, error: eErr } = await supabase
-        .from("experiences")
-        .select("*")
-        .order("createdAt", { ascending: false });
-      if (!eErr && expRows) {
-        setExperiences(expRows as Experience[]);
-      }
-
-      // 5. Fetch Messages (Inbox)
-      const { data: msgRows, error: mErr } = await supabase
-        .from("messages")
-        .select("*")
-        .order("createdAt", { ascending: false });
-      if (!mErr && msgRows) {
-        setMessages(
-          msgRows.map((m) => ({
-            id: m.id,
-            name: m.name,
-            email: m.email,
-            message: m.message,
-            read: m.status === "read",
-            createdAt: m.createdAt,
-          })) as ContactMessage[]
-        );
-      }
-
-      // 6. Fetch GitHub Data
-      try {
-        const userRes = await fetch("https://api.github.com/users/moch-firmansyahh");
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setGitProfile(userData);
-        }
-        const reposRes = await fetch("https://api.github.com/users/moch-firmansyahh/repos?per_page=100&sort=updated");
-        if (reposRes.ok) {
-          const reposData = await reposRes.json();
-          setGitRepos(reposData);
-        }
-      } catch (gitErr) {
-        console.warn("Gagal mengambil data GitHub:", gitErr);
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Gagal memuat data: " + (err as Error).message, "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchData();
-    }
-  }, [isAuthenticated]);
-
-  const handleLogin = (e: React.FormEvent) => {
+  // 10. Authentication Handlers
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === "admin123" || passwordInput === "firman2026") {
-      localStorage.setItem("portfolio_admin_auth", "true");
-      setIsAuthenticated(true);
-      setLoginError("");
-    } else {
-      setLoginError("Kredensial tidak valid. Silakan periksa kembali.");
+    setIsLoggingIn(true);
+    const success = await login(passwordInput);
+    setIsLoggingIn(false);
+    if (success) {
+      setPasswordInput("");
     }
   };
 
-  const handleLogout = () => {
+  const handleLogoutAction = () => {
     triggerConfirm(
       "Konfirmasi Keluar",
       "Apakah Anda yakin ingin keluar dari sesi Dashboard Admin?",
       () => {
-        localStorage.removeItem("portfolio_admin_auth");
-        setIsAuthenticated(false);
+        logout();
         setPasswordInput("");
       },
       false,
@@ -443,67 +325,230 @@ export default function AdminDashboard() {
     );
   };
 
-  // --- PROFILE HANDLERS ---
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  // 11. Modal Opener & Submitter Handlers
+  // --- Skills ---
+  const openAddSkill = (defaultCategory?: string) => {
+    setSkillModal({
+      isOpen: true,
+      isEdit: false,
+      data: {
+        name: "",
+        logo: "",
+        percent: 80,
+        category: defaultCategory || "Front-End Web Development",
+      },
+    });
+  };
+
+  const openEditSkill = (skill: Skill) => {
+    setSkillModal({
+      isOpen: true,
+      isEdit: true,
+      data: { ...skill },
+    });
+  };
+
+  const saveSkillModal = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavingProfile(true);
-    try {
-      const payload: Record<string, any> = {
-        id: "main",
-        ...profile,
-        updatedAt: new Date().toISOString(),
-      };
-
-      let result = await supabase.from("profile").upsert(payload);
-
-      // Auto-retry if any column is missing in Supabase schema cache (e.g. location)
-      if (result.error && result.error.message && result.error.message.includes("Could not find the '")) {
-        const missingCols: string[] = [];
-        let currentError: any = result.error;
-        while (currentError && currentError.message && currentError.message.includes("Could not find the '")) {
-          const match = currentError.message.match(/Could not find the '([^']+)' column/i);
-          if (match && match[1]) {
-            const col = match[1];
-            missingCols.push(col);
-            delete payload[col];
-            const retry: any = await supabase.from("profile").upsert(payload);
-            currentError = retry.error;
-          } else {
-            break;
-          }
-        }
-        if (currentError) throw currentError;
-        showToast("Profil tersimpan! (Catatan: jalankan SQL migration di Supabase untuk: " + missingCols.join(", ") + ")", "info");
-        return;
-      }
-
-      if (result.error) throw result.error;
-      showToast("Profil dan informasi Tentang Saya berhasil disimpan!", "success");
-    } catch (err: any) {
-      showToast("Gagal menyimpan profil: " + err.message, "error");
-    } finally {
-      setSavingProfile(false);
+    const success = await handleSaveSkill(skillModal.data, skillModal.isEdit);
+    if (success) {
+      setSkillModal((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
-  const handleResetDefaultProfile = () => {
+  const handleDeleteSkill = (id?: string) => {
+    if (!id) return;
     triggerConfirm(
-      "Muat Data Asli Web",
-      "Apakah Anda ingin memuat kembali data profil dan statistik bawaan dari portofolio web?",
-      () => {
-        setProfile(DEFAULT_PROFILE);
-        showToast("Data profil dikembalikan ke konfigurasi bawaan web.", "info");
-      }
+      "Hapus Keahlian",
+      "Apakah Anda yakin ingin menghapus keahlian ini dari database?",
+      () => deleteSkillItem(id),
+      true,
+      "Hapus"
     );
   };
 
-  // --- EXPERIENCE CRUD HANDLERS ---
+  // Sync skills from GitHub
+  const handleSyncSkillsGitHub = () => {
+    const languagesMap = new Set<string>();
+    for (const repo of gitRepos) {
+      if (repo.language) {
+        languagesMap.add(repo.language);
+      }
+    }
+    const existingSkillNames = new Set(skills.map((s) => s.name.toLowerCase()));
+    const newLanguages = Array.from(languagesMap).filter(
+      (lang) => !existingSkillNames.has(lang.toLowerCase())
+    );
+
+    if (newLanguages.length === 0) {
+      showToast("Semua bahasa dari GitHub sudah ada dalam daftar skill!", "info");
+      return;
+    }
+
+    triggerConfirm(
+      "Sinkronkan Skill dari GitHub",
+      `Ditemukan ${newLanguages.length} bahasa pemrograman baru: ${newLanguages.join(", ")}. Apakah Anda ingin menambahkannya ke Supabase?`,
+      async () => {
+        setSyncingSkills(true);
+        try {
+          const items = newLanguages.map((lang) => {
+            let logoVal = lang.substring(0, 3).toUpperCase();
+            let categoryVal = "Programming Languages";
+            const found = POPULAR_SKILLS.find(
+              (s) => s.name.toLowerCase() === lang.toLowerCase()
+            );
+            if (found) {
+              logoVal = found.logo;
+              if (found.category) categoryVal = found.category;
+            }
+            return {
+              name: lang,
+              logo: logoVal,
+              percent: 75,
+              category: categoryVal,
+            };
+          });
+
+          const { error } = await supabase.from("skills").insert(items);
+          if (error) throw error;
+
+          showToast(`Berhasil mengimpor ${newLanguages.length} skill baru!`, "success");
+          await fetchSkills();
+        } catch (err: any) {
+          showToast("Gagal sinkronisasi skill: " + err.message, "error");
+        } finally {
+          setSyncingSkills(false);
+        }
+      },
+      false,
+      "Impor Skill",
+      () => setSyncingSkills(false)
+    );
+  };
+
+  // --- Projects ---
+  const openAddProject = () => {
+    setProjectModal({
+      isOpen: true,
+      isEdit: false,
+      data: {
+        title: "",
+        subtitle: "",
+        description: "",
+        longDescription: "",
+        tags: [],
+        category: "Web App",
+        featured: false,
+        image: "",
+        link: "",
+        demoUrl: "",
+        githubUrl: "",
+        metrics: "",
+        highlights: [],
+        year: new Date().getFullYear().toString(),
+      },
+    });
+  };
+
+  const openEditProject = (project: Project) => {
+    setProjectModal({
+      isOpen: true,
+      isEdit: true,
+      data: { ...project },
+    });
+  };
+
+  const saveProjectModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await handleSaveProject(projectModal.data, projectModal.isEdit);
+    if (success) {
+      setProjectModal((prev) => ({ ...prev, isOpen: false }));
+    }
+  };
+
+  const handleDeleteProject = (id?: string) => {
+    if (!id) return;
+    triggerConfirm(
+      "Hapus Data Proyek",
+      "Apakah Anda yakin ingin menghapus data proyek ini dari Supabase?",
+      () => deleteProjectItem(id),
+      true,
+      "Hapus"
+    );
+  };
+
+  const handleImageUploadEvent = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await handleUploadImage(file);
+    if (url) {
+      setProjectModal((prev) => ({ ...prev, data: { ...prev.data, image: url } }));
+    }
+  };
+
+  // Sync projects from GitHub
+  const handleSyncGitHub = () => {
+    const existingProjectLinks = new Set(
+      projects.map((p) => (p.githubUrl || p.link || "").toLowerCase())
+    );
+    const newRepos = gitRepos.filter(
+      (repo) => !existingProjectLinks.has(repo.html_url.toLowerCase())
+    );
+
+    if (newRepos.length === 0) {
+      showToast("Semua repositori GitHub sudah tersinkronisasi!", "info");
+      return;
+    }
+
+    triggerConfirm(
+      "Sinkronkan Repositori GitHub",
+      `Ditemukan ${newRepos.length} repositori baru yang belum ada di database. Impor sekarang?`,
+      async () => {
+        setSyncingGit(true);
+        try {
+          const items = newRepos.map((repo) => ({
+            title: repo.name.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+            subtitle: repo.description || "Proyek repositori publik GitHub",
+            description: repo.description || "Repositori yang dikembangkan secara terbuka di akun GitHub saya.",
+            longDescription: repo.description || "Studi kasus pengembangan perangkat lunak berbasis repositori GitHub.",
+            tags: repo.language ? [repo.language, "Open Source"] : ["Software Project"],
+            category: "Web App",
+            featured: false,
+            image: "/projects/manajemen-kontrakan.png",
+            link: repo.homepage || repo.html_url,
+            demoUrl: repo.homepage || "",
+            githubUrl: repo.html_url,
+            metrics: `${repo.stargazers_count || 0} Bintang • ${repo.forks_count || 0} Forks`,
+            highlights: [
+              `Bahasa utama: ${repo.language || "Multi-stack"}`,
+              `Terakhir diperbarui: ${new Date(repo.updated_at).toLocaleDateString("id-ID")}`,
+            ],
+            year: new Date(repo.created_at).getFullYear().toString(),
+          }));
+
+          const { error } = await supabase.from("projects").insert(items);
+          if (error) throw error;
+
+          showToast(`Berhasil mengimpor ${newRepos.length} proyek dari GitHub!`, "success");
+          await fetchProjects();
+        } catch (err: any) {
+          showToast("Gagal mengimpor proyek: " + err.message, "error");
+        } finally {
+          setSyncingGit(false);
+        }
+      },
+      false,
+      "Impor Proyek",
+      () => setSyncingGit(false)
+    );
+  };
+
+  // --- Experiences ---
   const openAddExperience = () => {
     setExperienceModal({
       isOpen: true,
       isEdit: false,
       data: {
-        id: "",
         period: "",
         role: "",
         company: "",
@@ -525,596 +570,64 @@ export default function AdminDashboard() {
 
   const saveExperienceModal = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { isEdit, data } = experienceModal;
-    if (!data.role.trim() || !data.company.trim() || !data.period.trim()) {
-      showToast("Posisi, instansi, dan periode waktu wajib diisi!", "error");
-      return;
-    }
-
-    try {
-      if (isEdit) {
-        const { error } = await supabase.from("experiences").update({
-          role: data.role.trim(),
-          company: data.company.trim(),
-          period: data.period.trim(),
-          location: data.location.trim(),
-          description: data.description.trim(),
-          technologies: data.technologies || [],
-          type: data.type || "Work",
-        }).eq("id", data.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("experiences").insert([{
-          role: data.role.trim(),
-          company: data.company.trim(),
-          period: data.period.trim(),
-          location: data.location.trim(),
-          description: data.description.trim(),
-          technologies: data.technologies || [],
-          type: data.type || "Work",
-        }]);
-        if (error) throw error;
-      }
-      setExperienceModal(prev => ({ ...prev, isOpen: false }));
-      showToast("Riwayat pengalaman berhasil disimpan!", "success");
-      fetchData();
-    } catch (err: any) {
-      showToast("Gagal menyimpan riwayat: " + err.message, "error");
+    const success = await handleSaveExperience(experienceModal.data, experienceModal.isEdit);
+    if (success) {
+      setExperienceModal((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
-  const handleDeleteExperience = async (id: string) => {
+  const handleDeleteExperience = (id?: string) => {
+    if (!id) return;
     triggerConfirm(
       "Hapus Riwayat Pengalaman",
-      "Apakah Anda yakin ingin menghapus riwayat ini? Data akan terhapus dari timeline web.",
-      async () => {
-        try {
-          const { error } = await supabase.from("experiences").delete().eq("id", id);
-          if (error) throw error;
-          showToast("Riwayat pengalaman berhasil dihapus!", "success");
-          fetchData();
-        } catch (err: any) {
-          showToast("Gagal menghapus: " + err.message, "error");
-        }
-      },
+      "Apakah Anda yakin ingin menghapus data pengalaman ini?",
+      () => deleteExperienceItem(id),
       true,
       "Hapus"
     );
   };
 
-  const handleSeedDefaultExperience = async () => {
-    triggerConfirm(
-      "Impor Pengalaman Bawaan Web",
-      "Apakah Anda ingin mengimpor 3 riwayat studi & organisasi bawaan dari website ke Supabase?",
-      async () => {
-        setIsSeedingExperience(true);
-        try {
-          const { error } = await supabase.from("experiences").insert(DEFAULT_EXPERIENCES);
-          if (error) throw error;
-          showToast("Riwayat pengalaman bawaan berhasil diimpor ke Supabase!", "success");
-          fetchData();
-        } catch (err: any) {
-          showToast("Gagal impor pengalaman: " + err.message, "error");
-        } finally {
-          setIsSeedingExperience(false);
-        }
-      }
-    );
-  };
-
-  // --- MESSAGES (INBOX) HANDLERS ---
+  // --- Messages ---
   const handleOpenMessage = (msg: ContactMessage) => {
     setSelectedMessage(msg);
     setIsMessageModalOpen(true);
     if (!msg.read) {
-      handleToggleReadMessage(msg.id, false, false);
+      handleSetMessageReadStatus(msg.id, true, false);
     }
   };
 
-  const handleToggleReadMessage = async (id: string, currentStatus: boolean, notify = true) => {
-    try {
-      const { error } = await supabase
-        .from("messages")
-        .update({ status: !currentStatus ? "read" : "unread" })
-        .eq("id", id);
-      if (error) throw error;
-
-      setMessages(prev =>
-        prev.map(m => (m.id === id ? { ...m, read: !currentStatus } : m))
-      );
-      if (selectedMessage && selectedMessage.id === id) {
-        setSelectedMessage(prev => prev ? { ...prev, read: !currentStatus } : null);
-      }
-      if (notify) {
-        showToast(!currentStatus ? "Pesan ditandai sudah dibaca." : "Pesan ditandai belum dibaca.", "info");
-      }
-    } catch (err: any) {
-      showToast("Gagal memperbarui status pesan: " + err.message, "error");
-    }
-  };
-
-  const handleDeleteMessage = async (id: string) => {
+  const handleDeleteMessage = (id: string) => {
     triggerConfirm(
       "Hapus Pesan Masuk",
-      "Apakah Anda yakin ingin menghapus pesan ini secara permanen?",
+      "Apakah Anda yakin ingin menghapus pesan ini dari inbox?",
       async () => {
-        try {
-          const { error } = await supabase.from("messages").delete().eq("id", id);
-          if (error) throw error;
-          setMessages(prev => prev.filter(m => m.id !== id));
-          showToast("Pesan berhasil dihapus dari Inbox!", "success");
-        } catch (err: any) {
-          showToast("Gagal menghapus pesan: " + err.message, "error");
+        const ok = await deleteMessageItem(id);
+        if (ok && selectedMessage?.id === id) {
+          setSelectedMessage(null);
+          setIsMessageModalOpen(false);
         }
       },
       true,
       "Hapus"
     );
-  };
-
-  // --- SKILL CRUD HANDLERS ---
-  const openAddSkill = (defaultCategory: string = "Front-End Web Development") => {
-    setSkillModal({
-      isOpen: true,
-      isEdit: false,
-      data: { id: "", name: "", logo: "", percent: "", category: defaultCategory },
-    });
-  };
-
-  const openEditSkill = (skill: Skill) => {
-    setSkillModal({
-      isOpen: true,
-      isEdit: true,
-      data: {
-        ...skill,
-        category: skill.category || "Front-End Web Development",
-      },
-    });
-  };
-
-  const handleDeleteSkill = async (id: string) => {
-    triggerConfirm(
-      "Hapus Keahlian",
-      "Apakah Anda yakin ingin menghapus keahlian ini? Tindakan ini tidak dapat dibatalkan.",
-      async () => {
-        try {
-          const { error } = await supabase.from("skills").delete().eq("id", id);
-          if (error) throw error;
-          showToast("Skill berhasil dihapus!", "success");
-          fetchData();
-        } catch (err) {
-          showToast("Gagal menghapus: " + (err as Error).message, "error");
-        }
-      },
-      true,
-      "Hapus"
-    );
-  };
-
-  const saveSkillModal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { isEdit, data } = skillModal;
-    const rawVal = data.percent;
-    if (rawVal === "" || rawVal === null || isNaN(Number(rawVal)) || Number(rawVal) <= 0) {
-      showToast("Persentase penguasaan harus diisi antara 1 - 100%!", "error");
-      return;
-    }
-    const finalPercent = Math.max(1, Math.min(100, parseInt(String(rawVal), 10)));
-    try {
-      if (isEdit) {
-        const { error } = await supabase.from("skills").update({
-          name: data.name.trim(),
-          logo: data.logo.trim(),
-          percent: finalPercent,
-          category: data.category || "Front-End Web Development",
-        }).eq("id", data.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("skills").insert([{
-          name: data.name.trim(),
-          logo: data.logo.trim(),
-          percent: finalPercent,
-          category: data.category || "Front-End Web Development",
-        }]);
-        if (error) throw error;
-      }
-      setSkillModal(prev => ({ ...prev, isOpen: false }));
-      showToast("Skill berhasil disimpan!", "success");
-      fetchData();
-    } catch (err) {
-      showToast("Gagal menyimpan: " + (err as Error).message, "error");
-    }
-  };
-
-  const handleSeedDefaultSkills = async () => {
-    triggerConfirm(
-      "Impor Keahlian Bawaan Web",
-      "Apakah Anda ingin menyinkronkan seluruh daftar keahlian dari 5 kategori bawaan web (Front-End, Languages, Tools, Soft Skills, Certifications) ke Supabase?",
-      async () => {
-        setIsSeedingSkills(true);
-        try {
-          const existingNames = new Set(skills.map(s => s.name.toLowerCase()));
-          const itemsToInsert = POPULAR_SKILLS.filter(
-            ps => !existingNames.has(ps.name.toLowerCase())
-          ).map(ps => ({
-            name: ps.name,
-            logo: ps.logo,
-            percent: ps.category === "Achievements & Certifications" ? 100 : 85,
-            category: ps.category || "Front-End Web Development",
-          }));
-
-          if (itemsToInsert.length > 0) {
-            const { error } = await supabase.from("skills").insert(itemsToInsert);
-            if (error) throw error;
-            showToast(`Berhasil menyinkronkan ${itemsToInsert.length} keahlian ke dalam 5 kategori!`, "success");
-            fetchData();
-          } else {
-            showToast("Semua keahlian bawaan sudah ada dalam daftar!", "info");
-          }
-        } catch (err: any) {
-          showToast("Gagal mengimpor keahlian: " + err.message, "error");
-        } finally {
-          setIsSeedingSkills(false);
-        }
-      }
-    );
-  };
-
-  const handleSyncSkillsGitHub = async () => {
-    setSyncingSkills(true);
-    try {
-      const languagesMap = new Set<string>();
-      for (const repo of gitRepos) {
-        if (repo.language) {
-          languagesMap.add(repo.language);
-        }
-      }
-      const existingSkillNames = new Set(skills.map(s => s.name.toLowerCase()));
-      const newLanguages = Array.from(languagesMap).filter(
-        lang => !existingSkillNames.has(lang.toLowerCase())
-      );
-
-      if (newLanguages.length === 0) {
-        showToast("Semua bahasa dari GitHub sudah ada dalam daftar skill!", "info");
-        setSyncingSkills(false);
-        return;
-      }
-
-      triggerConfirm(
-        "Sinkronkan Skill dari GitHub",
-        `Ditemukan ${newLanguages.length} bahasa pemrograman baru: ${newLanguages.join(", ")}. Apakah Anda ingin menambahkannya ke Supabase?`,
-        async () => {
-          try {
-            const items = newLanguages.map(lang => {
-              let logoVal = lang.substring(0, 3).toUpperCase();
-              let categoryVal = "Programming Languages";
-              const found = POPULAR_SKILLS.find(s => s.name.toLowerCase() === lang.toLowerCase());
-              if (found) {
-                logoVal = found.logo;
-                if (found.category) categoryVal = found.category;
-              }
-              return {
-                name: lang,
-                logo: logoVal,
-                percent: 75,
-                category: categoryVal,
-              };
-            });
-            const { error } = await supabase.from("skills").insert(items);
-            if (error) throw error;
-
-            showToast(`Berhasil mengimpor ${newLanguages.length} skill baru!`, "success");
-            fetchData();
-          } catch (err) {
-            showToast("Gagal sinkronisasi skill: " + (err as Error).message, "error");
-          } finally {
-            setSyncingSkills(false);
-          }
-        },
-        false,
-        "Impor Skill"
-      );
-    } catch (err) {
-      showToast("Gagal sinkronisasi: " + (err as Error).message, "error");
-      setSyncingSkills(false);
-    }
-  };
-
-  // --- PROJECT CRUD HANDLERS ---
-  const openAddProject = () => {
-    setProjectModal({
-      isOpen: true,
-      isEdit: false,
-      data: {
-        id: "",
-        title: "",
-        subtitle: "",
-        description: "",
-        longDescription: "",
-        tags: ["Web App", "Next.js 16"],
-        category: "Web App",
-        featured: false,
-        image: "/projects/manajemen-kontrakan.png",
-        link: "",
-        demoUrl: "",
-        githubUrl: "",
-        metrics: "Full-Stack • Interactive",
-        highlights: ["Fitur utama dirancang responsif dan interaktif."],
-        year: new Date().getFullYear().toString(),
-      },
-    });
-  };
-
-  const openEditProject = (project: Project) => {
-    setProjectModal({
-      isOpen: true,
-      isEdit: true,
-      data: { ...project },
-    });
-  };  const handleDeleteProject = async (id: string) => {
-    triggerConfirm(
-      "Hapus Proyek",
-      "Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.",
-      async () => {
-        try {
-          const { error } = await supabase.from("projects").delete().eq("id", id);
-          if (error) throw error;
-          showToast("Proyek berhasil dihapus!", "success");
-          fetchData();
-        } catch (err) {
-          showToast("Gagal menghapus: " + (err as Error).message, "error");
-        }
-      },
-      true,
-      "Hapus"
-    );
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 15 * 1024 * 1024) {
-      showToast("Ukuran file gambar maksimal 15MB!", "error");
-      return;
-    }
-
-    setUploadingImage(true);
-
-    try {
-      const fileExt = file.name.split(".").pop()?.toLowerCase() || "png";
-      const cleanBase = file.name
-        .substring(0, file.name.lastIndexOf("."))
-        .replace(/[^a-zA-Z0-9_-]/g, "_")
-        .toLowerCase();
-      const fileName = `${Date.now()}_${cleanBase}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("projects")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("projects")
-        .getPublicUrl(uploadData.path);
-
-      const finalImageUrl = publicUrlData.publicUrl;
-
-      setProjectModal((prev) => ({
-        ...prev,
-        data: {
-          ...prev.data,
-          image: finalImageUrl,
-        },
-      }));
-      showToast("Gambar cover proyek berhasil diupload ke Supabase Storage!", "success");
-    } catch (err: any) {
-      showToast("Gagal mengupload gambar: " + (err.message || String(err)), "error");
-    } finally {
-      setUploadingImage(false);
-      e.target.value = "";
-    }
-  };
-
-  const saveProjectModal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { isEdit, data } = projectModal;
-    if (!data.title.trim() || !data.description.trim()) {
-      showToast("Judul dan deskripsi proyek wajib diisi!", "error");
-      return;
-    }
-
-    try {
-      const payload = {
-        title: data.title.trim(),
-        subtitle: data.subtitle || data.description,
-        description: data.description.trim(),
-        longDescription: data.longDescription || data.description,
-        tags: data.tags || [],
-        category: data.category || "Web App",
-        featured: !!data.featured,
-        image: data.image || "/projects/manajemen-kontrakan.png",
-        link: data.demoUrl || data.link || "",
-        demoUrl: data.demoUrl || data.link || "",
-        githubUrl: data.githubUrl || "",
-        metrics: data.metrics || "Interactive UI",
-        highlights: data.highlights || [],
-        year: data.year || new Date().getFullYear().toString(),
-      };
-
-      if (isEdit) {
-        const { error } = await supabase.from("projects").update({
-          ...payload,
-          updatedAt: new Date().toISOString(),
-        }).eq("id", data.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("projects").insert([{
-          ...payload,
-        }]);
-        if (error) throw error;
-      }
-      setProjectModal(prev => ({ ...prev, isOpen: false }));
-      showToast("Proyek berhasil disimpan!", "success");
-      fetchData();
-    } catch (err) {
-      showToast("Gagal menyimpan: " + (err as Error).message, "error");
-    }
-  };
-
-  const handleSeedDefaultData = async () => {
-    triggerConfirm(
-      "Sinkronkan Proyek Asli dari Web",
-      "Tindakan ini akan menyinkronkan proyek unggulan dari portofolio web ('Kontrakan Pa Iman' & 'Voluntrip' menggunakan gambar lokal /projects/...) ke Supabase. Lanjutkan?",
-      async () => {
-        setIsSeeding(true);
-        try {
-          const defaultSeedProjects = [
-            {
-              title: "Kontrakan Pa Iman",
-              subtitle: "Sistem Manajemen Kost Digital Modern & Responsif",
-              description: "Aplikasi web Full-Stack Digital Management yang dirancang khusus untuk pemilik kost dalam mengelola unit kamar, data penghuni (aktif & alumni), dan pencatatan riwayat pembayaran bulanan secara efisien, terstruktur, dan otomatis.",
-              longDescription: "Kontrakan Pa Iman adalah aplikasi web Full-Stack Digital Management yang dirancang khusus untuk pemilik kost dalam mengelola unit kamar, data penghuni (aktif & alumni), dan pencatatan riwayat pembayaran bulanan secara efisien, terstruktur, dan otomatis. Dibangun dengan arsitektur modern Next.js 16, Express.js 5, Prisma ORM, dan PostgreSQL Supabase untuk menyederhanakan operasional bisnis sewa properti.",
-              tags: ["Next.js 16", "TypeScript", "Tailwind CSS v4", "Express.js 5", "Prisma ORM", "PostgreSQL (Supabase)", "Shadcn UI", "JWT Auth", "PWA Ready"],
-              category: "Web App",
-              featured: true,
-              image: "/projects/manajemen-kontrakan.png",
-              link: "https://manajemen-kontrakan-iman.vercel.app/",
-              demoUrl: "https://manajemen-kontrakan-iman.vercel.app/",
-              githubUrl: "https://github.com/moch-firmansyahh/manajemen-kost-v2",
-              metrics: "Full-Stack • Real-time Stats • PWA Ready",
-              highlights: [
-                "Dashboard Ringkasan Real-Time dengan 4 Stat Card interaktif, monitoring tagihan sewa pending, dan popover notifikasi",
-                "Manajemen Unit Kamar: Filter & instant search nomor/tipe kamar, modal operasi CRUD, serta histori lengkap transaksi kamar",
-                "Manajemen Penghuni: Pengelompokan tab Penghuni Aktif & Alumni, profil identitas lengkap, dan sistem checkout otomatis",
-                "Manajemen Pembayaran & Struk: Pencatatan status tagihan sewa bulanan, filter periode transaksi, dan halaman cetak invoice",
-                "Keunggulan UI/UX: Dual Theme (Dark/Light mode) mulus, animasi welcome screen & loader kustom, serta instalasi PWA standalone"
-              ],
-              year: "2026",
-            },
-            {
-              title: "Voluntrip",
-              subtitle: "Aplikasi Perencana Trip, Rundown Perjalanan Interaktif & Manajemen Budget Kelompok",
-              description: "Platform perencana perjalanan modern yang dirancang untuk mempermudah traveler dan kelompok perjalanan dalam menyusun jadwal kegiatan (rundown), mengelola anggaran (budgeting), dan melacak pengeluaran secara real-time.",
-              longDescription: "Voluntrip adalah platform perencana perjalanan modern yang dirancang untuk mempermudah traveler dan kelompok perjalanan dalam menyusun jadwal kegiatan (rundown), mengelola anggaran (budgeting), dan melacak pengeluaran secara real-time. Dengan antarmuka interaktif yang intuitif, Voluntrip memastikan itinerary bebas bentrok jam, fleksibel untuk diubah lewat fitur drag & drop, serta mudah dibagikan ke anggota trip lainnya.",
-              tags: ["Next.js 16 (App Router)", "TypeScript", "Tailwind CSS", "Supabase PostgreSQL", "Dnd Kit", "PWA Ready", "JWT Auth", "Leaflet"],
-              category: "Web App",
-              featured: true,
-              image: "/projects/voluntrip.png",
-              link: "https://voluntrip-five.vercel.app/",
-              demoUrl: "https://voluntrip-five.vercel.app/",
-              githubUrl: "https://github.com/moch-firmansyahh/voluntrip",
-              metrics: "Drag & Drop • Real-time Budgeting • PWA Ready",
-              highlights: [
-                "Interactive Itinerary & Rundown Builder dengan Drag & Drop (Dnd-Kit) dan Auto-Reschedule sekuensial bebas tabrakan jam",
-                "Autocomplete lokasi destinasi terintegrasi Photon OpenStreetMap API (Komoot) dan visualisasi titik peta Leaflet",
-                "Expense Tracker, Budgeting & Split Bill kalkulator otomatis untuk pembagian tagihan rata (equal share) antar anggota trip",
-                "Sistem Autentikasi JWT terenkripsi dengan HTTP-only cookie, opsi Ingat Saya 30 hari, dan instant logout",
-                "Dukungan Progressive Web App (PWA Standalone), Traveloka-Style Splash Screen, serta Public Share Link dengan token unik"
-              ],
-              year: "2026",
-            }
-          ];
-
-          const existingTitles = new Set(projects.map(p => p.title.toLowerCase()));
-          const newItemsToInsert = defaultSeedProjects.filter(p => !existingTitles.has(p.title.toLowerCase()));
-
-          if (newItemsToInsert.length === 0) {
-            showToast("Semua data proyek bawaan web sudah ada di database!", "info");
-            setIsSeeding(false);
-            return;
-          }
-
-          const { error } = await supabase.from("projects").insert(newItemsToInsert);
-          if (error) throw error;
-
-          showToast(`Berhasil menambahkan ${newItemsToInsert.length} proyek bawaan dari portofolio web!`, "success");
-          fetchData();
-        } catch (err) {
-          showToast("Gagal impor data: " + (err as Error).message, "error");
-        } finally {
-          setIsSeeding(false);
-        }
-      },
-      false,
-      "Sinkronkan"
-    );
-  };
-
-  const handleSyncGitHub = async () => {
-    setSyncingGit(true);
-    try {
-      const existingProjectLinks = new Set(
-        projects.map(p => (p.githubUrl || p.link || "").toLowerCase())
-      );
-      const newRepos = gitRepos.filter(
-        repo => !existingProjectLinks.has(repo.html_url.toLowerCase())
-      );
-
-      if (newRepos.length === 0) {
-        showToast("Semua repositori GitHub sudah tersinkronisasi!", "info");
-        setSyncingGit(false);
-        return;
-      }
-
-      triggerConfirm(
-        "Sinkronkan Repositori GitHub",
-        `Ditemukan ${newRepos.length} repositori baru yang belum ada di database. Impor sekarang?`,
-        async () => {
-          try {
-            const items = newRepos.map(repo => ({
-              title: repo.name.replace(/[-_]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
-              subtitle: repo.description || "Proyek repositori publik GitHub",
-              description: repo.description || "Repositori yang dikembangkan secara terbuka di akun GitHub saya.",
-              longDescription: repo.description || "Studi kasus pengembangan perangkat lunak berbasis repositori GitHub.",
-              tags: repo.language ? [repo.language, "Open Source"] : ["Software Project"],
-              category: "Web App",
-              featured: false,
-              image: "/projects/manajemen-kontrakan.png",
-              link: repo.homepage || repo.html_url,
-              demoUrl: repo.homepage || "",
-              githubUrl: repo.html_url,
-              metrics: `${repo.stargazers_count || 0} Bintang • ${repo.forks_count || 0} Forks`,
-              highlights: [
-                `Bahasa utama: ${repo.language || "Multi-stack"}`,
-                `Terakhir diperbarui: ${new Date(repo.updated_at).toLocaleDateString("id-ID")}`,
-              ],
-              year: new Date(repo.created_at).getFullYear().toString(),
-            }));
-
-            const { error } = await supabase.from("projects").insert(items);
-            if (error) throw error;
-
-            showToast(`Berhasil mengimpor ${newRepos.length} proyek dari GitHub!`, "success");
-            fetchData();
-          } catch (err) {
-            showToast("Gagal mengimpor: " + (err as Error).message, "error");
-          } finally {
-            setSyncingGit(false);
-          }
-        },
-        false,
-        "Impor Proyek"
-      );
-    } catch (err) {
-      showToast("Gagal sinkronisasi: " + (err as Error).message, "error");
-      setSyncingGit(false);
-    }
   };
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "/projects/manajemen-kontrakan.png";
   };
 
-  const unreadMessagesCount = messages.filter(m => !m.read).length;
+  // 12. Render Login Screen
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="h-6 w-6 text-zinc-800 animate-spin" />
+          <span className="text-xs text-zinc-500 font-medium">Memeriksa sesi pengelola...</span>
+        </div>
+      </div>
+    );
+  }
 
-  // --- LOGIN VIEW ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4 font-sans select-none antialiased">
@@ -1131,18 +644,23 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-zinc-600 uppercase tracking-wider">
-                Password Administrator
+              <label
+                htmlFor="admin-password"
+                className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500"
+              >
+                Password Pengelola
               </label>
               <input
+                id="admin-password"
                 type="password"
+                required
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Masukkan kata sandi..."
+                placeholder="Ketik password..."
+                className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-mono"
                 autoFocus
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-mono"
               />
             </div>
 
@@ -1155,9 +673,10 @@ export default function AdminDashboard() {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white py-2.5 text-xs font-medium shadow-2xs transition-all cursor-pointer"
+              disabled={isLoggingIn}
+              className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white py-2.5 text-xs font-medium shadow-2xs transition-all cursor-pointer"
             >
-              <span>Masuk ke Dashboard</span>
+              <span>{isLoggingIn ? "Memverifikasi..." : "Masuk ke Dashboard"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </form>
@@ -1166,9 +685,10 @@ export default function AdminDashboard() {
     );
   }
 
+  // 13. Main Dashboard UI
   return (
     <div className="min-h-screen bg-[#FDFDFC] flex font-sans antialiased text-zinc-900">
-      {/* Dynamic Sidebar */}
+      {/* Sidebar with Mobile Drawer support */}
       <Sidebar 
         activeMenu={activeMenu}
         setActiveMenu={setActiveMenu}
@@ -1178,14 +698,24 @@ export default function AdminDashboard() {
         unreadMessagesCount={unreadMessagesCount}
         gitProfile={gitProfile}
         handleImgError={handleImgError}
-        handleLogout={handleLogout}
+        handleLogout={handleLogoutAction}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Top Header */}
-        <header className="h-16 border-b border-zinc-200/80 px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
-          <div className="flex items-center gap-4 flex-1 max-w-md">
+        <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
+          <div className="flex items-center gap-3 flex-1 max-w-md">
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="lg:hidden p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
+              title="Buka Menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <input
@@ -1196,7 +726,7 @@ export default function AdminDashboard() {
                 placeholder="Cari konten, proyek, riwayat, pesan... (Ctrl+K)"
                 className="w-full rounded-lg border border-zinc-200/80 bg-zinc-50/50 pl-9 pr-8 py-1.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:bg-white focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
               />
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[10px] font-mono text-zinc-400 bg-white px-1.5 py-0.5 rounded border border-zinc-200">
+              <span className="hidden sm:flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] font-mono text-zinc-400 bg-white px-1.5 py-0.5 rounded border border-zinc-200">
                 <Command className="h-2.5 w-2.5" /> K
               </span>
             </div>
@@ -1224,7 +754,7 @@ export default function AdminDashboard() {
                     <Info className="h-3.5 w-3.5 text-blue-600" />
                     <span>Pemberitahuan Sistem</span>
                   </span>
-                  <button onClick={() => setShowNotifications(false)} className="text-zinc-400 hover:text-zinc-700">
+                  <button onClick={() => setShowNotifications(false)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -1251,7 +781,7 @@ export default function AdminDashboard() {
             )}
 
             <button 
-              onClick={fetchData} 
+              onClick={fetchAllData} 
               className="h-9 w-9 flex items-center justify-center rounded-lg bg-white border border-zinc-200/80 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition-all shadow-2xs cursor-pointer"
               title="Segarkan Data"
             >
@@ -1261,7 +791,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* Content Area */}
-        <div className="p-8 space-y-6 flex-1">
+        <div className="p-4 sm:p-8 space-y-6 flex-1">
           {/* Page Title Header */}
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-zinc-900">
@@ -1310,20 +840,30 @@ export default function AdminDashboard() {
             />
           </div>
 
+          {/* Loading Skeleton */}
+          {loading && (
+            <div className="rounded-xl border border-zinc-200/80 bg-white p-8 flex flex-col items-center justify-center gap-3">
+              <RefreshCw className="h-6 w-6 text-zinc-400 animate-spin" />
+              <p className="text-xs text-zinc-500 font-medium">Sinkronisasi data PostgreSQL Supabase...</p>
+            </div>
+          )}
+
           {/* TAB 1: Dashboard */}
-          {activeMenu === "dashboard" && (
+          {!loading && activeMenu === "dashboard" && (
             <DashboardTab 
               gitProfile={gitProfile}
               gitRepos={gitRepos}
               skills={skills}
               projects={projects}
+              experiences={experiences}
+              messages={messages}
               handleImgError={handleImgError}
               showToast={showToast}
             />
           )}
 
           {/* TAB 2: About / Profile */}
-          {activeMenu === "about" && (
+          {!loading && activeMenu === "about" && (
             <AboutTab 
               profile={profile}
               setProfile={setProfile}
@@ -1334,7 +874,7 @@ export default function AdminDashboard() {
           )}
 
           {/* TAB 3: Skills */}
-          {activeMenu === "skills" && (
+          {!loading && activeMenu === "skills" && (
             <SkillsTab 
               skills={skills}
               searchQuery={searchQuery}
@@ -1349,7 +889,7 @@ export default function AdminDashboard() {
           )}
 
           {/* TAB 4: Projects */}
-          {activeMenu === "projects" && (
+          {!loading && activeMenu === "projects" && (
             <ProjectsTab 
               projects={projects}
               searchQuery={searchQuery}
@@ -1359,17 +899,17 @@ export default function AdminDashboard() {
               openEditProject={openEditProject}
               handleDeleteProject={handleDeleteProject}
               getProjectPreview={getProjectPreview}
-              handleSeedDefaultData={handleSeedDefaultData}
-              isSeeding={isSeeding}
+              handleSeedDefaultData={handleSeedDefaultProjects}
+              isSeeding={isSeedingProjects}
             />
           )}
 
           {/* TAB 5: Experience */}
-          {activeMenu === "experience" && (
+          {!loading && activeMenu === "experience" && (
             <ExperienceTab 
               experiences={experiences}
               searchQuery={searchQuery}
-              isSeeding={isSeedingExperience}
+              isSeeding={isSeedingExperiences}
               handleSeedDefaultExperience={handleSeedDefaultExperience}
               openAddExperience={openAddExperience}
               openEditExperience={openEditExperience}
@@ -1378,12 +918,12 @@ export default function AdminDashboard() {
           )}
 
           {/* TAB 6: Messages (Inbox) */}
-          {activeMenu === "messages" && (
+          {!loading && activeMenu === "messages" && (
             <MessagesTab 
               messages={messages}
               searchQuery={searchQuery}
               onOpenMessage={handleOpenMessage}
-              onToggleRead={(id, status) => handleToggleReadMessage(id, status, true)}
+              onToggleRead={(id, status) => handleSetMessageReadStatus(id, !status, true)}
               onDeleteMessage={handleDeleteMessage}
             />
           )}
@@ -1397,14 +937,14 @@ export default function AdminDashboard() {
         data={skillModal.data}
         setData={(action) => {
           if (typeof action === "function") {
-            setSkillModal(prev => ({ ...prev, data: action(prev.data) }));
+            setSkillModal((prev) => ({ ...prev, data: action(prev.data) }));
           } else {
-            setSkillModal(prev => ({ ...prev, data: action }));
+            setSkillModal((prev) => ({ ...prev, data: action }));
           }
         }}
         popularSkills={POPULAR_SKILLS}
         onSubmit={saveSkillModal}
-        onClose={() => setSkillModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setSkillModal((prev) => ({ ...prev, isOpen: false }))}
       />
 
       {/* Project Form Modal */}
@@ -1414,15 +954,15 @@ export default function AdminDashboard() {
         data={projectModal.data}
         setData={(action) => {
           if (typeof action === "function") {
-            setProjectModal(prev => ({ ...prev, data: action(prev.data) }));
+            setProjectModal((prev) => ({ ...prev, data: action(prev.data) }));
           } else {
-            setProjectModal(prev => ({ ...prev, data: action }));
+            setProjectModal((prev) => ({ ...prev, data: action }));
           }
         }}
         uploadingImage={uploadingImage}
-        handleImageUpload={handleImageUpload}
+        handleImageUpload={handleImageUploadEvent}
         onSubmit={saveProjectModal}
-        onClose={() => setProjectModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setProjectModal((prev) => ({ ...prev, isOpen: false }))}
       />
 
       {/* Experience Form Modal */}
@@ -1432,13 +972,13 @@ export default function AdminDashboard() {
         data={experienceModal.data}
         setData={(action) => {
           if (typeof action === "function") {
-            setExperienceModal(prev => ({ ...prev, data: action(prev.data) }));
+            setExperienceModal((prev) => ({ ...prev, data: action(prev.data) }));
           } else {
-            setExperienceModal(prev => ({ ...prev, data: action }));
+            setExperienceModal((prev) => ({ ...prev, data: action }));
           }
         }}
         onSubmit={saveExperienceModal}
-        onClose={() => setExperienceModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setExperienceModal((prev) => ({ ...prev, isOpen: false }))}
       />
 
       {/* Message Reader Modal */}
@@ -1446,7 +986,7 @@ export default function AdminDashboard() {
         isOpen={isMessageModalOpen}
         message={selectedMessage}
         onClose={() => setIsMessageModalOpen(false)}
-        onToggleRead={(id, status) => handleToggleReadMessage(id, status, true)}
+        onToggleRead={(id, status) => handleSetMessageReadStatus(id, !status, true)}
         onDelete={handleDeleteMessage}
       />
 
@@ -1458,7 +998,7 @@ export default function AdminDashboard() {
         confirmText={confirmModal.confirmText}
         isDanger={confirmModal.isDanger}
         onConfirm={confirmModal.onConfirm}
-        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onCancel={confirmModal.onCancel || (() => setConfirmModal((prev) => ({ ...prev, isOpen: false })))}
       />
 
       {/* Toast Notification */}

@@ -18,6 +18,11 @@ const ibmPlexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: "Admin Dashboard - Portfolio",
   description: "Kelola data portfolio Anda secara real-time.",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
 };
 
 export default function RootLayout({

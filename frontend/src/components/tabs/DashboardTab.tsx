@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { GitHubCalendar } from "react-github-calendar";
 import { Github, ExternalLink, GitBranch, ShieldCheck, Download, Server, HardDrive, Database, CheckCircle2, AlertTriangle } from "lucide-react";
-import { Skill } from "./SkillsTab";
-import { Project } from "./ProjectsTab";
-import { supabase } from "../lib/supabase";
-
-export interface GitHubProfile {
-  login: string;
-  name: string;
-  avatar_url: string;
-  bio: string;
-  public_repos: number;
-  followers: number;
-  html_url: string;
-}
+import { Skill, Project, Experience, ContactMessage, GitHubProfile, GitHubRepo } from "../../types";
+import { supabase } from "../../lib/supabase";
+import { getAvatarUrl } from "../../lib/utils";
+import { GITHUB_USERNAME } from "../../lib/constants";
 
 interface DashboardTabProps {
   gitProfile: GitHubProfile | null;
-  gitRepos: any[];
+  gitRepos: GitHubRepo[];
   skills: Skill[];
   projects: Project[];
+  experiences?: Experience[];
+  messages?: ContactMessage[];
   handleImgError: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
   showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
@@ -29,6 +22,8 @@ export default function DashboardTab({
   gitRepos,
   skills,
   projects,
+  experiences = [],
+  messages = [],
   handleImgError,
   showToast,
 }: DashboardTabProps) {
@@ -59,13 +54,17 @@ export default function DashboardTab({
     try {
       const backupData = {
         exportedAt: new Date().toISOString(),
-        version: "2.0.0",
+        version: "2.1.0",
         stats: {
           skillsCount: skills.length,
           projectsCount: projects.length,
+          experiencesCount: experiences.length,
+          messagesCount: messages.length,
         },
         skills,
         projects,
+        experiences,
+        messages,
       };
 
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -76,14 +75,10 @@ export default function DashboardTab({
       downloadAnchor.click();
       downloadAnchor.remove();
 
-      showToast("Berhasil mengekspor data backup JSON!", "success");
+      showToast("Berhasil mengekspor data backup JSON (termasuk pengalaman & pesan)!", "success");
     } catch (err: any) {
       showToast("Gagal mengekspor data: " + err.message, "error");
     }
-  };
-
-  const getAvatarUrl = () => {
-    return gitProfile?.avatar_url || "https://api.dicebear.com/7.x/adventurer/svg?seed=Firmansyah";
   };
 
   return (
@@ -102,13 +97,13 @@ export default function DashboardTab({
           </div>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-mono border border-zinc-200">
             <GitBranch className="h-3 w-3 text-zinc-500" />
-            <span>@{gitProfile?.login || "moch-firmansyahh"}</span>
+            <span>@{gitProfile?.login || GITHUB_USERNAME}</span>
           </span>
         </div>
         
         <div className="flex justify-center py-2 overflow-x-auto w-full">
           <GitHubCalendar 
-            username="moch-firmansyahh" 
+            username={GITHUB_USERNAME} 
             theme={{
               light: ["#f4f4f5", "#e4e4e7", "#a1a1aa", "#52525b", "#18181b"],
               dark: ["#18181b", "#27272a", "#52525b", "#a1a1aa", "#f4f4f5"]
@@ -124,10 +119,10 @@ export default function DashboardTab({
           <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-5">
             <h3 className="font-semibold text-sm text-zinc-900">Profil GitHub</h3>
             <a 
-              href={gitProfile?.html_url || "https://github.com/moch-firmansyahh"} 
+              href={gitProfile?.html_url || `https://github.com/${GITHUB_USERNAME}`} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-900 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-900 hover:underline cursor-pointer"
             >
               <span>Buka GitHub</span>
               <ExternalLink className="h-3 w-3" />
@@ -137,14 +132,14 @@ export default function DashboardTab({
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src={getAvatarUrl()} 
+                src={getAvatarUrl(gitProfile)} 
                 alt="git avatar" 
                 className="h-12 w-12 rounded-full border border-zinc-200 object-cover shadow-2xs"
                 onError={handleImgError}
               />
               <div>
                 <h4 className="font-semibold text-sm text-zinc-900">{gitProfile?.name || "Moch Firmansyah"}</h4>
-                <p className="text-xs text-zinc-500 font-mono">@{gitProfile?.login || "moch-firmansyahh"}</p>
+                <p className="text-xs text-zinc-500 font-mono">@{gitProfile?.login || GITHUB_USERNAME}</p>
               </div>
             </div>
 
@@ -162,13 +157,13 @@ export default function DashboardTab({
             </span>
           </div>
           <div className="space-y-2">
-            {gitRepos.slice(0, 4).map((r: any) => (
-              <div key={r.id} className="flex justify-between items-center text-xs p-1.5 rounded-md hover:bg-zinc-50 transition">
+            {gitRepos.slice(0, 4).map((r) => (
+              <div key={r.id || r.name} className="flex justify-between items-center text-xs p-1.5 rounded-md hover:bg-zinc-50 transition">
                 <a
                   href={r.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-zinc-800 hover:text-zinc-900 truncate max-w-[170px]"
+                  className="font-medium text-zinc-800 hover:text-zinc-900 truncate max-w-[170px] cursor-pointer"
                 >
                   {r.name}
                 </a>
@@ -234,7 +229,7 @@ export default function DashboardTab({
             <div>
               <h4 className="font-semibold text-xs text-zinc-900">Cadangan Data Portofolio</h4>
               <p className="text-[11px] text-zinc-500 mt-0.5">
-                Ekspor seluruh data ({skills.length} skills & {projects.length} proyek) ke format JSON.
+                Ekspor data ({skills.length} skills, {projects.length} proyek, {experiences.length} riwayat, {messages.length} pesan) ke format JSON.
               </p>
             </div>
           </div>

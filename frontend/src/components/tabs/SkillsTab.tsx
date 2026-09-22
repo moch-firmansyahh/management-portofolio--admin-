@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Edit3, Trash2, RefreshCw, Code2 } from "lucide-react";
-import { SKILL_CATEGORIES } from "./SkillModal";
-
-export interface Skill {
-  id: string;
-  name: string;
-  logo: string;
-  percent: number | string;
-  category?: string;
-}
+import { Skill } from "../../types";
+import { SKILL_CATEGORIES } from "../../lib/constants";
 
 interface SkillsTabProps {
   skills: Skill[];
@@ -17,7 +10,7 @@ interface SkillsTabProps {
   handleSyncSkillsGitHub: () => void;
   openAddSkill: (defaultCategory?: string) => void;
   openEditSkill: (skill: Skill) => void;
-  handleDeleteSkill: (id: string) => void;
+  handleDeleteSkill: (id?: string) => void;
   handleSeedDefaultSkills?: () => void;
   isSeedingSkills?: boolean;
 }
@@ -69,7 +62,7 @@ export default function SkillsTab({
             <span>Keahlian &amp; Technical Skills</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Total {skills.length} keahlian terkelola dalam 5 kategori teknis di Supabase.
+            Total {skills.length} keahlian terkelola dalam {categories.length - 1} kategori teknis di Supabase.
             {searchQuery && (
               <span className="text-zinc-900 font-medium ml-1">
                 (Menampilkan {filteredSkills.length} hasil)
@@ -110,7 +103,7 @@ export default function SkillsTab({
         </div>
       </div>
 
-      {/* Category Filter Pills (Matching exact UI) */}
+      {/* Category Filter Pills */}
       <div className="p-4 px-6 border-b border-zinc-150 bg-zinc-50/50 flex flex-wrap items-center gap-2">
         {categories.map((cat) => {
           const isActive = activeCategory === cat;
@@ -142,7 +135,7 @@ export default function SkillsTab({
         })}
       </div>
 
-      {/* Shadcn Data Table */}
+      {/* Data Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
@@ -171,7 +164,7 @@ export default function SkillsTab({
               </tr>
             ) : (
               filteredSkills.map((skill) => (
-                <tr key={skill.id} className="hover:bg-zinc-50/60 transition-colors group">
+                <tr key={skill.id || skill.name} className="hover:bg-zinc-50/60 transition-colors group">
                   <td className="py-3.5 px-6">
                     <span className="h-8 w-8 rounded-lg bg-zinc-900 text-white font-mono font-bold text-xs flex items-center justify-center shadow-xs">
                       {skill.logo}

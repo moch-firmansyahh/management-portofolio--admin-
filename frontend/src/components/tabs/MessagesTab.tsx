@@ -1,6 +1,7 @@
 import React from "react";
 import { Mail, MailOpen, Trash2, Reply, Inbox } from "lucide-react";
-import { ContactMessage } from "./MessageModal";
+import { ContactMessage } from "../../types";
+import { formatDate } from "../../lib/utils";
 
 interface MessagesTabProps {
   messages: ContactMessage[];
@@ -28,21 +29,6 @@ export default function MessagesTab({
   });
 
   const unreadCount = messages.filter((m) => !m.read).length;
-
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return "Baru saja";
-    if (timestamp.toDate) {
-      return timestamp.toDate().toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    }
-    return new Date(timestamp).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-    });
-  };
 
   return (
     <div className="rounded-xl border border-zinc-200/80 bg-white shadow-2xs space-y-0 overflow-hidden">
