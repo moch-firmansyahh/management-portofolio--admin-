@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { db } from "../lib/firebase";
+import { db, storage } from "../lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { 
   collection, 
   getDocs, 
@@ -868,25 +869,56 @@ export default function AdminDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 15 * 1024 * 1024) {
+      showToast("Ukuran file gambar maksimal 15MB!", "error");
+      return;
+    }
+
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("image", file);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3002";
-      const res = await fetch(`${backendUrl}/api/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      let finalImageUrl = "";
 
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || "Gagal mengupload gambar ke backend server (port 3002)");
+      // 1. Coba upload langsung ke Firebase Storage (Cloud Serverless)
+      try {
+        const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_").toLowerCase();
+        const storagePath = `projects/${Date.now()}_${cleanName}`;
+        const storageRef = ref(storage, storagePath);
+        const uploadResult = await uploadBytes(storageRef, file);
+        finalImageUrl = await getDownloadURL(uploadResult.ref);
+      } catch (storageErr) {
+        console.warn("Firebase Storage upload fallback triggered:", storageErr);
+
+        // 2. Fallback ke Express backend lokal jika Firebase Storage belum diaktifkan
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3002";
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("image", file);
+
+        try {
+          const res = await fetch(`${backendUrl}/api/upload`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson.error || "Gagal mengupload gambar ke backend server");
+          }
+
+          const data = await res.json();
+          finalImageUrl = data.imageUrl || data.url || data.localUrl;
+        } catch (_backendErr) {
+          const sErr = storageErr as { code?: string; message?: string };
+          if (sErr?.code === "storage/unauthorized") {
+            throw new Error("Akses Firebase Storage ditolak. Harap ubah Rules di Firebase Storage Console menjadi 'allow read, write: if true;'");
+          }
+          throw new Error(
+            `Upload Firebase Storage gagal: ${sErr?.message || String(storageErr)}. Server backend lokal juga tidak aktif.`
+          );
+        }
       }
 
-      const data = await res.json();
-      const finalImageUrl = data.imageUrl || data.url || data.localUrl;
       setProjectModal((prev) => ({
         ...prev,
         data: {
@@ -899,6 +931,8 @@ export default function AdminDashboard() {
       showToast((err as Error).message, "error");
     } finally {
       setUploadingImage(false);
+      // Reset input agar bisa memilih file yang sama jika diinginkan
+      e.target.value = "";
     }
   };
 
