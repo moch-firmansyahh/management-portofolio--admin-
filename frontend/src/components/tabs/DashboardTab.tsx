@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { GitHubCalendar } from "react-github-calendar";
-import { Github, ExternalLink, GitBranch, ShieldCheck, Download, Server, HardDrive, Database, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Github, ExternalLink, GitBranch, ShieldCheck, Download, HardDrive } from "lucide-react";
 import { Skill, Project, Experience, ContactMessage, GitHubProfile, GitHubRepo } from "../../types";
-import { supabase } from "../../lib/supabase";
 import { getAvatarUrl } from "../../lib/utils";
 import { GITHUB_USERNAME } from "../../lib/constants";
 
@@ -27,29 +26,6 @@ export default function DashboardTab({
   handleImgError,
   showToast,
 }: DashboardTabProps) {
-  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
-  const [backendLatency, setBackendLatency] = useState<number | null>(null);
-
-  useEffect(() => {
-    const checkSupabase = async () => {
-      const start = performance.now();
-      try {
-        const { error } = await supabase.from("projects").select("id").limit(1);
-        const latency = Math.round(performance.now() - start);
-        if (!error) {
-          setBackendStatus("online");
-          setBackendLatency(latency);
-        } else {
-          setBackendStatus("offline");
-        }
-      } catch {
-        setBackendStatus("offline");
-      }
-    };
-
-    checkSupabase();
-  }, []);
-
   const handleExportBackup = () => {
     try {
       const backupData = {
@@ -81,6 +57,8 @@ export default function DashboardTab({
     }
   };
 
+  const username = gitProfile?.login || GITHUB_USERNAME;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* GitHub Contribution Calendar */}
@@ -97,16 +75,16 @@ export default function DashboardTab({
           </div>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-mono border border-zinc-200">
             <GitBranch className="h-3 w-3 text-zinc-500" />
-            <span>@{gitProfile?.login || GITHUB_USERNAME}</span>
+            <span>@{username}</span>
           </span>
         </div>
         
         <div className="flex justify-center py-2 overflow-x-auto w-full">
           <GitHubCalendar 
-            username={GITHUB_USERNAME} 
+            username={username}
             theme={{
-              light: ["#f4f4f5", "#e4e4e7", "#a1a1aa", "#52525b", "#18181b"],
-              dark: ["#18181b", "#27272a", "#52525b", "#a1a1aa", "#f4f4f5"]
+              light: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
+              dark: ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"],
             }}
             colorScheme="light"
           />
@@ -119,7 +97,7 @@ export default function DashboardTab({
           <div className="flex items-center justify-between border-b border-zinc-100 pb-4 mb-5">
             <h3 className="font-semibold text-sm text-zinc-900">Profil GitHub</h3>
             <a 
-              href={gitProfile?.html_url || `https://github.com/${GITHUB_USERNAME}`} 
+              href={gitProfile?.html_url || `https://github.com/${username}`} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-900 hover:underline cursor-pointer"
@@ -139,7 +117,7 @@ export default function DashboardTab({
               />
               <div>
                 <h4 className="font-semibold text-sm text-zinc-900">{gitProfile?.name || "Moch Firmansyah"}</h4>
-                <p className="text-xs text-zinc-500 font-mono">@{gitProfile?.login || GITHUB_USERNAME}</p>
+                <p className="text-xs text-zinc-500 font-mono">@{username}</p>
               </div>
             </div>
 
@@ -179,51 +157,11 @@ export default function DashboardTab({
         </div>
       </div>
 
-      {/* System Status & Quick Tools */}
-      <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Supabase Cloud Database & Storage Status */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex items-center justify-between">
+      {/* Quick Tools: Data Backup & Export Tool */}
+      <div className="lg:col-span-3">
+        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center border ${
-              backendStatus === "online" 
-                ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
-                : backendStatus === "offline"
-                ? "bg-red-50 text-red-600 border-red-200"
-                : "bg-zinc-100 text-zinc-600 border-zinc-200"
-            }`}>
-              <Server className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-xs text-zinc-900">Status Supabase Cloud</h4>
-                <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                  backendStatus === "online"
-                    ? "bg-emerald-100/70 text-emerald-700"
-                    : backendStatus === "offline"
-                    ? "bg-red-100/70 text-red-700"
-                    : "bg-zinc-100 text-zinc-600"
-                }`}>
-                  {backendStatus === "online" && <CheckCircle2 className="h-2.5 w-2.5" />}
-                  {backendStatus === "offline" && <AlertTriangle className="h-2.5 w-2.5" />}
-                  {backendStatus === "online" ? `Online (${backendLatency}ms)` : backendStatus === "offline" ? "Offline" : "Memeriksa..."}
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
-                PostgreSQL Database &amp; Supabase Storage (Serverless Live).
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/70">
-            <Database className="h-3.5 w-3.5 text-emerald-600" />
-            <span>Supabase Live</span>
-          </div>
-        </div>
-
-        {/* Data Backup & Export Tool */}
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-zinc-900 text-white border border-zinc-900 shadow-2xs">
+            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-zinc-900 text-white border border-zinc-900 shadow-2xs shrink-0">
               <HardDrive className="h-5 w-5" />
             </div>
             <div>
@@ -236,7 +174,7 @@ export default function DashboardTab({
 
           <button
             onClick={handleExportBackup}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium border border-zinc-200 transition active:scale-98 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium border border-zinc-200 transition active:scale-98 cursor-pointer shrink-0"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Ekspor JSON</span>

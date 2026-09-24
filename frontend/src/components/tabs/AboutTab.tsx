@@ -17,15 +17,7 @@ export default function AboutTab({
   savingProfile,
   onResetDefault,
 }: AboutTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<"general" | "bio" | "socials" | "stats">("general");
-
-  const handleStatChange = (index: number, field: "label" | "value", val: string) => {
-    const updatedStats = [...(profile.stats || [])];
-    if (updatedStats[index]) {
-      updatedStats[index] = { ...updatedStats[index], [field]: val };
-      setProfile((prev) => ({ ...prev, stats: updatedStats }));
-    }
-  };
+  const [activeSubTab, setActiveSubTab] = useState<"general" | "about" | "contact">("general");
 
   return (
     <div className="rounded-xl border border-zinc-200/80 bg-white shadow-2xs overflow-hidden">
@@ -37,7 +29,7 @@ export default function AboutTab({
             <span>Profil &amp; Informasi Tentang Saya</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Atur identitas, bio deskriptif, tautan sosial, dan metrik yang tampil di website portofolio.
+            Atur identitas profil beranda, narasi seksi tentang saya, dan tautan kontak yang tampil di portofolio-web.
           </p>
         </div>
 
@@ -65,27 +57,27 @@ export default function AboutTab({
           }`}
         >
           <User className="h-3.5 w-3.5" />
-          <span>Informasi Utama</span>
+          <span>Profil &amp; Beranda (Hero)</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveSubTab("bio")}
+          onClick={() => setActiveSubTab("about")}
           className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
-            activeSubTab === "bio"
+            activeSubTab === "about"
               ? "border-zinc-900 text-zinc-900 font-semibold bg-white"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
         >
           <FileText className="h-3.5 w-3.5" />
-          <span>Bio &amp; Deskripsi</span>
+          <span>Seksi Tentang Saya (About)</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveSubTab("socials")}
+          onClick={() => setActiveSubTab("contact")}
           className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
-            activeSubTab === "socials"
+            activeSubTab === "contact"
               ? "border-zinc-900 text-zinc-900 font-semibold bg-white"
               : "border-transparent text-zinc-500 hover:text-zinc-800"
           }`}
@@ -93,24 +85,11 @@ export default function AboutTab({
           <Globe className="h-3.5 w-3.5" />
           <span>Kontak &amp; Sosial Media</span>
         </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("stats")}
-          className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
-            activeSubTab === "stats"
-              ? "border-zinc-900 text-zinc-900 font-semibold bg-white"
-              : "border-transparent text-zinc-500 hover:text-zinc-800"
-          }`}
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Statistik &amp; Metrik</span>
-        </button>
       </div>
 
       {/* Form Content */}
       <form onSubmit={onSaveProfile} className="p-6 sm:p-8 space-y-6">
-        {/* TAB 1: General Info */}
+        {/* TAB 1: General / Hero Info */}
         {activeSubTab === "general" && (
           <div className="space-y-4 max-w-2xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -144,7 +123,7 @@ export default function AboutTab({
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                Profesi / Role Utama
+                Profesi / Role Utama (Judul Besar Hero Web)
               </label>
               <input
                 type="text"
@@ -154,44 +133,15 @@ export default function AboutTab({
                 placeholder="Frontend Developer & Security Enthusiast"
                 className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
               />
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Headline / Tagline Utama (Judul Besar Seksi About)
-                </label>
-                <span className="text-[10px] text-zinc-400">Tampil di About section</span>
-              </div>
-              <input
-                type="text"
-                value={profile.tagline || ""}
-                onChange={(e) => setProfile((p) => ({ ...p, tagline: e.target.value }))}
-                placeholder="Code that looks good. Systems that stay safe."
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Tentang Saya Singkat (Tampil di Hero Section)
-                </label>
-                <span className="text-[10px] text-zinc-400">Di bawah teks "Hi, I am [Role]"</span>
-              </div>
-              <textarea
-                rows={3}
-                value={profile.about || ""}
-                onChange={(e) => setProfile((p) => ({ ...p, about: e.target.value }))}
-                placeholder="Mahasiswa Informatika Telkom University yang fokus memadukan Frontend Development modern dengan pemahaman Network & Web Security untuk menciptakan aplikasi web yang responsif, interaktif, dan aman."
-                className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all leading-relaxed"
-              />
+              <p className="text-[11px] text-zinc-400">
+                Gunakan tanda &ldquo;&amp;&rdquo; untuk membagi teks menjadi dua baris di Hero Section website.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Status Ketersediaan
+                  Status Ketersediaan (Badge Hero)
                 </label>
                 <input
                   type="text"
@@ -215,57 +165,76 @@ export default function AboutTab({
                 />
               </div>
             </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                  Deskripsi Singkat Hero / Subheadline
+                </label>
+                <span className="text-[10px] text-zinc-400">Tampil di Hero Section web</span>
+              </div>
+              <textarea
+                rows={3}
+                value={profile.about || ""}
+                onChange={(e) => setProfile((p) => ({ ...p, about: e.target.value }))}
+                placeholder="Mahasiswa Informatika Telkom University yang fokus memadukan Frontend Development modern dengan pemahaman Network & Web Security untuk menciptakan aplikasi web yang responsif, interaktif, dan aman."
+                className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all leading-relaxed"
+              />
+            </div>
           </div>
         )}
 
-        {/* TAB 2: Bio & Description */}
-        {activeSubTab === "bio" && (
+        {/* TAB 2: About Section */}
+        {activeSubTab === "about" && (
           <div className="space-y-4 max-w-2xl">
             <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                  Tagline / Judul Utama Seksi About
+                </label>
+                <span className="text-[10px] text-zinc-400">Judul Besar di Seksi About</span>
+              </div>
+              <input
+                type="text"
+                value={profile.tagline || ""}
+                onChange={(e) => setProfile((p) => ({ ...p, tagline: e.target.value }))}
+                placeholder="Code that looks good. Systems that stay safe."
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                Deskripsi Lengkap Tentang Saya (Paragraf Pisahkan dengan Dua Enter)
+                Deskripsi Lengkap Tentang Saya (Seksi About Web)
               </label>
               <textarea
                 rows={9}
                 value={profile.bio || ""}
                 onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))}
-                placeholder="Tuliskan latar belakang pendidikan, ketertarikan teknologi, dan fokus karir Anda di sini..."
+                placeholder="Tuliskan latar belakang pendidikan, pengalaman proyek, dan fokus keahlian Anda di sini..."
                 className="w-full rounded-lg border border-zinc-200 bg-white p-3.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all leading-relaxed"
               />
               <p className="text-[11px] text-zinc-400">
-                Gunakan dua baris baru (enter 2x) untuk memisahkan antar paragraf pada tampilan web.
+                Tips: Gunakan dua baris Enter untuk memisahkan paragraf baru. Anda juga dapat menggunakan format **teks tebal** untuk menebalkan kata kunci.
               </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                Tautan Resume / CV (PDF / Google Drive)
-              </label>
-              <input
-                type="text"
-                value={profile.resumeUrl || ""}
-                onChange={(e) => setProfile((p) => ({ ...p, resumeUrl: e.target.value }))}
-                placeholder="https://drive.google.com/..."
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
-              />
             </div>
           </div>
         )}
 
         {/* TAB 3: Contacts & Social Links */}
-        {activeSubTab === "socials" && (
+        {activeSubTab === "contact" && (
           <div className="space-y-4 max-w-2xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600 flex items-center gap-1.5">
                   <Mail className="h-3.5 w-3.5 text-zinc-500" />
-                  <span>Email Kontak Publik</span>
+                  <span>Email Kontak</span>
                 </label>
                 <input
                   type="email"
                   value={profile.email || ""}
                   onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
-                  placeholder="email@example.com"
+                  placeholder="firmanajah366@gmail.com"
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
                 />
               </div>
@@ -286,13 +255,15 @@ export default function AboutTab({
             </div>
 
             <div className="space-y-3 pt-2">
-              <span className="text-xs font-semibold text-zinc-900 block">Tautan Media Sosial</span>
+              <span className="text-xs font-semibold text-zinc-900 block">
+                Tautan Media Sosial (Tampil di Contact Section &amp; Command Palette Web)
+              </span>
 
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-[11px] text-zinc-500 flex items-center gap-1.5">
                     <Github className="h-3.5 w-3.5" />
-                    <span>Profil GitHub</span>
+                    <span>GitHub</span>
                   </label>
                   <input
                     type="text"
@@ -311,7 +282,7 @@ export default function AboutTab({
                 <div className="space-y-1">
                   <label className="text-[11px] text-zinc-500 flex items-center gap-1.5">
                     <Linkedin className="h-3.5 w-3.5" />
-                    <span>Profil LinkedIn</span>
+                    <span>LinkedIn</span>
                   </label>
                   <input
                     type="text"
@@ -322,7 +293,7 @@ export default function AboutTab({
                         socialLinks: { ...p.socialLinks, linkedin: e.target.value },
                       }))
                     }
-                    placeholder="https://www.linkedin.com/in/moch-firmansyah..."
+                    placeholder="https://www.linkedin.com/in/moch-firmansyah-532122323/"
                     className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900"
                   />
                 </div>
@@ -330,7 +301,7 @@ export default function AboutTab({
                 <div className="space-y-1">
                   <label className="text-[11px] text-zinc-500 flex items-center gap-1.5">
                     <Instagram className="h-3.5 w-3.5" />
-                    <span>Profil Instagram</span>
+                    <span>Instagram</span>
                   </label>
                   <input
                     type="text"
@@ -349,7 +320,7 @@ export default function AboutTab({
                 <div className="space-y-1">
                   <label className="text-[11px] text-zinc-500 flex items-center gap-1.5">
                     <Globe className="h-3.5 w-3.5" />
-                    <span>Profil TikTok</span>
+                    <span>TikTok</span>
                   </label>
                   <input
                     type="text"
@@ -365,47 +336,6 @@ export default function AboutTab({
                   />
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: Stats Counters */}
-        {activeSubTab === "stats" && (
-          <div className="space-y-4 max-w-2xl">
-            <p className="text-xs text-zinc-500">
-              Ubah 4 metrik ringkasan yang muncul pada kartu statistik di beranda web.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(profile.stats || []).map((stat, idx) => (
-                <div key={idx} className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80 space-y-2">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-                      Label Metrik #{idx + 1}
-                    </label>
-                    <input
-                      type="text"
-                      value={stat.label || ""}
-                      onChange={(e) => handleStatChange(idx, "label", e.target.value)}
-                      placeholder="Contoh: Proyek Selesai"
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-                      Nilai Metrik
-                    </label>
-                    <input
-                      type="text"
-                      value={stat.value || ""}
-                      onChange={(e) => handleStatChange(idx, "value", e.target.value)}
-                      placeholder="Contoh: 5+ atau 98%"
-                      className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-bold text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900"
-                    />
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}

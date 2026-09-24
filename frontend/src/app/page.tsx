@@ -33,6 +33,16 @@ import MessageModal from "../components/modals/MessageModal";
 import ConfirmModal from "../components/modals/ConfirmModal";
 import Toast from "../components/ui/Toast";
 import StatCard from "../components/ui/StatCard";
+import { 
+  StatCardSkeleton, 
+  DashboardSkeleton, 
+  AboutSkeleton, 
+  SkillsSkeleton, 
+  ProjectsSkeleton, 
+  ExperienceSkeleton, 
+  MessagesSkeleton,
+  AuthLoadingSkeleton 
+} from "../components/ui/Skeleton";
 
 import { 
   Skill, 
@@ -634,14 +644,7 @@ export default function AdminDashboard() {
 
   // 12. Render Login Screen
   if (isLoadingAuth) {
-    return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="h-6 w-6 text-zinc-800 animate-spin" />
-          <span className="text-xs text-zinc-500 font-medium">Memeriksa sesi pengelola...</span>
-        </div>
-      </div>
-    );
+    return <AuthLoadingSkeleton />;
   }
 
   if (!isAuthenticated) {
@@ -820,7 +823,7 @@ export default function AdminDashboard() {
             </h2>
             <p className="text-xs text-zinc-500 mt-1">
               {activeMenu === "dashboard" && "Ringkasan metrik pengembangan dan manajemen database portofolio secara terpusat."}
-              {activeMenu === "about" && "Atur identitas, bio deskriptif, tagline, kontak, dan 4 kartu metrik beranda web."}
+              {activeMenu === "about" && "Atur identitas profil beranda, narasi seksi tentang saya, dan tautan kontak website."}
               {activeMenu === "skills" && "Kelola daftar keahlian, teknologi pemrograman, dan persentase penguasaan."}
               {activeMenu === "projects" && "Kelola katalog portofolio proyek lengkap dengan foto lokal, tags, dan link live."}
               {activeMenu === "experience" && "Kelola riwayat studi, organisasi, dan karir yang tampil pada garis waktu website."}
@@ -830,38 +833,53 @@ export default function AdminDashboard() {
 
           {/* Metric Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard 
-              title="Total Projects"
-              value={projects.length}
-              icon={<Briefcase className="h-4 w-4 text-zinc-700" />}
-              subtitle="Tersimpan di Supabase"
-            />
-            <StatCard 
-              title="Total Skills"
-              value={skills.length}
-              icon={<Code2 className="h-4 w-4 text-zinc-700" />}
-              subtitle="Tersimpan di Supabase"
-            />
-            <StatCard 
-              title="Riwayat Karier"
-              value={experiences.length}
-              icon={<GraduationCap className="h-4 w-4 text-zinc-700" />}
-              subtitle="Timeline Pengalaman"
-            />
-            <StatCard 
-              title="Pesan Masuk"
-              value={unreadMessagesCount > 0 ? `${unreadMessagesCount} Baru` : messages.length}
-              icon={<Mail className="h-4 w-4 text-zinc-700" />}
-              subtitle={unreadMessagesCount > 0 ? "Perlu ditinjau" : "Total Pesan"}
-            />
+            {loading ? (
+              <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </>
+            ) : (
+              <>
+                <StatCard 
+                  title="Total Projects"
+                  value={projects.length}
+                  icon={<Briefcase className="h-4 w-4 text-zinc-700" />}
+                  subtitle="Tersimpan di Supabase"
+                />
+                <StatCard 
+                  title="Total Skills"
+                  value={skills.length}
+                  icon={<Code2 className="h-4 w-4 text-zinc-700" />}
+                  subtitle="Tersimpan di Supabase"
+                />
+                <StatCard 
+                  title="Riwayat Karier"
+                  value={experiences.length}
+                  icon={<GraduationCap className="h-4 w-4 text-zinc-700" />}
+                  subtitle="Timeline Pengalaman"
+                />
+                <StatCard 
+                  title="Pesan Masuk"
+                  value={unreadMessagesCount > 0 ? `${unreadMessagesCount} Baru` : messages.length}
+                  icon={<Mail className="h-4 w-4 text-zinc-700" />}
+                  subtitle={unreadMessagesCount > 0 ? "Perlu ditinjau" : "Total Pesan"}
+                />
+              </>
+            )}
           </div>
 
-          {/* Loading Skeleton */}
+          {/* Tab Content Skeletons */}
           {loading && (
-            <div className="rounded-xl border border-zinc-200/80 bg-white p-8 flex flex-col items-center justify-center gap-3">
-              <RefreshCw className="h-6 w-6 text-zinc-400 animate-spin" />
-              <p className="text-xs text-zinc-500 font-medium">Sinkronisasi data PostgreSQL Supabase...</p>
-            </div>
+            <>
+              {activeMenu === "dashboard" && <DashboardSkeleton />}
+              {activeMenu === "about" && <AboutSkeleton />}
+              {activeMenu === "skills" && <SkillsSkeleton />}
+              {activeMenu === "projects" && <ProjectsSkeleton />}
+              {activeMenu === "experience" && <ExperienceSkeleton />}
+              {activeMenu === "messages" && <MessagesSkeleton />}
+            </>
           )}
 
           {/* TAB 1: Dashboard */}
