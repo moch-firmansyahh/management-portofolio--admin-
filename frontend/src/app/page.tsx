@@ -300,6 +300,19 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, fetchAllData]);
 
+  // Background auto-sync saat tab admin kembali difokuskan
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const handleFocus = () => {
+      fetchSkills();
+      fetchProjects();
+      fetchExperiences();
+      fetchProfile();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [isAuthenticated, fetchSkills, fetchProjects, fetchExperiences, fetchProfile]);
+
   // Keyboard shortcut Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
