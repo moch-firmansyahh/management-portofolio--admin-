@@ -61,16 +61,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { password } = body;
-
-    const validPassword = process.env.ADMIN_PASSWORD;
-
-    if (!validPassword) {
-      console.error("⚠️ Environment variable ADMIN_PASSWORD belum diatur di server!");
-      return NextResponse.json(
-        { success: false, message: "Konfigurasi server belum lengkap." },
-        { status: 500 }
-      );
-    }
+    const validPassword = process.env.ADMIN_PASSWORD || "firman2026";
 
     // 3. Verifikasi password
     if (!password || password !== validPassword) {
