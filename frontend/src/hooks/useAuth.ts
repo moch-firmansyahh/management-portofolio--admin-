@@ -11,24 +11,32 @@ export function useAuth() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const localAuth = localStorage.getItem("portfolio_admin_auth");
-        if (localAuth === "true") {
-          setIsAuthenticated(true);
+        // Hapus sisa-sisa localStorage lama yang membypass login
+        localStorage.removeItem("portfolio_admin_auth");
+
+        // Cek apakah di tab/sesi browser saat ini sudah login
+        const hasSession = sessionStorage.getItem("portfolio_admin_session");
+        if (!hasSession) {
+          // Jika sesi baru dibuka, WAJIB login terlebih dahulu
+          setIsAuthenticated(false);
+          setIsLoadingAuth(false);
+          return;
         }
 
         const res = await fetch("/api/auth/session");
         if (res.ok) {
-          setIsAuthenticated(true);
-          localStorage.setItem("portfolio_admin_auth", "true");
-        } else if (!localAuth) {
-          setIsAuthenticated(false);
+          const data = await res.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+            return;
+          }
         }
+
+        // Jika verifikasi cookie server gagal
+        setIsAuthenticated(false);
+        sessionStorage.removeItem("portfolio_admin_session");
       } catch {
-        // Fallback to local flag if offline
-        const localAuth = localStorage.getItem("portfolio_admin_auth");
-        if (localAuth === "true") {
-          setIsAuthenticated(true);
-        }
+        setIsAuthenticated(false);
       } finally {
         setIsLoadingAuth(false);
       }
@@ -49,10 +57,10 @@ export function useAuth() {
       const data = await res.json();
       if (res.ok && data.success) {
         setIsAuthenticated(true);
-        localStorage.setItem("portfolio_admin_auth", "true");
+        sessionStorage.setItem("portfolio_admin_session", "true");
         return true;
       } else {
-        setLoginError(data.message || "Kredensial tidak valid. Silakan periksa kembali.");
+        setLoginError(data.message || "Password salah. Silakan periksa kembali.");
         return false;
       }
     } catch {
@@ -67,6 +75,7 @@ export function useAuth() {
     } catch {
       // Ignore network errors on logout
     } finally {
+      sessionStorage.removeItem("portfolio_admin_session");
       localStorage.removeItem("portfolio_admin_auth");
       setIsAuthenticated(false);
     }
