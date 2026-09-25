@@ -37,15 +37,8 @@ export function useProfile(showToast: (msg: string, type?: "success" | "error" |
       e.preventDefault();
       setSavingProfile(true);
       try {
-        const result = await saveProfile(profile);
-        if (result.missingColumns && result.missingColumns.length > 0) {
-          showToast(
-            `Profil tersimpan! (Catatan: jalankan SQL migration untuk: ${result.missingColumns.join(", ")})`,
-            "info"
-          );
-        } else {
-          showToast("Profil dan informasi Tentang Saya berhasil disimpan!", "success");
-        }
+        await saveProfile(profile);
+        showToast("Profil berhasil diperbarui!", "success");
         return true;
       } catch (err: any) {
         showToast("Gagal menyimpan profil: " + err.message, "error");
@@ -59,7 +52,7 @@ export function useProfile(showToast: (msg: string, type?: "success" | "error" |
 
   const handleResetDefaultProfile = useCallback(() => {
     setProfile(DEFAULT_PROFILE);
-    showToast("Profil direset ke template bawaan website. Klik 'Simpan' untuk menerapkan ke Supabase.", "info");
+    showToast("Profil direset ke template bawaan website. Klik 'Simpan Perubahan Profil' untuk menerapkan.", "info");
   }, [showToast]);
 
   return {

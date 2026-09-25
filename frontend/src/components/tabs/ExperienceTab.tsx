@@ -43,7 +43,7 @@ export default function ExperienceTab({
             <span>Riwayat Pengalaman &amp; Karier</span>
           </h3>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Total {experiences.length} riwayat aktif tersimpan di Supabase dan ditampilkan pada timeline website.
+            Total {experiences.length} riwayat aktif tersimpan di database dan ditampilkan pada timeline website.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export default function ExperienceTab({
             onClick={handleSeedDefaultExperience}
             disabled={isSeeding}
             className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-2 rounded-lg text-xs font-medium border border-emerald-200/80 shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
-            title="Impor riwayat bawaan website ke Supabase"
+            title="Impor riwayat bawaan website ke database"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isSeeding ? "animate-spin" : ""}`} />
             <span>{isSeeding ? "Menyinkronkan..." : "Impor Pengalaman Bawaan"}</span>
@@ -87,7 +87,7 @@ export default function ExperienceTab({
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Briefcase className="h-8 w-8 text-zinc-300 stroke-[1.5]" />
                     <span className="font-medium text-xs text-zinc-600">
-                      {searchQuery ? "Tidak ada riwayat yang cocok." : "Belum ada riwayat pengalaman tersimpan di Supabase."}
+                      {searchQuery ? "Tidak ada riwayat yang cocok." : "Belum ada riwayat pengalaman tersimpan di database."}
                     </span>
                     <p className="text-[11px] text-zinc-400 max-w-sm">
                       Klik tombol &ldquo;Impor Pengalaman Bawaan&rdquo; di atas untuk menyinkronkan riwayat studi &amp; organisasi dari website.

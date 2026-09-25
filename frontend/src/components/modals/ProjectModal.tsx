@@ -62,7 +62,7 @@ export default function ProjectModal({
               <span>{isEdit ? "Edit Data Proyek" : "Tambah Proyek Baru"}</span>
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Data akan otomatis disinkronkan langsung ke Supabase &amp; Website.
+              Data akan otomatis disinkronkan langsung ke Website.
             </p>
           </div>
           <button
@@ -220,7 +220,7 @@ export default function ProjectModal({
                   type="text"
                   defaultValue={tagsInputValue}
                   onChange={(e) => handleTagsChange(e.target.value)}
-                  placeholder="Next.js 16, TypeScript, Tailwind CSS, Supabase, JWT"
+                  placeholder="Next.js 16, TypeScript, Tailwind CSS, PostgreSQL, JWT"
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
                 />
                 <p className="text-[10px] text-zinc-400">Contoh: Next.js, React, Node.js, PostgreSQL</p>

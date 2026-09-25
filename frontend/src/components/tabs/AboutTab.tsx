@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Save, Sparkles, Mail, Phone, Globe, Github, Linkedin, Instagram, FileText } from "lucide-react";
+import { User, Save, Sparkles, Mail, Phone, Globe, Github, Linkedin, Instagram, FileText, Loader2 } from "lucide-react";
 import { ProfileData } from "../../types";
 
 interface AboutTabProps {
@@ -138,32 +138,17 @@ export default function AboutTab({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Status Ketersediaan (Badge Hero)
-                </label>
-                <input
-                  type="text"
-                  value={profile.status || ""}
-                  onChange={(e) => setProfile((p) => ({ ...p, status: e.target.value }))}
-                  placeholder="Available for opportunities"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Lokasi Domisili
-                </label>
-                <input
-                  type="text"
-                  value={profile.location || ""}
-                  onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
-                  placeholder="Bandung, Indonesia"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                Lokasi Domisili
+              </label>
+              <input
+                type="text"
+                value={profile.location || ""}
+                onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
+                placeholder="Bandung, Indonesia"
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2.5 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 transition-all"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -345,10 +330,19 @@ export default function AboutTab({
           <button
             type="submit"
             disabled={savingProfile}
-            className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 text-xs font-medium shadow-2xs transition disabled:opacity-50 active:scale-98 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 text-xs font-medium shadow-2xs transition disabled:opacity-60 active:scale-98 cursor-pointer disabled:cursor-not-allowed"
           >
-            <Save className="h-4 w-4" />
-            <span>{savingProfile ? "Menyimpan ke Supabase..." : "Simpan Perubahan Profil"}</span>
+            {savingProfile ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin text-white" />
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                <span>Simpan Perubahan Profil</span>
+              </>
+            )}
           </button>
         </div>
       </form>

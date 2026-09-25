@@ -263,7 +263,7 @@ export default function AdminDashboard() {
   // 8. Dynamic Notifications List
   const notificationsList = useMemo(() => {
     const list: string[] = [
-      "Sistem CMS siap digunakan dengan PostgreSQL Supabase.",
+      "Sistem CMS siap digunakan.",
     ];
     if (unreadMessagesCount > 0) {
       list.push(`Terdapat ${unreadMessagesCount} pesan baru dari pengunjung web.`);
@@ -426,7 +426,7 @@ export default function AdminDashboard() {
 
     triggerConfirm(
       "Sinkronkan Skill dari GitHub",
-      `Ditemukan ${newLanguages.length} bahasa pemrograman baru: ${newLanguages.join(", ")}. Apakah Anda ingin menambahkannya ke Supabase?`,
+      `Ditemukan ${newLanguages.length} bahasa pemrograman baru: ${newLanguages.join(", ")}. Apakah Anda ingin menambahkannya ke database?`,
       async () => {
         setSyncingSkills(true);
         try {
@@ -509,7 +509,7 @@ export default function AdminDashboard() {
     if (!id) return;
     triggerConfirm(
       "Hapus Data Proyek",
-      "Apakah Anda yakin ingin menghapus data proyek ini dari Supabase?",
+      "Apakah Anda yakin ingin menghapus data proyek ini?",
       () => deleteProjectItem(id),
       true,
       "Hapus"
@@ -672,7 +672,7 @@ export default function AdminDashboard() {
               Admin Portal Login
             </h1>
             <p className="text-xs text-zinc-500 max-w-xs">
-              Masukkan password pengelola untuk mengakses CMS &amp; database Supabase.
+              Masukkan password pengelola untuk mengakses CMS &amp; database.
             </p>
           </div>
 
@@ -859,13 +859,13 @@ export default function AdminDashboard() {
                   title="Total Projects"
                   value={projects.length}
                   icon={<Briefcase className="h-4 w-4 text-zinc-700" />}
-                  subtitle="Tersimpan di Supabase"
+                  subtitle="Tersimpan di Database"
                 />
                 <StatCard 
                   title="Total Skills"
                   value={skills.length}
                   icon={<Code2 className="h-4 w-4 text-zinc-700" />}
-                  subtitle="Tersimpan di Supabase"
+                  subtitle="Tersimpan di Database"
                 />
                 <StatCard 
                   title="Riwayat Karier"
