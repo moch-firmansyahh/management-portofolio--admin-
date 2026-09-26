@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Loader2, X, Star, Link2, Code, FileText, CheckCircle2 } from "lucide-react";
+import { Upload, Loader2, X, Star, Link2, FileText, CheckCircle2, BookOpen, Layers, Globe, Code2 } from "lucide-react";
 import { Project } from "../../types";
 import { PROJECT_CATEGORIES } from "../../lib/constants";
 
@@ -12,6 +12,7 @@ interface ProjectModalProps {
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
+  initialTab?: "general" | "case_study" | "links";
 }
 
 export default function ProjectModal({
@@ -23,15 +24,16 @@ export default function ProjectModal({
   handleImageUpload,
   onSubmit,
   onClose,
+  initialTab = "general",
 }: ProjectModalProps) {
-  const [activeSection, setActiveSection] = useState<"general" | "details" | "links">("general");
+  const [activeSection, setActiveSection] = useState<"general" | "case_study" | "links">(initialTab);
 
-  // Reset to general section on modal open
+  // Sync active section when modal opens or initialTab changes
   useEffect(() => {
     if (isOpen) {
-      setActiveSection("general");
+      setActiveSection(initialTab || "general");
     }
-  }, [isOpen]);
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 
@@ -53,16 +55,16 @@ export default function ProjectModal({
     <div className="admin-modal-overlay">
       <form
         onSubmit={onSubmit}
-        className="max-w-xl w-full bg-white border border-zinc-200/90 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-dialog-show"
+        className="max-w-2xl w-full bg-white border border-zinc-200/90 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-dialog-show"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-zinc-150 px-6 py-4 bg-zinc-50/50">
           <div>
             <h2 className="text-base font-semibold text-zinc-900 flex items-center gap-2">
-              <span>{isEdit ? "Edit Data Proyek" : "Tambah Proyek Baru"}</span>
+              <span>{isEdit ? "Edit Data Proyek & Studi Kasus" : "Tambah Proyek Baru"}</span>
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              Data akan otomatis disinkronkan langsung ke Website.
+              Kelola informasi proyek dan detail studi kasus untuk website.
             </p>
           </div>
           <button
@@ -86,20 +88,23 @@ export default function ProjectModal({
             }`}
           >
             <FileText className="h-3.5 w-3.5" />
-            <span>Info Utama</span>
+            <span>1. Info Utama</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setActiveSection("details")}
+            onClick={() => setActiveSection("case_study")}
             className={`py-2.5 px-3 border-b-2 flex items-center gap-1.5 transition cursor-pointer ${
-              activeSection === "details"
+              activeSection === "case_study"
                 ? "border-zinc-900 text-zinc-900 font-semibold"
                 : "border-transparent text-zinc-500 hover:text-zinc-800"
             }`}
           >
-            <Code className="h-3.5 w-3.5" />
-            <span>Detail &amp; Highlights</span>
+            <BookOpen className="h-3.5 w-3.5 text-zinc-900" />
+            <span>2. Detail Studi Kasus</span>
+            <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-zinc-100 text-zinc-700 font-mono font-normal">
+              /projects/[id]
+            </span>
           </button>
 
           <button
@@ -112,12 +117,13 @@ export default function ProjectModal({
             }`}
           >
             <Link2 className="h-3.5 w-3.5" />
-            <span>Media &amp; Tautan</span>
+            <span>3. Tech Stack &amp; Media</span>
           </button>
         </div>
 
         {/* Modal Body (Scrollable) */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
+          {/* TAB 1: General Info */}
           {activeSection === "general" && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -195,26 +201,115 @@ export default function ProjectModal({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Deskripsi Ringkas (Tampil di Card Web) *
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                    Deskripsi Ringkas (Tampil di Card Depan Web) *
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Ringkasan singkat 1-2 kalimat</span>
+                </div>
                 <textarea
                   value={data.description || ""}
                   onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Ringkasan 1-2 kalimat untuk kartu depan portofolio..."
                   rows={2}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-none"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-none leading-relaxed"
                   required
                 />
               </div>
             </div>
           )}
 
-          {activeSection === "details" && (
+          {/* TAB 2: Case Study Details (Halaman /projects/[id]) */}
+          {activeSection === "case_study" && (
+            <div className="space-y-5">
+              {/* Informative banner */}
+              <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-start gap-2.5">
+                <Globe className="h-4 w-4 text-zinc-700 mt-0.5 shrink-0" />
+                <div className="space-y-0.5 text-xs text-zinc-800">
+                  <p className="font-semibold text-zinc-900">Seksi Halaman Detail Studi Kasus</p>
+                  <p className="text-[11px] text-zinc-600 leading-relaxed">
+                    Data di bawah ini ditampilkan lengkap ketika pengunjung website mengklik tombol <strong>&ldquo;Lihat Detail Studi Kasus&rdquo;</strong> pada kartu proyek di website.
+                  </p>
+                </div>
+              </div>
+
+              {/* 1. Latar Belakang & Solusi (longDescription) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-zinc-500" />
+                    <span>Latar Belakang &amp; Solusi (Overview Studi Kasus)</span>
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Tampil di seksi Overview studi kasus</span>
+                </div>
+                <textarea
+                  value={data.longDescription || ""}
+                  onChange={(e) => setData(prev => ({ ...prev, longDescription: e.target.value }))}
+                  placeholder="Jelaskan latar belakang masalah, kebutuhan pengguna, serta solusi arsitektur perangkat lunak yang Anda buat..."
+                  rows={5}
+                  className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-y leading-relaxed"
+                />
+              </div>
+
+              {/* 2. Poin Highlights & Kemampuan Sistem (highlights) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700 flex items-center gap-1.5">
+                    <Layers className="h-3.5 w-3.5 text-zinc-500" />
+                    <span>Kemampuan Sistem &amp; Fitur Utama (Highlights Checklist)</span>
+                  </label>
+                  <span className="text-[10px] text-zinc-400">1 baris = 1 poin checklist</span>
+                </div>
+                <textarea
+                  defaultValue={highlightsInputValue}
+                  onChange={(e) => handleHighlightsChange(e.target.value)}
+                  placeholder="Dashboard Ringkasan Real-Time dengan 4 Stat Card interaktif&#10;Manajemen Unit Kamar dengan Instant Search dan riwayat transaksi&#10;Sistem Checkout dan generate invoice otomatis"
+                  rows={5}
+                  className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-y leading-relaxed"
+                />
+                
+                {/* Live Checklist Preview */}
+                {data.highlights && data.highlights.length > 0 && (
+                  <div className="mt-2 p-3 bg-zinc-50 rounded-lg border border-zinc-200/80 space-y-1.5">
+                    <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                      Pratinjau Checklist Studi Kasus ({data.highlights.length} Poin):
+                    </span>
+                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                      {data.highlights.map((h, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-[11px] text-zinc-700">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-zinc-900 shrink-0 mt-0.5" />
+                          <span>{h}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Key Metrics / Sorotan */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700">
+                  Key Metrics / Sorotan Singkat Proyek
+                </label>
+                <input
+                  type="text"
+                  value={data.metrics || ""}
+                  onChange={(e) => setData(prev => ({ ...prev, metrics: e.target.value }))}
+                  placeholder="Contoh: Full-Stack • Real-time Stats • PWA Ready"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
+                />
+                <p className="text-[10px] text-zinc-400">Tampil di kolom spesifikasi cepat halaman studi kasus.</p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Tech Stack & Media */}
+          {activeSection === "links" && (
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Tech Stack / Tags (Pisahkan dengan koma)
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600 flex items-center gap-1.5">
+                  <Code2 className="h-3.5 w-3.5 text-zinc-500" />
+                  <span>Tech Stack / Tags (Pisahkan dengan koma)</span>
                 </label>
                 <input
                   type="text"
@@ -226,49 +321,6 @@ export default function ProjectModal({
                 <p className="text-[10px] text-zinc-400">Contoh: Next.js, React, Node.js, PostgreSQL</p>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Key Metrics / Badges
-                </label>
-                <input
-                  type="text"
-                  value={data.metrics || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, metrics: e.target.value }))}
-                  placeholder="Full-Stack • Real-time Stats • PWA Ready"
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Poin Highlights &amp; Fitur Utama (1 baris per poin)
-                </label>
-                <textarea
-                  defaultValue={highlightsInputValue}
-                  onChange={(e) => handleHighlightsChange(e.target.value)}
-                  placeholder="Dashboard Ringkasan Real-Time dengan 4 Stat Card interaktif&#10;Manajemen Unit Kamar dengan Instant Search&#10;Sistem Autentikasi JWT terenkripsi"
-                  rows={4}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-y"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Deskripsi Lengkap (Halaman Detail)
-                </label>
-                <textarea
-                  value={data.longDescription || ""}
-                  onChange={(e) => setData(prev => ({ ...prev, longDescription: e.target.value }))}
-                  placeholder="Penjelasan arsitektur, tantangan, dan solusi mendalam..."
-                  rows={3}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all resize-y"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeSection === "links" && (
-            <div className="space-y-4">
               {/* Image Upload Area */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
@@ -365,8 +417,8 @@ export default function ProjectModal({
         <div className="flex items-center justify-between p-4 px-6 border-t border-zinc-150 bg-zinc-50/50">
           <div className="text-[11px] text-zinc-400">
             {activeSection === "general" && "Tab 1 dari 3: Info Utama"}
-            {activeSection === "details" && "Tab 2 dari 3: Detail & Highlights"}
-            {activeSection === "links" && "Tab 3 dari 3: Media & Tautan"}
+            {activeSection === "case_study" && "Tab 2 dari 3: Detail Studi Kasus"}
+            {activeSection === "links" && "Tab 3 dari 3: Tech Stack & Media"}
           </div>
 
           <div className="flex gap-2">

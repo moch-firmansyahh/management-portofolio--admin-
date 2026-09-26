@@ -28,6 +28,7 @@ import MessagesTab from "../components/tabs/MessagesTab";
 
 import SkillModal from "../components/modals/SkillModal";
 import ProjectModal from "../components/modals/ProjectModal";
+import CaseStudyModal from "../components/modals/CaseStudyModal";
 import ExperienceModal from "../components/modals/ExperienceModal";
 import MessageModal from "../components/modals/MessageModal";
 import ConfirmModal from "../components/modals/ConfirmModal";
@@ -217,10 +218,12 @@ export default function AdminDashboard() {
   const [projectModal, setProjectModal] = useState<{
     isOpen: boolean;
     isEdit: boolean;
+    initialTab?: "general" | "case_study" | "links";
     data: Project;
   }>({
     isOpen: false,
     isEdit: false,
+    initialTab: "general",
     data: {
       title: "",
       subtitle: "",
@@ -237,6 +240,14 @@ export default function AdminDashboard() {
       highlights: [],
       year: new Date().getFullYear().toString(),
     },
+  });
+
+  const [caseStudyModal, setCaseStudyModal] = useState<{
+    isOpen: boolean;
+    project: Project | null;
+  }>({
+    isOpen: false,
+    project: null,
   });
 
   const [experienceModal, setExperienceModal] = useState<{
@@ -470,6 +481,7 @@ export default function AdminDashboard() {
     setProjectModal({
       isOpen: true,
       isEdit: false,
+      initialTab: "general",
       data: {
         title: "",
         subtitle: "",
@@ -493,6 +505,24 @@ export default function AdminDashboard() {
     setProjectModal({
       isOpen: true,
       isEdit: true,
+      initialTab: "general",
+      data: { ...project },
+    });
+  };
+
+  const openCaseStudy = (project: Project) => {
+    setCaseStudyModal({
+      isOpen: true,
+      project,
+    });
+  };
+
+  const openEditCaseStudy = (project: Project) => {
+    setCaseStudyModal({ isOpen: false, project: null });
+    setProjectModal({
+      isOpen: true,
+      isEdit: true,
+      initialTab: "case_study",
       data: { ...project },
     });
   };
@@ -945,6 +975,7 @@ export default function AdminDashboard() {
               handleSyncGitHub={handleSyncGitHub}
               openAddProject={openAddProject}
               openEditProject={openEditProject}
+              openCaseStudy={openCaseStudy}
               handleDeleteProject={handleDeleteProject}
               getProjectPreview={getProjectPreview}
               handleSeedDefaultData={handleSeedDefaultProjects}
@@ -999,6 +1030,7 @@ export default function AdminDashboard() {
       <ProjectModal 
         isOpen={projectModal.isOpen}
         isEdit={projectModal.isEdit}
+        initialTab={projectModal.initialTab}
         data={projectModal.data}
         setData={(action) => {
           if (typeof action === "function") {
@@ -1011,6 +1043,14 @@ export default function AdminDashboard() {
         handleImageUpload={handleImageUploadEvent}
         onSubmit={saveProjectModal}
         onClose={() => setProjectModal((prev) => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Case Study Preview & Navigation Modal */}
+      <CaseStudyModal
+        isOpen={caseStudyModal.isOpen}
+        project={caseStudyModal.project}
+        onClose={() => setCaseStudyModal({ isOpen: false, project: null })}
+        onEdit={(proj) => openEditCaseStudy(proj)}
       />
 
       {/* Experience Form Modal */}

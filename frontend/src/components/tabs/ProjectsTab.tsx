@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, Edit3, Trash2, RefreshCw, ExternalLink, Briefcase, Star, Github } from "lucide-react";
+import { Plus, Edit3, Trash2, RefreshCw, ExternalLink, Briefcase, Star, Github, BookOpen } from "lucide-react";
 import { Project } from "../../types";
 
 interface ProjectsTabProps {
@@ -9,6 +9,7 @@ interface ProjectsTabProps {
   handleSyncGitHub: () => void;
   openAddProject: () => void;
   openEditProject: (project: Project) => void;
+  openCaseStudy?: (project: Project) => void;
   handleDeleteProject: (id?: string) => void;
   getProjectPreview: (image: string, link: string) => string;
   handleSeedDefaultData?: () => void;
@@ -22,6 +23,7 @@ export default function ProjectsTab({
   handleSyncGitHub,
   openAddProject,
   openEditProject,
+  openCaseStudy,
   handleDeleteProject,
   getProjectPreview,
   handleSeedDefaultData,
@@ -148,6 +150,20 @@ export default function ProjectsTab({
                         {project.subtitle}
                       </p>
                     )}
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => openCaseStudy ? openCaseStudy(project) : openEditProject(project)}
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[10px] font-medium border border-zinc-200/90 transition cursor-pointer"
+                        title="Buka Pratinjau & Edit Detail Studi Kasus"
+                      >
+                        <BookOpen className="h-3 w-3 text-zinc-600" />
+                        <span>Detail Studi Kasus</span>
+                        <span className="text-zinc-500 font-mono">
+                          ({project.highlights?.length || 0} Poin)
+                        </span>
+                      </button>
+                    </div>
                   </td>
                   <td className="py-3.5 px-6 text-zinc-500 max-w-[280px]">
                     <p className="truncate text-zinc-700" title={project.description}>
@@ -198,9 +214,16 @@ export default function ProjectsTab({
                   <td className="py-3.5 px-6 text-right">
                     <div className="flex justify-end items-center gap-1">
                       <button
+                        onClick={() => openCaseStudy ? openCaseStudy(project) : openEditProject(project)}
+                        className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition cursor-pointer"
+                        title="Lihat Detail Studi Kasus"
+                      >
+                        <BookOpen className="h-3.5 w-3.5" />
+                      </button>
+                      <button
                         onClick={() => openEditProject(project)}
                         className="h-7 w-7 inline-flex items-center justify-center rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition cursor-pointer"
-                        title="Edit Proyek"
+                        title="Edit Proyek Lengkap"
                       >
                         <Edit3 className="h-3.5 w-3.5" />
                       </button>
