@@ -82,7 +82,7 @@ export interface ProfileData {
   status: string;
   location: string;
   email: string;
-  phone: string;
+  phone?: string;
   resumeUrl: string;
   avatarUrl?: string;
   socialLinks: ProfileSocialLinks;
