@@ -108,9 +108,12 @@ export default function AboutTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
-                  Nama Panggilan
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+                    Nama Panggilan
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Tampil di Footer besar web</span>
+                </div>
                 <input
                   type="text"
                   value={profile.shortName || ""}

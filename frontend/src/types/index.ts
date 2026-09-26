@@ -74,7 +74,7 @@ export interface ProfileSocialLinks {
 export interface ProfileData {
   id?: string;
   name: string;
-  shortName: string;
+  shortName?: string;
   role: string;
   tagline: string;
   about?: string;
