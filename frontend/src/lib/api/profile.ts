@@ -18,12 +18,42 @@ export async function getProfile(): Promise<ProfileData | null> {
   return data as ProfileData;
 }
 
+// Kolom yang ada di tabel 'profile' database Supabase
+const VALID_DB_PROFILE_COLUMNS = [
+  "id",
+  "name",
+  "title",
+  "role",
+  "shortName",
+  "tagline",
+  "about",
+  "bio",
+  "status",
+  "email",
+  "phone",
+  "github",
+  "linkedin",
+  "instagram",
+  "resumeUrl",
+  "socialLinks",
+  "stats",
+  "updatedAt",
+];
+
 export async function saveProfile(profile: ProfileData): Promise<{ missingColumns?: string[] }> {
-  const payload: Record<string, any> = {
+  const rawPayload: Record<string, any> = {
     id: "main",
     ...profile,
     updatedAt: new Date().toISOString(),
   };
+
+  // Hanya kirim kolom yang valid di database agar tidak memicu error 400 Bad Request
+  const payload: Record<string, any> = {};
+  for (const col of VALID_DB_PROFILE_COLUMNS) {
+    if (col in rawPayload && rawPayload[col] !== undefined) {
+      payload[col] = rawPayload[col];
+    }
+  }
 
   let result = await supabase.from("profile").upsert(payload);
 
