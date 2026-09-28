@@ -203,9 +203,32 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [extraCategories, setExtraCategories] = useState<string[]>([]);
+  const [extraCategories, setExtraCategories] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("admin_portfolio_categories");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return [];
+  });
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleAddCategory = useCallback((cat: string) => {
+    const trimmed = cat.trim();
+    if (!trimmed) return;
+    setExtraCategories((prev) => {
+      if (prev.includes(trimmed)) return prev;
+      const updated = [...prev, trimmed];
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("admin_portfolio_categories", JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
+  }, []);
 
   // Dynamic list of all categories: default + from existing skills + newly created
   const allSkillCategories = useMemo(() => {
@@ -404,8 +427,8 @@ export default function AdminDashboard() {
   const saveSkillModal = async (e: React.FormEvent) => {
     e.preventDefault();
     const cat = skillModal.data.category?.trim();
-    if (cat && !extraCategories.includes(cat)) {
-      setExtraCategories((prev) => [...prev, cat]);
+    if (cat) {
+      handleAddCategory(cat);
     }
     const success = await handleSaveSkill(skillModal.data, skillModal.isEdit);
     if (success) {
@@ -435,7 +458,15 @@ export default function AdminDashboard() {
       `Apakah Anda yakin ingin menghapus kategori "${category}" beserta ${count} keahlian di dalamnya dari database? Tindakan ini tidak dapat dibatalkan.`,
       () => {
         deleteCategoryItem(category);
-        setExtraCategories((prev) => prev.filter((c) => c.toLowerCase() !== category.toLowerCase()));
+        setExtraCategories((prev) => {
+          const updated = prev.filter((c) => c.toLowerCase() !== category.toLowerCase());
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("admin_portfolio_categories", JSON.stringify(updated));
+            } catch {}
+          }
+          return updated;
+        });
       },
       true,
       "Hapus Kategori"
@@ -998,7 +1029,7 @@ export default function AdminDashboard() {
               handleSeedDefaultSkills={handleSeedDefaultSkills}
               isSeedingSkills={isSeedingSkills}
               availableCategories={allSkillCategories}
-              onAddCategory={(cat) => setExtraCategories((prev) => [...prev, cat])}
+              onAddCategory={handleAddCategory}
             />
           )}
 
@@ -1059,6 +1090,7 @@ export default function AdminDashboard() {
         }}
         popularSkills={POPULAR_SKILLS}
         availableCategories={allSkillCategories}
+        onAddCategory={handleAddCategory}
         onSubmit={saveSkillModal}
         onClose={() => setSkillModal((prev) => ({ ...prev, isOpen: false }))}
       />

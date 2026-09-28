@@ -10,6 +10,7 @@ interface SkillModalProps {
   setData: React.Dispatch<React.SetStateAction<Skill>>;
   popularSkills: PopularSkill[];
   availableCategories?: string[];
+  onAddCategory?: (category: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
 }
@@ -21,41 +22,36 @@ export default function SkillModal({
   setData,
   popularSkills,
   availableCategories,
+  onAddCategory,
   onSubmit,
   onClose,
 }: SkillModalProps) {
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [showAddCategoryInput, setShowAddCategoryInput] = useState(false);
+  const [newCategoryText, setNewCategoryText] = useState("");
+  const [localCategories, setLocalCategories] = useState<string[]>([]);
 
-  // Combine default categories with any dynamic or custom categories passed in
+  // Combine default categories, availableCategories from parent/localStorage, and any added locally
   const categoriesList = useMemo(() => {
     const base = availableCategories && availableCategories.length > 0 
       ? availableCategories 
       : SKILL_CATEGORIES;
-    const set = new Set([...SKILL_CATEGORIES, ...base]);
+    const set = new Set([...SKILL_CATEGORIES, ...base, ...localCategories]);
     if (data.category && data.category.trim()) {
       set.add(data.category.trim());
     }
     return Array.from(set).filter(Boolean);
-  }, [availableCategories, data.category]);
+  }, [availableCategories, localCategories, data.category]);
 
-  // Reset custom category flag when opening modal
-  useEffect(() => {
-    if (isOpen) {
-      const knownList = availableCategories && availableCategories.length > 0
-        ? availableCategories
-        : SKILL_CATEGORIES;
-      const isKnown = knownList.some(
-        (c) => c.trim().toLowerCase() === (data.category || "").trim().toLowerCase()
-      );
-      
-      // If it's already in the known list or empty, use dropdown
-      if (isKnown || !data.category) {
-        setIsCustomCategory(false);
-      } else {
-        setIsCustomCategory(true);
-      }
+  const handleAddCategorySubmit = () => {
+    const trimmed = newCategoryText.trim();
+    if (trimmed) {
+      setLocalCategories((prev) => [...prev, trimmed]);
+      setData((prev) => ({ ...prev, category: trimmed }));
+      if (onAddCategory) onAddCategory(trimmed);
+      setNewCategoryText("");
+      setShowAddCategoryInput(false);
     }
-  }, [isOpen, data.category, availableCategories]);
+  };
 
   if (!isOpen) return null;
 
@@ -73,16 +69,12 @@ export default function SkillModal({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const customName = e.target.value;
     
-    // Auto-fill logo and category if customName matches one of popular skills
+    // Auto-fill logo if customName matches one of popular skills
     const foundPopular = popularSkills.find(s => s.name.toLowerCase() === customName.toLowerCase());
     let logoVal = data.logo;
-    let categoryVal = data.category || (categoriesList[0] || "Front-End Web Development");
 
     if (foundPopular) {
       logoVal = foundPopular.logo;
-      if (foundPopular.category) {
-        categoryVal = foundPopular.category;
-      }
     } else {
       if (customName.length > 0) {
         const words = customName.split(" ").filter(w => w);
@@ -100,7 +92,6 @@ export default function SkillModal({
       ...prev,
       name: customName,
       logo: logoVal,
-      category: categoryVal
     }));
   };
 
@@ -140,7 +131,7 @@ export default function SkillModal({
           </button>
         </div>
         
-        {/* Category Selector with Custom Category Option */}
+        {/* Category Selector */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label htmlFor="skill-category" className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
@@ -148,58 +139,71 @@ export default function SkillModal({
             </label>
             <button
               type="button"
-              onClick={() => {
-                const next = !isCustomCategory;
-                setIsCustomCategory(next);
-                if (next) {
-                  setData(prev => ({ ...prev, category: "" }));
-                } else {
-                  setData(prev => ({ ...prev, category: categoriesList[0] || "Front-End Web Development" }));
-                }
-              }}
+              onClick={() => setShowAddCategoryInput((prev) => !prev)}
               className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition cursor-pointer"
             >
-              {isCustomCategory ? "← Pilih dari daftar" : "+ Kategori Baru"}
+              {showAddCategoryInput ? "Batal" : "+ Kategori Baru"}
             </button>
           </div>
 
-          {isCustomCategory ? (
-            <div className="space-y-1">
+          {/* Inline Form to Add New Category */}
+          {showAddCategoryInput && (
+            <div className="flex items-center gap-1.5 p-2 bg-blue-50/80 border border-blue-200 rounded-lg">
               <input
                 type="text"
-                id="skill-category-custom"
-                value={data.category || ""}
-                onChange={(e) => setData(prev => ({ ...prev, category: e.target.value }))}
+                value={newCategoryText}
+                onChange={(e) => setNewCategoryText(e.target.value)}
                 placeholder="Ketik nama kategori baru..."
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium"
-                required
+                className="flex-1 bg-white border border-blue-300 rounded-md px-2.5 py-1 text-xs outline-none focus:ring-1 focus:ring-blue-600 text-zinc-900 font-medium"
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCategorySubmit();
+                  }
+                }}
               />
-              <p className="text-[10px] text-zinc-400">Kategori baru akan otomatis muncul di opsi kategori setelah disimpan.</p>
+              <button
+                type="button"
+                onClick={handleAddCategorySubmit}
+                className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-semibold rounded-md shadow-2xs transition cursor-pointer"
+              >
+                Tambahkan
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddCategoryInput(false);
+                  setNewCategoryText("");
+                }}
+                className="p-1 text-zinc-400 hover:text-zinc-700 rounded-md transition cursor-pointer"
+                title="Batal"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-          ) : (
-            <select
-              id="skill-category"
-              value={data.category || categoriesList[0] || "Front-End Web Development"}
-              onChange={(e) => {
-                if (e.target.value === "__custom__") {
-                  setIsCustomCategory(true);
-                  setData(prev => ({ ...prev, category: "" }));
-                } else {
-                  setIsCustomCategory(false);
-                  setData(prev => ({ ...prev, category: e.target.value }));
-                }
-              }}
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium cursor-pointer"
-            >
-              {categoriesList.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-              <option value="__custom__">+ Tambah Kategori Kustom...</option>
-            </select>
           )}
+
+          {/* Select Dropdown (always visible with all categories) */}
+          <select
+            id="skill-category"
+            value={data.category || categoriesList[0] || "Front-End Web Development"}
+            onChange={(e) => {
+              if (e.target.value === "__custom__") {
+                setShowAddCategoryInput(true);
+              } else {
+                setData((prev) => ({ ...prev, category: e.target.value }));
+              }
+            }}
+            className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium cursor-pointer"
+          >
+            {categoriesList.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+            <option value="__custom__">+ Tambah Kategori Baru...</option>
+          </select>
         </div>
 
         {/* Skill Name Input */}
