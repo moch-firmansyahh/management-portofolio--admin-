@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const { password } = body;
     const validPassword = process.env.ADMIN_PASSWORD;
     if (!validPassword) {
       console.error("ADMIN_PASSWORD belum diset di environment variables!");
