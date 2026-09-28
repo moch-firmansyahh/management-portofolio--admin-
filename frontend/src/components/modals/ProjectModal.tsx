@@ -27,34 +27,48 @@ export default function ProjectModal({
   initialTab = "general",
 }: ProjectModalProps) {
   const [activeSection, setActiveSection] = useState<"general" | "case_study" | "links">(initialTab);
+  const [tagsInput, setTagsInput] = useState("");
+  const [highlightsInput, setHighlightsInput] = useState("");
 
-  // Sync active section when modal opens or initialTab changes
+  // Sync active section and text inputs when modal opens or project changes
   useEffect(() => {
     if (isOpen) {
       setActiveSection(initialTab || "general");
+      setTagsInput((data.tags || []).join(", "));
+      setHighlightsInput((data.highlights || []).join("\n"));
     }
-  }, [isOpen, initialTab]);
+  }, [isOpen, data.id, initialTab]);
 
   if (!isOpen) return null;
 
-  // Helpers for tags & highlights
-  const tagsInputValue = (data.tags || []).join(", ");
-  const highlightsInputValue = (data.highlights || []).join("\n");
-
   const handleTagsChange = (val: string) => {
-    const arr = val.split(",").map(s => s.trim()).filter(Boolean);
+    setTagsInput(val);
+    const arr = val.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
     setData(prev => ({ ...prev, tags: arr }));
   };
 
   const handleHighlightsChange = (val: string) => {
+    setHighlightsInput(val);
     const arr = val.split("\n").map(s => s.trim()).filter(Boolean);
     setData(prev => ({ ...prev, highlights: arr }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsedTags = tagsInput.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
+    const parsedHighlights = highlightsInput.split("\n").map(s => s.trim()).filter(Boolean);
+    setData(prev => ({
+      ...prev,
+      tags: parsedTags,
+      highlights: parsedHighlights,
+    }));
+    onSubmit(e);
   };
 
   return (
     <div className="admin-modal-overlay">
       <form
-        onSubmit={onSubmit}
+        onSubmit={handleFormSubmit}
         className="max-w-2xl w-full bg-white border border-zinc-200/90 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-dialog-show"
       >
         {/* Modal Header */}
@@ -261,7 +275,7 @@ export default function ProjectModal({
                   <span className="text-[10px] text-zinc-400">1 baris = 1 poin checklist</span>
                 </div>
                 <textarea
-                  defaultValue={highlightsInputValue}
+                  value={highlightsInput}
                   onChange={(e) => handleHighlightsChange(e.target.value)}
                   placeholder="Dashboard Ringkasan Real-Time dengan 4 Stat Card interaktif&#10;Manajemen Unit Kamar dengan Instant Search dan riwayat transaksi&#10;Sistem Checkout dan generate invoice otomatis"
                   rows={5}
@@ -313,7 +327,7 @@ export default function ProjectModal({
                 </label>
                 <input
                   type="text"
-                  defaultValue={tagsInputValue}
+                  value={tagsInput}
                   onChange={(e) => handleTagsChange(e.target.value)}
                   placeholder="Next.js 16, TypeScript, Tailwind CSS, PostgreSQL, JWT"
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 font-mono outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all"

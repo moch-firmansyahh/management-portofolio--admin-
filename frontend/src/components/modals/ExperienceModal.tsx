@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { X, CheckCircle2 } from "lucide-react";
 import { Experience } from "../../types";
 
@@ -19,6 +19,14 @@ export default function ExperienceModal({
   onSubmit,
   onClose,
 }: ExperienceModalProps) {
+  const [techsInput, setTechsInput] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setTechsInput((data.technologies || []).join(", "));
+    }
+  }, [isOpen, data.id]);
+
   if (!isOpen) return null;
 
   const isFormValid =
@@ -26,17 +34,29 @@ export default function ExperienceModal({
     data.company.trim().length > 0 &&
     data.period.trim().length > 0;
 
-  const techsInputValue = (data.technologies || []).join(", ");
-
   const handleTechsChange = (val: string) => {
-    const arr = val.split(",").map((s) => s.trim()).filter(Boolean);
+    setTechsInput(val);
+    const arr = val
+      .split(/[,;\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     setData((prev) => ({ ...prev, technologies: arr }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const arr = techsInput
+      .split(/[,;\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    setData((prev) => ({ ...prev, technologies: arr }));
+    onSubmit(e);
   };
 
   return (
     <div className="admin-modal-overlay">
       <form
-        onSubmit={onSubmit}
+        onSubmit={handleFormSubmit}
         className="max-w-lg w-full bg-white border border-zinc-200/90 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-dialog-show"
       >
         {/* Modal Header */}
@@ -158,7 +178,7 @@ export default function ExperienceModal({
             </label>
             <input
               type="text"
-              value={techsInputValue}
+              value={techsInput}
               onChange={(e) => handleTechsChange(e.target.value)}
               placeholder="Next.js, React, Tailwind CSS, REST API"
               className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 font-mono"

@@ -120,11 +120,11 @@ export function sortExperiences<T extends { period?: string }>(items: T[]): T[] 
     const periodA = a.period || "";
     const periodB = b.period || "";
 
-    const partsA = periodA.split(/[-–—]/);
-    const partsB = periodB.split(/[-–—]/);
+    const partsA = periodA.split(/\s*(?:[-–—/]|to|s\/d|sampai|until)\s*/i).filter(Boolean);
+    const partsB = periodB.split(/\s*(?:[-–—/]|to|s\/d|sampai|until)\s*/i).filter(Boolean);
 
-    const endA = partsA.length >= 2 ? parseSingleDateScore(partsA[1], true) : parseSingleDateScore(partsA[0], false);
-    const endB = partsB.length >= 2 ? parseSingleDateScore(partsB[1], true) : parseSingleDateScore(partsB[0], false);
+    const endA = partsA.length >= 2 ? parseSingleDateScore(partsA[partsA.length - 1], true) : parseSingleDateScore(partsA[0], false);
+    const endB = partsB.length >= 2 ? parseSingleDateScore(partsB[partsB.length - 1], true) : parseSingleDateScore(partsB[0], false);
 
     if (endA !== endB) {
       return endB - endA;
