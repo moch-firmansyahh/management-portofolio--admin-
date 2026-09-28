@@ -8,7 +8,12 @@ export const corsMiddleware = cors({
     // Izinkan request tanpa origin (seperti curl, mobile app, Postman, server-to-server)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+    if (
+      allowedOrigins.indexOf(origin) !== -1 ||
+      allowedOrigins.includes("*") ||
+      origin.endsWith(".vercel.app") ||
+      process.env.NODE_ENV === "development"
+    ) {
       return callback(null, true);
     } else {
       return callback(new Error(`Origin ${origin} tidak diizinkan oleh kebijakan CORS.`));
