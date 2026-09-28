@@ -165,11 +165,11 @@ export default function SkillsTab({
         })}
       </div>
 
-      {/* Data Table */}
-      <div className="overflow-x-auto">
+      {/* Scrollable Data Table */}
+      <div className="overflow-x-auto overflow-y-auto max-h-[580px] divide-y divide-zinc-200/80">
         <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-zinc-200/80 bg-zinc-50/70 text-zinc-500 font-semibold tracking-wider uppercase text-[10px]">
+          <thead className="sticky top-0 bg-zinc-50/95 backdrop-blur-xs z-10 border-b border-zinc-200/80 shadow-2xs">
+            <tr className="text-zinc-500 font-semibold tracking-wider uppercase text-[10px]">
               <th className="py-3 px-6">Badge / Logo</th>
               <th className="py-3 px-6">Nama Skill</th>
               <th className="py-3 px-6">Kategori</th>
@@ -177,7 +177,7 @@ export default function SkillsTab({
               <th className="py-3 px-6 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-150">
+          <tbody className="divide-y divide-zinc-150 bg-white">
             {filteredSkills.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 text-center text-zinc-400">
@@ -244,6 +244,16 @@ export default function SkillsTab({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Table Footer info */}
+      <div className="p-3.5 px-6 bg-zinc-50/70 border-t border-zinc-200/80 flex items-center justify-between text-xs text-zinc-500">
+        <span className="font-medium text-zinc-700">
+          Menampilkan <strong className="text-zinc-900 font-bold">{filteredSkills.length}</strong> dari {skills.length} keahlian
+        </span>
+        <span className="text-[11px] text-zinc-400">
+          Scroll ke bawah untuk melihat keahlian lainnya
+        </span>
       </div>
     </div>
   );

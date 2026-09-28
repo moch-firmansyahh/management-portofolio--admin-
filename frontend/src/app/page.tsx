@@ -749,7 +749,7 @@ export default function AdminDashboard() {
 
   // 13. Main Dashboard UI
   return (
-    <div className="min-h-screen bg-[#FDFDFC] flex font-sans antialiased text-zinc-900">
+    <div className="h-screen bg-[#FDFDFC] flex font-sans antialiased text-zinc-900 overflow-hidden">
       {/* Sidebar with Mobile Drawer support */}
       <Sidebar 
         activeMenu={activeMenu}
@@ -766,7 +766,7 @@ export default function AdminDashboard() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
         {/* Top Header */}
         <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
           <div className="flex items-center gap-3 flex-1 max-w-md">

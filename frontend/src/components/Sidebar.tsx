@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, Shield, ChevronRight, X } from "lucide-react";
+import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, ChevronRight, X } from "lucide-react";
 import { GitHubProfile, AdminTab } from "../types";
 import { getAvatarUrl } from "../lib/utils";
 
@@ -50,44 +50,36 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`w-64 border-r border-zinc-200/80 bg-white flex flex-col justify-between shrink-0 min-h-screen select-none z-50 transition-transform duration-200 ease-in-out fixed inset-y-0 left-0 lg:static lg:translate-x-0 ${
+        className={`w-64 border-r border-zinc-200/80 bg-white flex flex-col justify-between shrink-0 h-screen select-none z-50 transition-transform duration-200 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 lg:translate-x-0 ${
           isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div>
+        <div className="flex-1 overflow-y-auto">
           {/* Brand Header */}
-          <div className="p-5 border-b border-zinc-150 flex items-center justify-between">
+          <div className="p-4 px-5 border-b border-zinc-150 flex items-center justify-between sticky top-0 bg-white z-10">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-sm ring-1 ring-zinc-900/10">
-                <LayoutDashboard className="h-4.5 w-4.5" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 select-none">
+                F
               </div>
               <div>
                 <h1 className="font-semibold text-sm tracking-tight text-zinc-900 leading-none">
-                  Admin Board
+                  portofolio-firman
                 </h1>
-                <span className="text-[10px] text-zinc-500 font-medium tracking-wide uppercase mt-1 block">
-                  Portfolio CMS Suite
+                <span className="text-[10px] text-zinc-400 font-medium tracking-wide uppercase mt-1 block">
+                  Management Panel
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700 border border-zinc-200 shadow-2xs">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <Shield className="h-2.5 w-2.5 text-zinc-500" />
-                <span>v2.2.4</span>
-              </span>
-
-              {setIsMobileOpen && (
-                <button
-                  onClick={() => setIsMobileOpen(false)}
-                  className="lg:hidden p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
-                  title="Tutup Menu"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+            {setIsMobileOpen && (
+              <button
+                onClick={() => setIsMobileOpen(false)}
+                className="lg:hidden p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                title="Tutup Menu"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Navigation Sections */}

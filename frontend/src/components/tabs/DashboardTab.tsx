@@ -1,6 +1,6 @@
 import React from "react";
 import { GitHubCalendar } from "react-github-calendar";
-import { Github, ExternalLink, GitBranch, ShieldCheck, Download, HardDrive } from "lucide-react";
+import { Github, ExternalLink, GitBranch, ShieldCheck } from "lucide-react";
 import { Skill, Project, Experience, ContactMessage, GitHubProfile, GitHubRepo } from "../../types";
 import { getAvatarUrl } from "../../lib/utils";
 import { GITHUB_USERNAME } from "../../lib/constants";
@@ -26,36 +26,6 @@ export default function DashboardTab({
   handleImgError,
   showToast,
 }: DashboardTabProps) {
-  const handleExportBackup = () => {
-    try {
-      const backupData = {
-        exportedAt: new Date().toISOString(),
-        version: "2.1.0",
-        stats: {
-          skillsCount: skills.length,
-          projectsCount: projects.length,
-          experiencesCount: experiences.length,
-          messagesCount: messages.length,
-        },
-        skills,
-        projects,
-        experiences,
-        messages,
-      };
-
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-      const downloadAnchor = document.createElement("a");
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `portfolio-backup-${new Date().toISOString().split("T")[0]}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-
-      showToast("Berhasil mengekspor data backup JSON (termasuk pengalaman & pesan)!", "success");
-    } catch (err: any) {
-      showToast("Gagal mengekspor data: " + err.message, "error");
-    }
-  };
 
   const username = gitProfile?.login || GITHUB_USERNAME;
 
@@ -154,31 +124,6 @@ export default function DashboardTab({
               <p className="text-xs text-zinc-400 italic">Tidak ada data repositori.</p>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Quick Tools: Data Backup & Export Tool */}
-      <div className="lg:col-span-3">
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-zinc-900 text-white border border-zinc-900 shadow-2xs shrink-0">
-              <HardDrive className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-xs text-zinc-900">Cadangan Data Portofolio</h4>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
-                Ekspor data ({skills.length} skills, {projects.length} proyek, {experiences.length} riwayat, {messages.length} pesan) ke format JSON.
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleExportBackup}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium border border-zinc-200 transition active:scale-98 cursor-pointer shrink-0"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Ekspor JSON</span>
-          </button>
         </div>
       </div>
     </div>
