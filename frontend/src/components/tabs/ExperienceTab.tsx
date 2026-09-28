@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Plus, Edit3, Trash2, RefreshCw, Briefcase, MapPin, Calendar, Building2 } from "lucide-react";
 import { Experience } from "../../types";
+import { sortExperiences } from "../../lib/utils";
 
 interface ExperienceTabProps {
   experiences: Experience[];
@@ -21,7 +22,9 @@ export default function ExperienceTab({
   openEditExperience,
   handleDeleteExperience,
 }: ExperienceTabProps) {
-  const filteredExperiences = experiences.filter((exp) => {
+  const sortedExperiences = useMemo(() => sortExperiences(experiences), [experiences]);
+
+  const filteredExperiences = sortedExperiences.filter((exp) => {
     const query = searchQuery.toLowerCase();
     const techStr = (exp.technologies || []).join(" ").toLowerCase();
     return (

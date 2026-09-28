@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Experience } from "../types";
 import { getExperiences, createExperience, updateExperience, deleteExperience, seedExperiences } from "../lib/api/experiences";
+import { sortExperiences } from "../lib/utils";
 
 export function useExperiences(showToast: (msg: string, type?: "success" | "error" | "info") => void) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -13,7 +14,7 @@ export function useExperiences(showToast: (msg: string, type?: "success" | "erro
     setLoadingExperiences(true);
     try {
       const data = await getExperiences();
-      setExperiences(data);
+      setExperiences(sortExperiences(data));
     } catch (err: any) {
       showToast("Gagal memuat riwayat pengalaman: " + err.message, "error");
     } finally {
@@ -35,11 +36,11 @@ export function useExperiences(showToast: (msg: string, type?: "success" | "erro
 
       if (isEdit && expData.id) {
         const updated = await updateExperience(expData.id, payload);
-        setExperiences((prev) => prev.map((e) => (e.id === expData.id ? updated : e)));
+        setExperiences((prev) => sortExperiences(prev.map((e) => (e.id === expData.id ? updated : e))));
         showToast("Riwayat pengalaman berhasil diperbarui!", "success");
       } else {
         const created = await createExperience(payload);
-        setExperiences((prev) => [created, ...prev]);
+        setExperiences((prev) => sortExperiences([created, ...prev]));
         showToast("Riwayat pengalaman berhasil ditambahkan!", "success");
       }
       return true;
