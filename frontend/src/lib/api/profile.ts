@@ -1,7 +1,19 @@
 import { supabaseServer as supabase } from "../supabaseServer";
 import { ProfileData } from "../../types";
 
+const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export async function getProfile(): Promise<ProfileData | null> {
+  try {
+    const res = await fetch(`${BACKEND_API}/profile`, { cache: "no-store" });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success) return json.data as ProfileData | null;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("profile")
     .select("*")
@@ -41,6 +53,20 @@ const VALID_DB_PROFILE_COLUMNS = [
 ];
 
 export async function saveProfile(profile: ProfileData): Promise<{ missingColumns?: string[] }> {
+  try {
+    const res = await fetch(`${BACKEND_API}/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success) return {};
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const rawPayload: Record<string, any> = {
     id: "main",
     ...profile,

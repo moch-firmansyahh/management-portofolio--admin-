@@ -2,7 +2,19 @@ import { supabaseServer as supabase } from "../supabaseServer";
 import { Skill } from "../../types";
 import { POPULAR_SKILLS } from "../constants";
 
+const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export async function getSkills(): Promise<Skill[]> {
+  try {
+    const res = await fetch(`${BACKEND_API}/skills`, { cache: "no-store" });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("skills")
     .select("*")
@@ -13,6 +25,20 @@ export async function getSkills(): Promise<Skill[]> {
 }
 
 export async function createSkill(skill: Omit<Skill, "id">): Promise<Skill> {
+  try {
+    const res = await fetch(`${BACKEND_API}/skills`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(skill),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("skills")
     .insert([skill])
@@ -24,6 +50,20 @@ export async function createSkill(skill: Omit<Skill, "id">): Promise<Skill> {
 }
 
 export async function updateSkill(id: string, skill: Partial<Skill>): Promise<Skill> {
+  try {
+    const res = await fetch(`${BACKEND_API}/skills/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(skill),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("skills")
     .update(skill)
@@ -36,6 +76,15 @@ export async function updateSkill(id: string, skill: Partial<Skill>): Promise<Sk
 }
 
 export async function deleteSkill(id: string): Promise<void> {
+  try {
+    const res = await fetch(`${BACKEND_API}/skills/${id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) return;
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { error } = await supabase.from("skills").delete().eq("id", id);
   if (error) throw error;
 }

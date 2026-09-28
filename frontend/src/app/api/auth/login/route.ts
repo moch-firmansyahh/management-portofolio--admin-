@@ -60,8 +60,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { password } = body;
-    const validPassword = process.env.ADMIN_PASSWORD || "firman2026";
+    const validPassword = process.env.ADMIN_PASSWORD;
+    if (!validPassword) {
+      console.error("ADMIN_PASSWORD belum diset di environment variables!");
+      return NextResponse.json(
+        { success: false, message: "Konfigurasi autentikasi belum lengkap." },
+        { status: 500 }
+      );
+    }
 
     // 3. Verifikasi password
     if (!password || password !== validPassword) {

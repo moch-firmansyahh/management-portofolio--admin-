@@ -2,7 +2,19 @@ import { supabaseServer as supabase } from "../supabaseServer";
 import { Experience } from "../../types";
 import { DEFAULT_EXPERIENCES } from "../constants";
 
+const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export async function getExperiences(): Promise<Experience[]> {
+  try {
+    const res = await fetch(`${BACKEND_API}/experiences`, { cache: "no-store" });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("experiences")
     .select("*")
@@ -13,6 +25,20 @@ export async function getExperiences(): Promise<Experience[]> {
 }
 
 export async function createExperience(exp: Omit<Experience, "id">): Promise<Experience> {
+  try {
+    const res = await fetch(`${BACKEND_API}/experiences`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(exp),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("experiences")
     .insert([exp])
@@ -24,6 +50,20 @@ export async function createExperience(exp: Omit<Experience, "id">): Promise<Exp
 }
 
 export async function updateExperience(id: string, exp: Partial<Experience>): Promise<Experience> {
+  try {
+    const res = await fetch(`${BACKEND_API}/experiences/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(exp),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) return json.data;
+    }
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { data, error } = await supabase
     .from("experiences")
     .update(exp)
@@ -36,6 +76,15 @@ export async function updateExperience(id: string, exp: Partial<Experience>): Pr
 }
 
 export async function deleteExperience(id: string): Promise<void> {
+  try {
+    const res = await fetch(`${BACKEND_API}/experiences/${id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) return;
+  } catch {
+    // Fallback direct to Supabase
+  }
+
   const { error } = await supabase.from("experiences").delete().eq("id", id);
   if (error) throw error;
 }

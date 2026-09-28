@@ -165,8 +165,8 @@ npm install
 
 Pastikan file `.env.local` di dalam folder `frontend` telah memuat konfigurasi Supabase Anda:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://cgnerlwoezzjqaqofzuy.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_8B0fFkdbM16eYuHmBz5FPQ_LGvHKBha
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 Jalankan server development:
@@ -179,7 +179,7 @@ npm run dev
 
 ## 🔐 Kredensial Akses
 
-- **Password Masuk Admin**: `firman2026` atau `admin123` *(dapat disesuaikan pada `frontend/src/app/page.tsx`)*
+- **Password Masuk Admin**: Dikonfigurasi secara aman melalui variabel lingkungan `ADMIN_PASSWORD` (Frontend) dan `ADMIN_PASSWORD_HASH` (Bcrypt Salted Hash di Backend). Tidak disimpan secara plaintext di repositori.
 
 ---
 
