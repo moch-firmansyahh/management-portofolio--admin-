@@ -12,6 +12,7 @@ export const corsMiddleware = cors({
       allowedOrigins.indexOf(origin) !== -1 ||
       allowedOrigins.includes("*") ||
       origin.endsWith(".vercel.app") ||
+      origin.endsWith(".azurewebsites.net") ||
       process.env.NODE_ENV === "development"
     ) {
       return callback(null, true);
