@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Plus, Edit3, Trash2, RefreshCw, Code2 } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Plus, Edit3, Trash2, RefreshCw, Code2, X } from "lucide-react";
 import { Skill } from "../../types";
 import { SKILL_CATEGORIES } from "../../lib/constants";
 
@@ -14,6 +14,8 @@ interface SkillsTabProps {
   handleDeleteCategory?: (category: string) => void;
   handleSeedDefaultSkills?: () => void;
   isSeedingSkills?: boolean;
+  availableCategories?: string[];
+  onAddCategory?: (category: string) => void;
 }
 
 export default function SkillsTab({
@@ -27,15 +29,20 @@ export default function SkillsTab({
   handleDeleteCategory,
   handleSeedDefaultSkills,
   isSeedingSkills = false,
+  availableCategories,
+  onAddCategory,
 }: SkillsTabProps) {
   const [activeCategory, setActiveCategory] = useState<string>("Semua");
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
-  // Dynamically include any custom categories created by the user
-  const customCategories = Array.from(
-    new Set(skills.map((s) => s.category).filter(Boolean) as string[])
-  ).filter((c) => !SKILL_CATEGORIES.includes(c));
-
-  const categories = ["Semua", ...SKILL_CATEGORIES, ...customCategories];
+  // Dynamically include all categories: predefined, from skills, and custom
+  const categories = useMemo(() => {
+    const base = availableCategories || SKILL_CATEGORIES;
+    const fromSkills = skills.map((s) => s.category).filter(Boolean) as string[];
+    const combined = Array.from(new Set([...SKILL_CATEGORIES, ...base, ...fromSkills]));
+    return ["Semua", ...combined];
+  }, [availableCategories, skills]);
 
   const filteredSkills = skills.filter((skill) => {
     // 1. Filter by category
@@ -163,6 +170,59 @@ export default function SkillsTab({
             </button>
           );
         })}
+
+        {/* Add Category Button / Form */}
+        {isAddingCategory ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const trimmed = newCategoryName.trim();
+              if (trimmed) {
+                if (onAddCategory) onAddCategory(trimmed);
+                setActiveCategory(trimmed);
+                setNewCategoryName("");
+                setIsAddingCategory(false);
+                openAddSkill(trimmed);
+              }
+            }}
+            className="flex items-center gap-1.5 bg-white border border-zinc-900 rounded-full px-2.5 py-0.5 shadow-2xs"
+          >
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Nama kategori..."
+              autoFocus
+              className="text-xs px-1.5 py-0.5 outline-none w-32 text-zinc-900 placeholder:text-zinc-400 font-medium"
+            />
+            <button
+              type="submit"
+              className="px-2.5 py-0.5 rounded-full bg-zinc-900 text-white text-[10px] font-semibold hover:bg-zinc-800 transition cursor-pointer"
+            >
+              Simpan &amp; Tambah
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAddingCategory(false);
+                setNewCategoryName("");
+              }}
+              className="p-0.5 rounded-full text-zinc-400 hover:text-zinc-700 transition cursor-pointer"
+              title="Batal"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </form>
+        ) : (
+          <button
+            onClick={() => setIsAddingCategory(true)}
+            className="px-3 py-1.5 rounded-full text-xs font-medium border border-dashed border-zinc-300 text-zinc-600 hover:text-zinc-900 hover:border-zinc-500 hover:bg-white transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Tambah Kategori Baru"
+          >
+            <Plus className="h-3 w-3" />
+            <span>Kategori Baru</span>
+          </button>
+        )}
       </div>
 
       {/* Scrollable Data Table */}

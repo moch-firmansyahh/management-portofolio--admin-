@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { Skill, PopularSkill } from "../../types";
 import { SKILL_CATEGORIES } from "../../lib/constants";
@@ -9,6 +9,7 @@ interface SkillModalProps {
   data: Skill;
   setData: React.Dispatch<React.SetStateAction<Skill>>;
   popularSkills: PopularSkill[];
+  availableCategories?: string[];
   onSubmit: (e: React.FormEvent) => void;
   onClose: () => void;
 }
@@ -19,23 +20,46 @@ export default function SkillModal({
   data,
   setData,
   popularSkills,
+  availableCategories,
   onSubmit,
   onClose,
 }: SkillModalProps) {
   const [isCustomCategory, setIsCustomCategory] = useState(false);
 
-  // Reset custom category flag when opening modal or changing skill category
+  // Combine default categories with any dynamic or custom categories passed in
+  const categoriesList = useMemo(() => {
+    const base = availableCategories && availableCategories.length > 0 
+      ? availableCategories 
+      : SKILL_CATEGORIES;
+    const set = new Set([...SKILL_CATEGORIES, ...base]);
+    if (data.category && data.category.trim()) {
+      set.add(data.category.trim());
+    }
+    return Array.from(set).filter(Boolean);
+  }, [availableCategories, data.category]);
+
+  // Reset custom category flag when opening modal
   useEffect(() => {
     if (isOpen) {
-      const isPre = SKILL_CATEGORIES.includes(data.category || "");
-      setIsCustomCategory(!isPre && !!data.category);
+      const knownList = availableCategories && availableCategories.length > 0
+        ? availableCategories
+        : SKILL_CATEGORIES;
+      const isKnown = knownList.some(
+        (c) => c.trim().toLowerCase() === (data.category || "").trim().toLowerCase()
+      );
+      
+      // If it's already in the known list or empty, use dropdown
+      if (isKnown || !data.category) {
+        setIsCustomCategory(false);
+      } else {
+        setIsCustomCategory(true);
+      }
     }
-  }, [isOpen, data.category]);
+  }, [isOpen, data.category, availableCategories]);
 
   if (!isOpen) return null;
 
-  const currentCategory = data.category || "Front-End Web Development";
-  const isPredefined = SKILL_CATEGORIES.includes(currentCategory);
+  const currentCategory = data.category || (categoriesList[0] || "Front-End Web Development");
 
   const isFormValid =
     data.name.trim().length > 0 &&
@@ -52,7 +76,7 @@ export default function SkillModal({
     // Auto-fill logo and category if customName matches one of popular skills
     const foundPopular = popularSkills.find(s => s.name.toLowerCase() === customName.toLowerCase());
     let logoVal = data.logo;
-    let categoryVal = data.category || "Front-End Web Development";
+    let categoryVal = data.category || (categoriesList[0] || "Front-End Web Development");
 
     if (foundPopular) {
       logoVal = foundPopular.logo;
@@ -124,38 +148,51 @@ export default function SkillModal({
             </label>
             <button
               type="button"
-              onClick={() => setIsCustomCategory(!isCustomCategory)}
+              onClick={() => {
+                const next = !isCustomCategory;
+                setIsCustomCategory(next);
+                if (next) {
+                  setData(prev => ({ ...prev, category: "" }));
+                } else {
+                  setData(prev => ({ ...prev, category: categoriesList[0] || "Front-End Web Development" }));
+                }
+              }}
               className="text-[11px] font-medium text-blue-600 hover:text-blue-800 transition cursor-pointer"
             >
-              {isCustomCategory ? "Pilih dari daftar" : "+ Kategori Baru"}
+              {isCustomCategory ? "← Pilih dari daftar" : "+ Kategori Baru"}
             </button>
           </div>
 
-          {isCustomCategory || (!isPredefined && isEdit) ? (
-            <input
-              type="text"
-              id="skill-category-custom"
-              value={data.category || ""}
-              onChange={(e) => setData(prev => ({ ...prev, category: e.target.value }))}
-              placeholder="Ketik nama kategori baru..."
-              className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium"
-              required
-            />
+          {isCustomCategory ? (
+            <div className="space-y-1">
+              <input
+                type="text"
+                id="skill-category-custom"
+                value={data.category || ""}
+                onChange={(e) => setData(prev => ({ ...prev, category: e.target.value }))}
+                placeholder="Ketik nama kategori baru..."
+                className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium"
+                required
+                autoFocus
+              />
+              <p className="text-[10px] text-zinc-400">Kategori baru akan otomatis muncul di opsi kategori setelah disimpan.</p>
+            </div>
           ) : (
             <select
               id="skill-category"
-              value={data.category || "Front-End Web Development"}
+              value={data.category || categoriesList[0] || "Front-End Web Development"}
               onChange={(e) => {
                 if (e.target.value === "__custom__") {
                   setIsCustomCategory(true);
                   setData(prev => ({ ...prev, category: "" }));
                 } else {
+                  setIsCustomCategory(false);
                   setData(prev => ({ ...prev, category: e.target.value }));
                 }
               }}
               className="w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-medium cursor-pointer"
             >
-              {SKILL_CATEGORIES.map((cat) => (
+              {categoriesList.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>
