@@ -15,7 +15,8 @@ import {
   Info,
   X,
   RefreshCw,
-  Menu
+  Menu,
+  PanelLeft
 } from "lucide-react";
 
 import Sidebar, { AdminTab } from "../components/Sidebar";
@@ -201,8 +202,17 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState<AdminTab>("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const toggleSidebar = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setIsMobileOpen((prev) => !prev);
+    } else {
+      setIsSidebarOpen((prev) => !prev);
+    }
+  };
 
   // 7. Modals State
   const [skillModal, setSkillModal] = useState<{
@@ -763,6 +773,15 @@ export default function AdminDashboard() {
         handleLogout={handleLogoutAction}
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        onToggleCollapse={() => {
+          if (typeof window !== "undefined" && window.innerWidth < 1024) {
+            setIsMobileOpen(false);
+          } else {
+            setIsSidebarOpen(false);
+          }
+        }}
       />
 
       {/* Main Content Area */}
@@ -771,11 +790,11 @@ export default function AdminDashboard() {
         <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <button
-              onClick={() => setIsMobileOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 transition cursor-pointer"
-              title="Buka Menu"
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+              title={isSidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
             >
-              <Menu className="h-5 w-5" />
+              <PanelLeft className="h-5 w-5" />
             </button>
 
             <div className="relative w-full">

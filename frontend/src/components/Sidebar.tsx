@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, ChevronRight, X } from "lucide-react";
+import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, ChevronRight, X, PanelLeftClose } from "lucide-react";
 import { GitHubProfile, AdminTab } from "../types";
 import { getAvatarUrl } from "../lib/utils";
 
@@ -17,6 +17,9 @@ interface SidebarProps {
   handleLogout: () => void;
   isMobileOpen?: boolean;
   setIsMobileOpen?: (open: boolean) => void;
+  isSidebarOpen?: boolean;
+  setIsSidebarOpen?: (open: boolean) => void;
+  onToggleCollapse?: () => void;
 }
 
 export default function Sidebar({
@@ -31,11 +34,23 @@ export default function Sidebar({
   handleLogout,
   isMobileOpen = false,
   setIsMobileOpen,
+  isSidebarOpen = true,
+  setIsSidebarOpen,
+  onToggleCollapse,
 }: SidebarProps) {
   const handleNavClick = (menu: AdminTab) => {
     setActiveMenu(menu);
     if (setIsMobileOpen) {
       setIsMobileOpen(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else {
+      if (setIsMobileOpen) setIsMobileOpen(false);
+      if (setIsSidebarOpen) setIsSidebarOpen(false);
     }
   };
 
@@ -50,37 +65,40 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`w-64 border-r border-zinc-200/80 bg-white flex flex-col justify-between shrink-0 h-screen select-none z-50 transition-transform duration-200 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 lg:translate-x-0 ${
-          isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
+        className={`bg-white shrink-0 h-screen select-none z-50 transition-all duration-300 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 ${
+          isMobileOpen
+            ? "translate-x-0 w-64 shadow-2xl border-r border-zinc-200/80"
+            : "-translate-x-full lg:translate-x-0"
+        } ${
+          isSidebarOpen
+            ? "lg:w-64 lg:border-r lg:border-zinc-200/80"
+            : "lg:w-0 lg:border-r-0 lg:overflow-hidden"
         }`}
       >
-        <div className="flex-1 overflow-y-auto">
-          {/* Brand Header */}
-          <div className="p-4 px-5 border-b border-zinc-150 flex items-center justify-between sticky top-0 bg-white z-10">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 select-none">
-                F
+        <div className={`w-64 flex flex-col justify-between h-full transition-opacity duration-200 ${isSidebarOpen ? "opacity-100" : "lg:opacity-0 lg:pointer-events-none"}`}>
+          <div className="flex-1 overflow-y-auto">
+            {/* Brand Header */}
+            <div className="p-4 px-5 border-b border-zinc-150 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 select-none">
+                  F
+                </div>
+                <div>
+                  <h1 className="font-semibold text-sm tracking-tight text-zinc-900 leading-none">
+                    portofolio-firman
+                  </h1>
+                </div>
               </div>
-              <div>
-                <h1 className="font-semibold text-sm tracking-tight text-zinc-900 leading-none">
-                  portofolio-firman
-                </h1>
-                <span className="text-[10px] text-zinc-400 font-medium tracking-wide uppercase mt-1 block">
-                  Management Panel
-                </span>
-              </div>
-            </div>
 
-            {setIsMobileOpen && (
               <button
-                onClick={() => setIsMobileOpen(false)}
-                className="lg:hidden p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
-                title="Tutup Menu"
+                onClick={handleClose}
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                title="Tutup Sidebar"
               >
-                <X className="h-4 w-4" />
+                <PanelLeftClose className="h-4 w-4 hidden lg:block" />
+                <X className="h-4 w-4 lg:hidden" />
               </button>
-            )}
-          </div>
+            </div>
 
           {/* Navigation Sections */}
           <div className="p-3 space-y-5">
@@ -249,6 +267,7 @@ export default function Sidebar({
             <LogOut className="h-3.5 w-3.5" />
             <span>Keluar Sesi</span>
           </button>
+        </div>
         </div>
       </aside>
     </>
