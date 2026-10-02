@@ -803,16 +803,6 @@ export default function AdminDashboard() {
                 <p className="text-xs sm:text-[13px] text-zinc-500 leading-relaxed">
                   Masukkan kredensial pengelola untuk mengakses CMS &amp; database portofolio.
                 </p>
-
-                {/* Helper Credential Hint Pill */}
-                <div className="pt-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100/90 border border-zinc-200 text-[11px] text-zinc-600 font-sans">
-                    <span className="font-semibold text-zinc-800">Login:</span>
-                    <span>User: <strong className="text-zinc-900 font-mono">admin</strong></span>
-                    <span className="text-zinc-300">•</span>
-                    <span>Pass: <strong className="text-zinc-900 font-mono">firman2026</strong></span>
-                  </div>
-                </div>
               </div>
 
               <form onSubmit={handleLoginSubmit} className="space-y-5">
@@ -826,7 +816,7 @@ export default function AdminDashboard() {
                       required
                       value={usernameInput}
                       onChange={(e) => setUsernameInput(e.target.value)}
-                      placeholder="Username (contoh: admin / firman)"
+                      placeholder="Username pengelola"
                       className="w-full bg-transparent text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none font-medium"
                       autoFocus
                     />

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { supabaseServer } from "../../../../lib/supabaseServer";
 
 // In-memory rate limiter untuk proteksi brute force login
 interface LoginAttempt {
@@ -61,22 +63,66 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { username, password } = body;
-    const validPassword = process.env.ADMIN_PASSWORD;
-    if (!validPassword) {
-      console.error("ADMIN_PASSWORD belum diset di environment variables!");
+    const cleanUsername = (username || "").trim().toLowerCase();
+
+    if (!cleanUsername || !password) {
       return NextResponse.json(
-        { success: false, message: "Konfigurasi autentikasi belum lengkap." },
-        { status: 500 }
+        { success: false, message: "Username dan password wajib diisi." },
+        { status: 400 }
       );
     }
 
-    // 3. Verifikasi username & password
-    const envUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase().trim();
-    const allowedUsernames = new Set([envUsername, "admin", "firman", "moch-firmansyahh"]);
-    const cleanUsername = (username || "").trim().toLowerCase();
-    const isUsernameValid = cleanUsername && allowedUsernames.has(cleanUsername);
+    let isAuthenticated = false;
 
-    if (!isUsernameValid || !password || password !== validPassword) {
+    // 3. Verifikasi kredensial langsung terhadap Database Supabase (auth.users)
+    try {
+      const { data: usersData, error: listError } = await supabaseServer.auth.admin.listUsers();
+      if (!listError && usersData?.users && usersData.users.length > 0) {
+        // Cari user yang sesuai username/alias/email di database
+        const dbUser = usersData.users.find((u: any) => {
+          const metaUsername = (u.user_metadata?.username || "").toLowerCase();
+          const aliases: string[] = (u.user_metadata?.aliases || []).map((a: string) =>
+            a.toLowerCase()
+          );
+          const email = (u.email || "").toLowerCase();
+          return (
+            metaUsername === cleanUsername ||
+            aliases.includes(cleanUsername) ||
+            email === cleanUsername ||
+            email.startsWith(`${cleanUsername}@`)
+          );
+        });
+
+        if (dbUser && dbUser.email) {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+          const authClient = createClient(supabaseUrl, supabaseAnonKey);
+
+          const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
+            email: dbUser.email,
+            password: password,
+          });
+
+          if (!authError && authData.session) {
+            isAuthenticated = true;
+          }
+        }
+      }
+    } catch (dbErr) {
+      console.warn("Supabase database auth check error:", dbErr);
+    }
+
+    // 4. Fallback ke Environment Variable server jika Supabase Auth belum terhubung
+    if (!isAuthenticated) {
+      const validPassword = process.env.ADMIN_PASSWORD;
+      const envUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase().trim();
+      const allowedUsernames = new Set([envUsername, "admin", "firman", "moch-firmansyahh"]);
+      if (validPassword && password === validPassword && allowedUsernames.has(cleanUsername)) {
+        isAuthenticated = true;
+      }
+    }
+
+    if (!isAuthenticated) {
       recordFailedAttempt(ip);
       const remaining = remainingAttempts - 1;
       return NextResponse.json(
@@ -91,7 +137,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Login berhasil: reset counter percobaan
+    // 5. Login berhasil: reset counter percobaan
     clearAttempts(ip);
 
     const response = NextResponse.json({
