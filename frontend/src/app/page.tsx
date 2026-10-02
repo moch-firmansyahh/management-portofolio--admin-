@@ -754,33 +754,40 @@ export default function AdminDashboard() {
   // 12. Render Login Screen
   if (isLoadingAuth) {
     return <AuthLoadingSkeleton />;
-  }
-
-  if (!isAuthenticated) {
+  }  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#4ea09b] via-[#3d8f8a] to-[#307773] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans antialiased relative overflow-hidden select-none">
-        {/* Background Ambient Glow & Geometric Accents */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-black/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-[#09090B] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans antialiased relative overflow-hidden select-none">
+        {/* Subtle Tech Dot Grid Pattern */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-25"
+          style={{
+            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px)",
+            backgroundSize: "28px 28px"
+          }}
+        />
 
-        {/* Floating Background Bubbles (matching reference image) */}
+        {/* Ambient Dark Glows */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-zinc-700/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-zinc-800/30 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Floating Smoked Gray Spheres / Bubbles */}
         <div className="absolute top-10 left-12 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
-          <div className="w-5 h-5 rounded-full bg-white/40 shadow-sm ml-5" />
-          <div className="w-9 h-9 rounded-full bg-white/20 border border-white/30 backdrop-blur-xs" />
-          <div className="w-3.5 h-3.5 rounded-full bg-white/50 ml-6" />
+          <div className="w-5 h-5 rounded-full bg-zinc-700/50 border border-zinc-600/40 backdrop-blur-xs ml-5" />
+          <div className="w-9 h-9 rounded-full bg-zinc-800/60 border border-zinc-700/60 backdrop-blur-xs" />
+          <div className="w-3.5 h-3.5 rounded-full bg-zinc-600/50 ml-6" />
         </div>
         <div className="absolute bottom-12 right-14 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
-          <div className="w-4 h-4 rounded-full bg-white/40 mr-6" />
-          <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 backdrop-blur-xs" />
-          <div className="w-3 h-3 rounded-full bg-white/50 mr-4" />
+          <div className="w-4 h-4 rounded-full bg-zinc-700/50 mr-6" />
+          <div className="w-10 h-10 rounded-full bg-zinc-800/60 border border-zinc-700/60 backdrop-blur-xs" />
+          <div className="w-3.5 h-3.5 rounded-full bg-zinc-600/50 mr-4" />
         </div>
 
-        {/* Diagonal Corner Polygonal Accents */}
-        <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/5 rotate-45 pointer-events-none rounded-3xl" />
-        <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-black/5 -rotate-45 pointer-events-none rounded-3xl" />
+        {/* Diagonal Corner Smoked Glass Facets */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 bg-zinc-900/60 border border-zinc-800/60 backdrop-blur-md rotate-45 pointer-events-none rounded-3xl" />
+        <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-zinc-900/60 border border-zinc-800/60 backdrop-blur-md -rotate-45 pointer-events-none rounded-3xl" />
 
         {/* Central Card */}
-        <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[36px] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] overflow-hidden border border-white/80 p-6 sm:p-10 md:p-14 animate-dialog-show">
+        <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[36px] shadow-[0_25px_80px_-15px_rgba(0,0,0,0.8)] overflow-hidden border border-zinc-200/90 p-6 sm:p-10 md:p-14 animate-dialog-show">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
             {/* Left Column: Creative Workspace & Meditating Character Illustration */}
             <div className="flex flex-col items-center justify-center">
@@ -796,20 +803,30 @@ export default function AdminDashboard() {
                 <p className="text-xs sm:text-[13px] text-zinc-500 leading-relaxed">
                   Masukkan kredensial pengelola untuk mengakses CMS &amp; database portofolio.
                 </p>
+
+                {/* Helper Credential Hint Pill */}
+                <div className="pt-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100/90 border border-zinc-200 text-[11px] text-zinc-600 font-sans">
+                    <span className="font-semibold text-zinc-800">Login:</span>
+                    <span>User: <strong className="text-zinc-900 font-mono">admin</strong></span>
+                    <span className="text-zinc-300">•</span>
+                    <span>Pass: <strong className="text-zinc-900 font-mono">firman2026</strong></span>
+                  </div>
+                </div>
               </div>
 
               <form onSubmit={handleLoginSubmit} className="space-y-5">
                 {/* Username Input */}
                 <div className="space-y-1">
-                  <div className="relative border-b-2 border-zinc-200 focus-within:border-[#52A39E] transition-colors py-2 flex items-center gap-3">
-                    <User className="h-4 w-4 text-zinc-400 shrink-0" />
+                  <div className="relative border-b-2 border-zinc-200 focus-within:border-zinc-900 transition-colors py-2 flex items-center gap-3">
+                    <User className="h-4 w-4 text-zinc-500 shrink-0" />
                     <input
                       id="admin-username"
                       type="text"
                       required
                       value={usernameInput}
                       onChange={(e) => setUsernameInput(e.target.value)}
-                      placeholder="Username atau nickname"
+                      placeholder="Username (contoh: admin / firman)"
                       className="w-full bg-transparent text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none font-medium"
                       autoFocus
                     />
@@ -818,15 +835,15 @@ export default function AdminDashboard() {
 
                 {/* Password Input */}
                 <div className="space-y-1">
-                  <div className="relative border-b-2 border-zinc-200 focus-within:border-[#52A39E] transition-colors py-2 flex items-center gap-3">
-                    <Lock className="h-4 w-4 text-zinc-400 shrink-0" />
+                  <div className="relative border-b-2 border-zinc-200 focus-within:border-zinc-900 transition-colors py-2 flex items-center gap-3">
+                    <Lock className="h-4 w-4 text-zinc-500 shrink-0" />
                     <input
                       id="admin-password"
                       type={showPassword ? "text" : "password"}
                       required
                       value={passwordInput}
                       onChange={(e) => setPasswordInput(e.target.value)}
-                      placeholder="Password"
+                      placeholder="Password pengelola"
                       className="w-full bg-transparent text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none font-mono"
                     />
                     <button
@@ -848,12 +865,12 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                {/* Submit Pill Button */}
+                {/* Submit Pill Button (Matching Dashboard Black/Zinc Theme) */}
                 <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isLoggingIn}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#5FB2AC] hover:bg-[#4FA39D] active:bg-[#42958F] disabled:opacity-50 text-white px-8 py-2.5 text-xs sm:text-sm font-semibold shadow-md shadow-[#5FB2AC]/30 hover:shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-900 hover:bg-zinc-800 active:bg-black disabled:opacity-50 text-white px-8 py-2.5 text-xs sm:text-sm font-semibold shadow-lg shadow-zinc-950/20 hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
                     <span>{isLoggingIn ? "Memverifikasi..." : "Masuk ke Dashboard"}</span>
                     <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />

@@ -12,59 +12,58 @@ export default function LoginIllustration() {
         className="w-full h-auto drop-shadow-sm"
       >
         {/* ============================================================== */}
-        {/* 1. FLOATING PARTICLES & ACCENTS                                */}
+        {/* 1. FLOATING PARTICLES & ACCENTS (BLACK / GRAY / AMBER ACCENTS) */}
         {/* ============================================================== */}
-        {/* Mini Teal Triangle */}
+        {/* Mini Slate Triangle */}
         <polygon
           points="105,108 114,124 96,124"
-          fill="#5EABA6"
-          opacity="0.85"
-          className="transition-transform duration-700 hover:scale-125"
+          fill="#52525B"
+          opacity="0.8"
         />
 
-        {/* Mini Coral Triangle */}
+        {/* Mini Amber Triangle */}
         <polygon
           points="310,135 320,150 302,152"
-          fill="#FB923C"
+          fill="#D97706"
           opacity="0.75"
         />
 
         {/* Small Cross / Plus symbols */}
         <path
           d="M142 98V108M137 103H147"
-          stroke="#94A3B8"
+          stroke="#71717A"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           d="M285 102V112M280 107H290"
-          stroke="#94A3B8"
+          stroke="#71717A"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           d="M90 190V200M85 195H95"
-          stroke="#CBD5E1"
+          stroke="#A1A1AA"
           strokeWidth="2"
           strokeLinecap="round"
         />
 
         {/* Geometric Dots & Diamonds */}
-        <circle cx="118" cy="192" r="3" fill="#5EABA6" opacity="0.6" />
-        <circle cx="330" cy="180" r="3.5" fill="#38BDF8" opacity="0.7" />
-        <circle cx="152" cy="72" r="2.5" fill="#F59E0B" opacity="0.6" />
-        <circle cx="265" cy="80" r="3" fill="#5EABA6" opacity="0.6" />
+        <circle cx="118" cy="192" r="3" fill="#71717A" opacity="0.6" />
+        <circle cx="330" cy="180" r="3.5" fill="#3B82F6" opacity="0.7" />
+        <circle cx="152" cy="72" r="2.5" fill="#F59E0B" opacity="0.7" />
+        <circle cx="265" cy="80" r="3" fill="#52525B" opacity="0.6" />
 
-        {/* Little energy / sound sparkle lines near meditating head */}
+        {/* Little sparkle lines near meditating head */}
         <path
           d="M158 110L148 102"
-          stroke="#2D3748"
+          stroke="#18181B"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           d="M262 110L272 102"
-          stroke="#2D3748"
+          stroke="#18181B"
           strokeWidth="2"
           strokeLinecap="round"
         />
@@ -79,8 +78,8 @@ export default function LoginIllustration() {
             cy="165"
             rx="36"
             ry="6"
-            fill="#E2E8F0"
-            opacity="0.6"
+            fill="#E4E4E7"
+            opacity="0.7"
           />
 
           {/* Meditating Crossed Legs (Lotus Position / Loop) */}
@@ -88,7 +87,7 @@ export default function LoginIllustration() {
           <path
             d="M192 145 C176 142 168 152 182 156 C198 160 210 152 210 148"
             fill="#FFFFFF"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -97,7 +96,7 @@ export default function LoginIllustration() {
           <path
             d="M228 145 C244 142 252 152 238 156 C222 160 210 152 210 148"
             fill="#FFFFFF"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -115,15 +114,15 @@ export default function LoginIllustration() {
                L182 96 
                C182 93 185 92 189 92 Z"
             fill="#FFFFFF"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinejoin="round"
           />
           {/* Folded Top Corner Detail */}
           <path
             d="M224 92 L224 106 L238 106"
-            fill="#F1F5F9"
-            stroke="#2D3748"
+            fill="#F4F4F5"
+            stroke="#18181B"
             strokeWidth="2"
             strokeLinejoin="round"
           />
@@ -131,14 +130,14 @@ export default function LoginIllustration() {
           {/* Happy Closed Smiling Eyes */}
           <path
             d="M195 116 Q199 110 203 116"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
           />
           <path
             d="M217 116 Q221 110 225 116"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
@@ -147,7 +146,7 @@ export default function LoginIllustration() {
           {/* Sweet Cute Smile */}
           <path
             d="M206 123 Q210 128 214 123"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
@@ -160,14 +159,14 @@ export default function LoginIllustration() {
           {/* Meditating Hands */}
           <path
             d="M182 126 C170 128 162 135 174 139"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
           />
           <path
             d="M238 126 C250 128 258 135 246 139"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
@@ -175,7 +174,7 @@ export default function LoginIllustration() {
         </g>
 
         {/* ============================================================== */}
-        {/* 3. OFFICE CHAIR (BEHIND DESK)                                  */}
+        {/* 3. OFFICE CHAIR (DARK ZINC / GRAPHITE THEME)                   */}
         {/* ============================================================== */}
         {/* Chair Backrest */}
         <rect
@@ -184,9 +183,19 @@ export default function LoginIllustration() {
           width="48"
           height="54"
           rx="12"
-          fill="#5EABA6"
-          stroke="#2D3748"
+          fill="#27272A"
+          stroke="#18181B"
           strokeWidth="2.5"
+        />
+        {/* Chair Backrest Inner Accent */}
+        <rect
+          x="152"
+          y="186"
+          width="36"
+          height="42"
+          rx="8"
+          fill="#3F3F46"
+          stroke="none"
         />
         {/* Chair Seat */}
         <rect
@@ -195,8 +204,8 @@ export default function LoginIllustration() {
           width="56"
           height="14"
           rx="6"
-          fill="#489E9B"
-          stroke="#2D3748"
+          fill="#18181B"
+          stroke="#18181B"
           strokeWidth="2.5"
         />
         {/* Chair Stand / Pole */}
@@ -205,8 +214,8 @@ export default function LoginIllustration() {
           y="244"
           width="6"
           height="22"
-          fill="#2D3748"
-          stroke="#2D3748"
+          fill="#18181B"
+          stroke="#18181B"
           strokeWidth="1.5"
         />
         {/* Chair Base Mechanism */}
@@ -216,25 +225,25 @@ export default function LoginIllustration() {
           width="14"
           height="6"
           rx="2"
-          fill="#64748B"
-          stroke="#2D3748"
+          fill="#52525B"
+          stroke="#18181B"
           strokeWidth="2"
         />
         {/* Chair Legs & Wheels */}
         <path
           d="M170 269 L150 286"
-          stroke="#2D3748"
+          stroke="#18181B"
           strokeWidth="2.5"
           strokeLinecap="round"
         />
         <path
           d="M170 269 L190 286"
-          stroke="#2D3748"
+          stroke="#18181B"
           strokeWidth="2.5"
           strokeLinecap="round"
         />
-        <circle cx="149" cy="287" r="3" fill="#2D3748" />
-        <circle cx="191" cy="287" r="3" fill="#2D3748" />
+        <circle cx="149" cy="287" r="3" fill="#18181B" />
+        <circle cx="191" cy="287" r="3" fill="#18181B" />
 
         {/* ============================================================== */}
         {/* 4. WORK DESK (LEGS & DESKTOP)                                  */}
@@ -245,8 +254,8 @@ export default function LoginIllustration() {
           y="238"
           width="10"
           height="50"
-          fill="#D97706"
-          stroke="#2D3748"
+          fill="#B45309"
+          stroke="#18181B"
           strokeWidth="2.5"
         />
         <rect
@@ -255,8 +264,8 @@ export default function LoginIllustration() {
           width="18"
           height="6"
           rx="2"
-          fill="#B45309"
-          stroke="#2D3748"
+          fill="#78350F"
+          stroke="#18181B"
           strokeWidth="2"
         />
 
@@ -266,8 +275,8 @@ export default function LoginIllustration() {
           y="238"
           width="10"
           height="50"
-          fill="#D97706"
-          stroke="#2D3748"
+          fill="#B45309"
+          stroke="#18181B"
           strokeWidth="2.5"
         />
         <rect
@@ -276,8 +285,8 @@ export default function LoginIllustration() {
           width="18"
           height="6"
           rx="2"
-          fill="#B45309"
-          stroke="#2D3748"
+          fill="#78350F"
+          stroke="#18181B"
           strokeWidth="2"
         />
 
@@ -287,8 +296,8 @@ export default function LoginIllustration() {
           y="248"
           width="144"
           height="4"
-          fill="#F59E0B"
-          stroke="#2D3748"
+          fill="#D97706"
+          stroke="#18181B"
           strokeWidth="1.5"
         />
 
@@ -299,15 +308,15 @@ export default function LoginIllustration() {
           width="220"
           height="14"
           rx="5"
-          fill="#FBBF24"
-          stroke="#2D3748"
+          fill="#F59E0B"
+          stroke="#18181B"
           strokeWidth="2.5"
         />
 
         {/* ============================================================== */}
         {/* 5. ACCESSORIES ON THE DESK                                     */}
         {/* ============================================================== */}
-        {/* Pink / Coral Coffee Mug on the left */}
+        {/* Coffee Mug on the left */}
         <g>
           {/* Mug Body */}
           <rect
@@ -316,14 +325,14 @@ export default function LoginIllustration() {
             width="14"
             height="16"
             rx="3"
-            fill="#FB7185"
-            stroke="#2D3748"
+            fill="#3F3F46"
+            stroke="#18181B"
             strokeWidth="2"
           />
           {/* Mug Handle */}
           <path
             d="M116 213 C110 213 110 223 116 223"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2"
             fill="none"
           />
@@ -338,8 +347,8 @@ export default function LoginIllustration() {
             width="44"
             height="4"
             rx="1.5"
-            fill="#CBD5E1"
-            stroke="#2D3748"
+            fill="#71717A"
+            stroke="#18181B"
             strokeWidth="2"
           />
           {/* Laptop Screen */}
@@ -349,23 +358,23 @@ export default function LoginIllustration() {
             width="38"
             height="32"
             rx="4"
-            fill="#F8FAFC"
-            stroke="#2D3748"
+            fill="#F4F4F5"
+            stroke="#18181B"
             strokeWidth="2.5"
           />
           {/* Apple/Logo Circle on Laptop back */}
-          <circle cx="222" cy="206" r="3.5" fill="#94A3B8" />
+          <circle cx="222" cy="206" r="3.5" fill="#71717A" />
         </g>
 
         {/* Pen Holder & Tools */}
         <g>
-          {/* Slanted Blue Pencil / Pen */}
+          {/* Slanted Pencil */}
           <line
             x1="184"
             y1="202"
             x2="175"
             y2="226"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -374,12 +383,12 @@ export default function LoginIllustration() {
             y1="203"
             x2="176"
             y2="222"
-            stroke="#38BDF8"
+            stroke="#3B82F6"
             strokeWidth="2"
             strokeLinecap="round"
           />
 
-          {/* Slanted Cyan Ruler */}
+          {/* Slanted Ruler */}
           <rect
             x="264"
             y="194"
@@ -387,17 +396,17 @@ export default function LoginIllustration() {
             height="32"
             rx="1.5"
             transform="rotate(35 264 194)"
-            fill="#5EABA6"
-            stroke="#2D3748"
+            fill="#52525B"
+            stroke="#18181B"
             strokeWidth="2"
           />
-          {/* Slanted Green Pen */}
+          {/* Slanted Pen */}
           <line
             x1="248"
             y1="192"
             x2="258"
             y2="226"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -406,7 +415,7 @@ export default function LoginIllustration() {
             y1="193"
             x2="257"
             y2="223"
-            stroke="#34D399"
+            stroke="#10B981"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -419,8 +428,8 @@ export default function LoginIllustration() {
             cx="302"
             cy="196"
             r="12"
-            fill="#38BDF8"
-            stroke="#2D3748"
+            fill="#FBBF24"
+            stroke="#18181B"
             strokeWidth="2.5"
           />
           {/* Lightbulb Base Screw */}
@@ -430,14 +439,14 @@ export default function LoginIllustration() {
             width="8"
             height="5"
             rx="1.5"
-            fill="#CBD5E1"
-            stroke="#2D3748"
+            fill="#71717A"
+            stroke="#18181B"
             strokeWidth="2"
           />
           {/* Idea Ray Spikes */}
-          <line x1="302" y1="178" x2="302" y2="173" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" />
-          <line x1="316" y1="184" x2="320" y2="181" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" />
-          <line x1="319" y1="198" x2="324" y2="199" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" />
+          <line x1="302" y1="178" x2="302" y2="173" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <line x1="316" y1="184" x2="320" y2="181" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <line x1="319" y1="198" x2="324" y2="199" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
         </g>
 
         {/* Briefcase / Bag on Floor Under Left Desk */}
@@ -445,7 +454,7 @@ export default function LoginIllustration() {
           {/* Briefcase Handle */}
           <path
             d="M120 262 C120 257 128 257 128 262"
-            stroke="#2D3748"
+            stroke="#18181B"
             strokeWidth="2"
             fill="none"
           />
@@ -456,8 +465,8 @@ export default function LoginIllustration() {
             width="28"
             height="22"
             rx="3"
-            fill="#EA580C"
-            stroke="#2D3748"
+            fill="#C2410C"
+            stroke="#18181B"
             strokeWidth="2"
           />
           {/* Briefcase Buckle */}
@@ -467,8 +476,8 @@ export default function LoginIllustration() {
             width="4"
             height="5"
             rx="1"
-            fill="#FEF08A"
-            stroke="#2D3748"
+            fill="#FDE047"
+            stroke="#18181B"
             strokeWidth="1.5"
           />
         </g>
@@ -481,7 +490,7 @@ export default function LoginIllustration() {
           y1="290"
           x2="95"
           y2="290"
-          stroke="#94A3B8"
+          stroke="#A1A1AA"
           strokeWidth="2.5"
           strokeDasharray="8 6"
           strokeLinecap="round"
@@ -491,7 +500,7 @@ export default function LoginIllustration() {
           y1="290"
           x2="325"
           y2="290"
-          stroke="#475569"
+          stroke="#18181B"
           strokeWidth="2.5"
           strokeLinecap="round"
         />
@@ -500,7 +509,7 @@ export default function LoginIllustration() {
           y1="290"
           x2="360"
           y2="290"
-          stroke="#94A3B8"
+          stroke="#A1A1AA"
           strokeWidth="2.5"
           strokeDasharray="8 6"
           strokeLinecap="round"
