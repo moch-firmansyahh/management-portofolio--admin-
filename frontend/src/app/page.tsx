@@ -823,21 +823,23 @@ export default function AdminDashboard() {
         setIsSidebarOpen={setIsSidebarOpen}
         onToggleCollapse={() => {
           if (typeof window !== "undefined" && window.innerWidth < 1024) {
-            setIsMobileOpen(false);
+            setIsMobileOpen((prev) => !prev);
           } else {
-            setIsSidebarOpen(false);
+            setIsSidebarOpen((prev) => !prev);
           }
         }}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-        {/* Top Header */}
-        <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
+        {/* Top Header - Aligned h-16 consistently with Sidebar header */}
+        <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-20 shrink-0">
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+              className={`p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer ${
+                isSidebarOpen ? "lg:hidden" : "flex"
+              }`}
               title={isSidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
             >
               <PanelLeft className="h-5 w-5" />

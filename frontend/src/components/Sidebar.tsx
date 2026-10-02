@@ -1,5 +1,17 @@
 import React from "react";
-import { LayoutDashboard, User, Code2, Briefcase, GraduationCap, Inbox, LogOut, ChevronRight, X, PanelLeftClose } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  User, 
+  Code2, 
+  Briefcase, 
+  GraduationCap, 
+  Inbox, 
+  LogOut, 
+  ChevronRight, 
+  X, 
+  PanelLeftClose,
+  PanelLeft 
+} from "lucide-react";
 import { GitHubProfile, AdminTab } from "../types";
 import { getAvatarUrl } from "../lib/utils";
 
@@ -45,12 +57,11 @@ export default function Sidebar({
     }
   };
 
-  const handleClose = () => {
+  const handleToggle = () => {
     if (onToggleCollapse) {
       onToggleCollapse();
-    } else {
-      if (setIsMobileOpen) setIsMobileOpen(false);
-      if (setIsSidebarOpen) setIsSidebarOpen(false);
+    } else if (setIsSidebarOpen) {
+      setIsSidebarOpen(!isSidebarOpen);
     }
   };
 
@@ -65,209 +76,326 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`bg-white shrink-0 h-screen select-none z-50 transition-all duration-300 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 ${
+        className={`bg-white shrink-0 h-screen select-none z-50 border-r border-zinc-200/80 transition-all duration-300 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 ${
           isMobileOpen
-            ? "translate-x-0 w-64 shadow-2xl border-r border-zinc-200/80"
+            ? "translate-x-0 w-64 shadow-2xl"
             : "-translate-x-full lg:translate-x-0"
         } ${
-          isSidebarOpen
-            ? "lg:w-64 lg:border-r lg:border-zinc-200/80"
-            : "lg:w-0 lg:border-r-0 lg:overflow-hidden"
+          isSidebarOpen ? "lg:w-64" : "lg:w-[72px]"
         }`}
       >
-        <div className={`w-64 flex flex-col justify-between h-full transition-opacity duration-200 ${isSidebarOpen ? "opacity-100" : "lg:opacity-0 lg:pointer-events-none"}`}>
-          <div className="flex-1 overflow-y-auto">
-            {/* Brand Header */}
-            <div className="p-4 px-5 border-b border-zinc-150 flex items-center justify-between sticky top-0 bg-white z-10">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 select-none">
-                  F
-                </div>
-                <div>
-                  <h1 className="font-semibold text-sm tracking-tight text-zinc-900 leading-none">
-                    portofolio-firman
-                  </h1>
-                </div>
-              </div>
+        <div className="flex flex-col justify-between h-full w-full overflow-hidden">
+          {/* Top Section */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            {/* Brand Header - Height h-16 aligned perfectly with Topbar */}
+            <div className="h-16 border-b border-zinc-200/80 px-3.5 flex items-center justify-between sticky top-0 bg-white z-10">
+              {isSidebarOpen ? (
+                <>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 shrink-0 select-none">
+                      F
+                    </div>
+                    <div className="truncate">
+                      <h1 className="font-semibold text-sm tracking-tight text-zinc-900 leading-none truncate">
+                        portofolio-firman
+                      </h1>
+                    </div>
+                  </div>
 
-              <button
-                onClick={handleClose}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
-                title="Tutup Sidebar"
-              >
-                <PanelLeftClose className="h-4 w-4 hidden lg:block" />
-                <X className="h-4 w-4 lg:hidden" />
-              </button>
+                  <button
+                    onClick={handleToggle}
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer shrink-0"
+                    title="Kecilkan Sidebar (Icon Saja)"
+                  >
+                    <PanelLeftClose className="h-4 w-4 hidden lg:block" />
+                    <X className="h-4 w-4 lg:hidden" />
+                  </button>
+                </>
+              ) : (
+                <div className="w-full flex items-center justify-center">
+                  <button
+                    onClick={handleToggle}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 text-white font-extrabold font-mono text-base shadow-sm ring-1 ring-zinc-900/10 hover:bg-zinc-800 transition cursor-pointer select-none"
+                    title="Buka Sidebar Penuh"
+                  >
+                    F
+                  </button>
+                </div>
+              )}
             </div>
 
-          {/* Navigation Sections */}
-          <div className="p-3 space-y-5">
-            {/* Main Analytics Menu */}
-            <div>
-              <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Ringkasan
+            {/* Navigation Menus */}
+            {isSidebarOpen ? (
+              /* --- EXPANDED NAVIGATION --- */
+              <div className="p-3 space-y-5 animate-fade-in">
+                {/* Main Analytics Menu */}
+                <div>
+                  <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                    Ringkasan
+                  </div>
+                  <nav className="space-y-1">
+                    <button
+                      onClick={() => handleNavClick("dashboard")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "dashboard"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <LayoutDashboard className="h-4 w-4 shrink-0" />
+                        <span>Dashboard Analitik</span>
+                      </div>
+                      {activeMenu === "dashboard" && (
+                        <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => handleNavClick("messages")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "messages"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Inbox className="h-4 w-4 shrink-0" />
+                        <span>Pesan Masuk</span>
+                      </div>
+                      {unreadMessagesCount > 0 ? (
+                        <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-2xs animate-pulse">
+                          {unreadMessagesCount}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-zinc-400">0</span>
+                      )}
+                    </button>
+                  </nav>
+                </div>
+
+                {/* Content Management Menu */}
+                <div>
+                  <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                    Manajemen Konten
+                  </div>
+                  <nav className="space-y-1">
+                    <button
+                      onClick={() => handleNavClick("about")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "about"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <User className="h-4 w-4 shrink-0" />
+                        <span>Profil &amp; About</span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavClick("projects")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "projects"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Briefcase className="h-4 w-4 shrink-0" />
+                        <span>Proyek &amp; Portofolio</span>
+                      </div>
+                      <span
+                        className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
+                          activeMenu === "projects"
+                            ? "bg-zinc-800 text-zinc-200"
+                            : "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                        }`}
+                      >
+                        {projectsCount}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavClick("skills")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "skills"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Code2 className="h-4 w-4 shrink-0" />
+                        <span>Keahlian &amp; Skills</span>
+                      </div>
+                      <span
+                        className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
+                          activeMenu === "skills"
+                            ? "bg-zinc-800 text-zinc-200"
+                            : "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                        }`}
+                      >
+                        {skillsCount}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavClick("experience")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeMenu === "experience"
+                          ? "bg-zinc-900 text-white shadow-sm"
+                          : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <GraduationCap className="h-4 w-4 shrink-0" />
+                        <span>Pengalaman &amp; Karier</span>
+                      </div>
+                      <span
+                        className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
+                          activeMenu === "experience"
+                            ? "bg-zinc-800 text-zinc-200"
+                            : "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                        }`}
+                      >
+                        {experienceCount}
+                      </span>
+                    </button>
+                  </nav>
+                </div>
               </div>
-              <nav className="space-y-1">
+            ) : (
+              /* --- COLLAPSED MINI-SIDEBAR (ICON-ONLY) --- */
+              <div className="py-4 px-2 flex flex-col items-center space-y-2">
                 <button
                   onClick={() => handleNavClick("dashboard")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "dashboard"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title="Dashboard Analitik"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Dashboard Analitik</span>
-                  </div>
-                  {activeMenu === "dashboard" && (
-                    <ChevronRight className="h-3.5 w-3.5 text-zinc-400" />
-                  )}
+                  <LayoutDashboard className="h-4.5 w-4.5" />
                 </button>
 
                 <button
                   onClick={() => handleNavClick("messages")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "messages"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title={`Pesan Masuk (${unreadMessagesCount} baru)`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Inbox className="h-4 w-4" />
-                    <span>Pesan Masuk</span>
-                  </div>
-                  {unreadMessagesCount > 0 ? (
-                    <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-2xs animate-pulse">
-                      {unreadMessagesCount}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-zinc-400">0</span>
+                  <Inbox className="h-4.5 w-4.5" />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 bg-blue-600 rounded-full ring-2 ring-white animate-pulse" />
                   )}
                 </button>
-              </nav>
-            </div>
 
-            {/* Content Management Menu */}
-            <div>
-              <div className="px-3 mb-1.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
-                Manajemen Konten
-              </div>
-              <nav className="space-y-1">
+                <div className="w-6 h-px bg-zinc-200 my-1" />
+
                 <button
                   onClick={() => handleNavClick("about")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "about"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title="Profil & About"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <User className="h-4 w-4" />
-                    <span>Profil &amp; About</span>
-                  </div>
+                  <User className="h-4.5 w-4.5" />
                 </button>
 
                 <button
                   onClick={() => handleNavClick("projects")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "projects"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title={`Proyek & Portofolio (${projectsCount})`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Proyek &amp; Portofolio</span>
-                  </div>
-                  <span
-                    className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
-                      activeMenu === "projects"
-                        ? "bg-zinc-800 text-zinc-200"
-                        : "bg-zinc-100 text-zinc-600 border border-zinc-200"
-                    }`}
-                  >
-                    {projectsCount}
-                  </span>
+                  <Briefcase className="h-4.5 w-4.5" />
                 </button>
 
                 <button
                   onClick={() => handleNavClick("skills")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "skills"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title={`Keahlian & Skills (${skillsCount})`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Code2 className="h-4 w-4" />
-                    <span>Keahlian &amp; Skills</span>
-                  </div>
-                  <span
-                    className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
-                      activeMenu === "skills"
-                        ? "bg-zinc-800 text-zinc-200"
-                        : "bg-zinc-100 text-zinc-600 border border-zinc-200"
-                    }`}
-                  >
-                    {skillsCount}
-                  </span>
+                  <Code2 className="h-4.5 w-4.5" />
                 </button>
 
                 <button
                   onClick={() => handleNavClick("experience")}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  className={`relative flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 cursor-pointer ${
                     activeMenu === "experience"
                       ? "bg-zinc-900 text-white shadow-sm"
-                      : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100/80"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
                   }`}
+                  title={`Pengalaman & Karier (${experienceCount})`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <GraduationCap className="h-4 w-4" />
-                    <span>Pengalaman &amp; Karier</span>
-                  </div>
-                  <span
-                    className={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full ${
-                      activeMenu === "experience"
-                        ? "bg-zinc-800 text-zinc-200"
-                        : "bg-zinc-100 text-zinc-600 border border-zinc-200"
-                    }`}
-                  >
-                    {experienceCount}
-                  </span>
+                  <GraduationCap className="h-4.5 w-4.5" />
                 </button>
-              </nav>
-            </div>
-          </div>
-        </div>
-
-        {/* User Profile Footer */}
-        <div className="p-3 border-t border-zinc-200/80 bg-zinc-50/50 space-y-3">
-          <div className="flex items-center gap-3 px-2 py-1.5">
-            <img
-              src={getAvatarUrl(gitProfile)}
-              alt="avatar"
-              className="h-9 w-9 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
-              onError={handleImgError}
-            />
-            <div className="overflow-hidden min-w-0">
-              <p className="text-xs font-semibold text-zinc-900 truncate">
-                {gitProfile?.name || "Moch Firmansyah"}
-              </p>
-              <p className="text-[10px] text-zinc-500 truncate">
-                @{gitProfile?.login || "moch-firmansyahh"}
-              </p>
-            </div>
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 bg-white border border-zinc-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-150 shadow-2xs cursor-pointer"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            <span>Keluar Sesi</span>
-          </button>
-        </div>
+          {/* User Profile Footer */}
+          <div className="p-3 border-t border-zinc-200/80 bg-zinc-50/50">
+            {isSidebarOpen ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 px-2 py-1.5">
+                  <img
+                    src={getAvatarUrl(gitProfile)}
+                    alt="avatar"
+                    className="h-9 w-9 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
+                    onError={handleImgError}
+                  />
+                  <div className="overflow-hidden min-w-0">
+                    <p className="text-xs font-semibold text-zinc-900 truncate">
+                      {gitProfile?.name || "Moch Firmansyah"}
+                    </p>
+                    <p className="text-[10px] text-zinc-500 truncate">
+                      @{gitProfile?.login || "moch-firmansyahh"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-zinc-700 bg-white border border-zinc-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-150 shadow-2xs cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Keluar Sesi</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2 py-1">
+                <img
+                  src={getAvatarUrl(gitProfile)}
+                  alt="avatar"
+                  className="h-9 w-9 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
+                  onError={handleImgError}
+                  title={gitProfile?.name || "Moch Firmansyah"}
+                />
+                <button
+                  onClick={handleLogout}
+                  className="h-9 w-9 flex items-center justify-center rounded-lg text-zinc-500 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                  title="Keluar Sesi"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
     </>
