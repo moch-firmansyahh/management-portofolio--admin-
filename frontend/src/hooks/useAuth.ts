@@ -4,7 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
+  // Inisialisasi status loading: jika tidak ada sesi di sessionStorage, langsung false (halaman login tampil instan)
+  const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !!sessionStorage.getItem("portfolio_admin_session");
+    }
+    return true;
+  });
   const [loginError, setLoginError] = useState<string>("");
 
   // Check session on mount
@@ -17,7 +23,7 @@ export function useAuth() {
         // Cek apakah di tab/sesi browser saat ini sudah login
         const hasSession = sessionStorage.getItem("portfolio_admin_session");
         if (!hasSession) {
-          // Jika sesi baru dibuka, WAJIB login terlebih dahulu
+          // Jika tidak ada sesi aktif, tetap di halaman login
           setIsAuthenticated(false);
           setIsLoadingAuth(false);
           return;
@@ -45,6 +51,17 @@ export function useAuth() {
     checkSession();
   }, []);
 
+  // Saat pengguna berada di halaman login (!isAuthenticated dan sudah selesai check loading),
+  // pastikan sessionStorage bersih sehingga refresh di halaman login TIDAK PERNAH masuk dashboard.
+  useEffect(() => {
+    if (!isAuthenticated && !isLoadingAuth) {
+      try {
+        sessionStorage.removeItem("portfolio_admin_session");
+        localStorage.removeItem("portfolio_admin_auth");
+      } catch {}
+    }
+  }, [isAuthenticated, isLoadingAuth]);
+
   const login = useCallback(async (password: string): Promise<boolean> => {
     setLoginError("");
     try {
@@ -56,8 +73,8 @@ export function useAuth() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setIsAuthenticated(true);
         sessionStorage.setItem("portfolio_admin_session", "true");
+        setIsAuthenticated(true);
         return true;
       } else {
         setLoginError(data.message || "Password salah. Silakan periksa kembali.");
@@ -70,14 +87,18 @@ export function useAuth() {
   }, []);
 
   const logout = useCallback(async () => {
+    // 1. Bersihkan state dan storage client-side secara instan & sinkron
+    setIsAuthenticated(false);
+    try {
+      sessionStorage.removeItem("portfolio_admin_session");
+      localStorage.removeItem("portfolio_admin_auth");
+    } catch {}
+
+    // 2. Hapus cookie HttpOnly di server-side
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {
       // Ignore network errors on logout
-    } finally {
-      sessionStorage.removeItem("portfolio_admin_session");
-      localStorage.removeItem("portfolio_admin_auth");
-      setIsAuthenticated(false);
     }
   }, []);
 

@@ -392,8 +392,8 @@ export default function AdminDashboard() {
     triggerConfirm(
       "Konfirmasi Keluar",
       "Apakah Anda yakin ingin keluar dari sesi Dashboard Admin?",
-      () => {
-        logout();
+      async () => {
+        await logout();
         setPasswordInput("");
       },
       false,
