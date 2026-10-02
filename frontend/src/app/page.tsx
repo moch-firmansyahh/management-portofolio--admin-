@@ -754,40 +754,42 @@ export default function AdminDashboard() {
   // 12. Render Login Screen
   if (isLoadingAuth) {
     return <AuthLoadingSkeleton />;
-  }  if (!isAuthenticated) {
+  }
+
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#09090B] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans antialiased relative overflow-hidden select-none">
+      <div className="min-h-screen bg-[#ECEEF2] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans antialiased relative overflow-hidden select-none">
         {/* Subtle Tech Dot Grid Pattern */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-25"
+          className="absolute inset-0 pointer-events-none opacity-40"
           style={{
-            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(#9ca3af 1px, transparent 1px)",
             backgroundSize: "28px 28px"
           }}
         />
 
-        {/* Ambient Dark Glows */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-zinc-700/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-zinc-800/30 rounded-full blur-3xl pointer-events-none" />
+        {/* Ambient Soft Glows */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/70 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-zinc-300/40 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Floating Smoked Gray Spheres / Bubbles */}
-        <div className="absolute top-10 left-12 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
-          <div className="w-5 h-5 rounded-full bg-zinc-700/50 border border-zinc-600/40 backdrop-blur-xs ml-5" />
-          <div className="w-9 h-9 rounded-full bg-zinc-800/60 border border-zinc-700/60 backdrop-blur-xs" />
-          <div className="w-3.5 h-3.5 rounded-full bg-zinc-600/50 ml-6" />
+        {/* Floating Frosted Gray/White Bubbles */}
+        <div className="absolute top-10 left-12 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-80">
+          <div className="w-5 h-5 rounded-full bg-white/80 border border-zinc-200/90 shadow-2xs ml-5" />
+          <div className="w-9 h-9 rounded-full bg-white/60 border border-zinc-300/70 backdrop-blur-xs shadow-xs" />
+          <div className="w-3.5 h-3.5 rounded-full bg-white/90 border border-zinc-200 ml-6" />
         </div>
-        <div className="absolute bottom-12 right-14 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
-          <div className="w-4 h-4 rounded-full bg-zinc-700/50 mr-6" />
-          <div className="w-10 h-10 rounded-full bg-zinc-800/60 border border-zinc-700/60 backdrop-blur-xs" />
-          <div className="w-3.5 h-3.5 rounded-full bg-zinc-600/50 mr-4" />
+        <div className="absolute bottom-12 right-14 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-80">
+          <div className="w-4 h-4 rounded-full bg-white/80 border border-zinc-200/90 shadow-2xs mr-6" />
+          <div className="w-10 h-10 rounded-full bg-white/60 border border-zinc-300/70 backdrop-blur-xs shadow-xs" />
+          <div className="w-3.5 h-3.5 rounded-full bg-white/90 border border-zinc-200 mr-4" />
         </div>
 
-        {/* Diagonal Corner Smoked Glass Facets */}
-        <div className="absolute -top-20 -left-20 w-72 h-72 bg-zinc-900/60 border border-zinc-800/60 backdrop-blur-md rotate-45 pointer-events-none rounded-3xl" />
-        <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-zinc-900/60 border border-zinc-800/60 backdrop-blur-md -rotate-45 pointer-events-none rounded-3xl" />
+        {/* Diagonal Corner Frosted Glass Facets */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/40 border border-zinc-200/80 backdrop-blur-md rotate-45 pointer-events-none rounded-3xl shadow-sm" />
+        <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-white/30 border border-zinc-200/80 backdrop-blur-md -rotate-45 pointer-events-none rounded-3xl shadow-sm" />
 
         {/* Central Card */}
-        <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[36px] shadow-[0_25px_80px_-15px_rgba(0,0,0,0.8)] overflow-hidden border border-zinc-200/90 p-6 sm:p-10 md:p-14 animate-dialog-show">
+        <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[36px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.03)] overflow-hidden border border-zinc-200/80 p-6 sm:p-10 md:p-14 animate-dialog-show">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
             {/* Left Column: Creative Workspace & Meditating Character Illustration */}
             <div className="flex flex-col items-center justify-center">
