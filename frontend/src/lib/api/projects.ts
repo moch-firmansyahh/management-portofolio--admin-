@@ -90,7 +90,31 @@ export async function deleteProject(id: string): Promise<void> {
 }
 
 export async function uploadProjectImage(file: File): Promise<string> {
-  const fileExt = file.name.split(".").pop();
+  // 1. Prioritaskan server-side upload via Next.js API route (Bypass RLS dengan aman)
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.url) {
+        return json.url;
+      }
+      if (json.error) {
+        throw new Error(json.error);
+      }
+    }
+  } catch (err: any) {
+    console.warn("Server upload failed, trying fallback:", err.message);
+  }
+
+  // 2. Fallback direct client upload ke portfolio-assets atau projects
+  const fileExt = file.name.split(".").pop() || "png";
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
   const filePath = `projects/${fileName}`;
 
@@ -98,7 +122,20 @@ export async function uploadProjectImage(file: File): Promise<string> {
     .from("portfolio-assets")
     .upload(filePath, file, { cacheControl: "3600", upsert: true });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    // Coba bucket 'projects'
+    const { error: fallbackError } = await supabase.storage
+      .from("projects")
+      .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+    if (fallbackError) throw uploadError;
+
+    const { data: publicUrlData } = supabase.storage
+      .from("projects")
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+  }
 
   const { data: publicUrlData } = supabase.storage
     .from("portfolio-assets")
@@ -106,3 +143,4 @@ export async function uploadProjectImage(file: File): Promise<string> {
 
   return publicUrlData.publicUrl;
 }
+
