@@ -583,9 +583,10 @@ export default function AdminDashboard() {
     });
   };
 
-  const saveProjectModal = async (e: React.FormEvent) => {
+  const saveProjectModal = async (e: React.FormEvent, customData?: Project) => {
     e.preventDefault();
-    const success = await handleSaveProject(projectModal.data, projectModal.isEdit);
+    const targetData = customData || projectModal.data;
+    const success = await handleSaveProject(targetData, projectModal.isEdit);
     if (success) {
       setProjectModal((prev) => ({ ...prev, isOpen: false }));
     }
@@ -609,6 +610,7 @@ export default function AdminDashboard() {
     if (url) {
       setProjectModal((prev) => ({ ...prev, data: { ...prev.data, image: url } }));
     }
+    e.target.value = "";
   };
 
   // Sync projects from GitHub

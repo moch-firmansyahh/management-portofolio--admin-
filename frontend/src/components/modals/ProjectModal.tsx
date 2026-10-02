@@ -10,7 +10,7 @@ interface ProjectModalProps {
   setData: React.Dispatch<React.SetStateAction<Project>>;
   uploadingImage: boolean;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent, customData?: Project) => void;
   onClose: () => void;
   initialTab?: "general" | "case_study" | "links";
 }
@@ -57,12 +57,13 @@ export default function ProjectModal({
     e.preventDefault();
     const parsedTags = tagsInput.split(/[,;\n]/).map(s => s.trim()).filter(Boolean);
     const parsedHighlights = highlightsInput.split("\n").map(s => s.trim()).filter(Boolean);
-    setData(prev => ({
-      ...prev,
+    const updatedData: Project = {
+      ...data,
       tags: parsedTags,
       highlights: parsedHighlights,
-    }));
-    onSubmit(e);
+    };
+    setData(updatedData);
+    onSubmit(e, updatedData);
   };
 
   return (
@@ -445,7 +446,7 @@ export default function ProjectModal({
             </button>
             <button
               type="submit"
-              disabled={uploadingImage || !data.title.trim() || !data.description.trim()}
+              disabled={uploadingImage || !data.title?.trim() || !data.description?.trim()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 py-2 text-xs font-medium text-white shadow-2xs transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />

@@ -34,8 +34,8 @@ export default function ProjectsTab({
     const query = searchQuery.toLowerCase();
     const tagsStr = (project.tags || []).join(" ").toLowerCase();
     return (
-      project.title.toLowerCase().includes(query) ||
-      project.description.toLowerCase().includes(query) ||
+      (project.title || "").toLowerCase().includes(query) ||
+      (project.description || "").toLowerCase().includes(query) ||
       (project.subtitle && project.subtitle.toLowerCase().includes(query)) ||
       (project.category && project.category.toLowerCase().includes(query)) ||
       tagsStr.includes(query) ||
