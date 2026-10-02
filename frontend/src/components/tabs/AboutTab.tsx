@@ -317,16 +317,16 @@ export default function AboutTab({
           <button
             type="submit"
             disabled={savingProfile}
-            className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 text-xs font-medium shadow-2xs transition disabled:opacity-60 active:scale-98 cursor-pointer disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2 text-xs font-medium shadow-2xs transition disabled:opacity-60 active:scale-98 cursor-pointer disabled:cursor-not-allowed"
           >
             {savingProfile ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin text-white" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
                 <span>Menyimpan...</span>
               </>
             ) : (
               <>
-                <Save className="h-4 w-4" />
+                <Save className="h-3.5 w-3.5" />
                 <span>Simpan Perubahan Profil</span>
               </>
             )}

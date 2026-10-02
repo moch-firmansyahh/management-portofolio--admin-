@@ -119,20 +119,6 @@ export function DashboardSkeleton() {
           </div>
         </div>
       </div>
-
-      {/* Quick Tools: Backup Data */}
-      <div className="lg:col-span-3">
-        <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
-            <div className="space-y-1.5">
-              <Skeleton className="h-3.5 w-40" />
-              <Skeleton className="h-3 w-56" />
-            </div>
-          </div>
-          <Skeleton className="h-8 w-24 rounded-lg shrink-0" />
-        </div>
-      </div>
     </div>
   );
 }
@@ -299,7 +285,7 @@ export function ProjectsSkeleton() {
               <th className="py-3 px-6 text-right"><Skeleton className="h-3 w-12 ml-auto" /></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200/60">
+          <tbody className="divide-y divide-zinc-150">
             {[...Array(5)].map((_, i) => (
               <tr key={i} className="hover:bg-zinc-50/40">
                 <td className="py-3.5 px-6">
@@ -463,18 +449,16 @@ export function AuthLoadingSkeleton() {
   return (
     <div className="flex min-h-screen bg-zinc-50 font-sans antialiased text-zinc-900">
       {/* Sidebar Skeleton */}
-      <aside className="hidden lg:flex w-64 border-r border-zinc-200/80 bg-white flex-col justify-between shrink-0 min-h-screen select-none">
+      <aside className="hidden lg:flex w-[260px] border-r border-zinc-200/80 bg-white flex-col justify-between shrink-0 min-h-screen select-none">
         <div>
           {/* Brand Header */}
-          <div className="p-5 border-b border-zinc-150 flex items-center justify-between">
+          <div className="h-16 px-4 border-b border-zinc-200/80 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Skeleton className="h-9 w-9 rounded-lg" />
-              <div className="space-y-1">
-                <Skeleton className="h-3.5 w-24" />
-                <Skeleton className="h-2.5 w-28" />
+              <div className="w-9 h-9 rounded-xl bg-zinc-900 text-white font-mono font-bold flex items-center justify-center shrink-0">
+                F
               </div>
+              <Skeleton className="h-4 w-32" />
             </div>
-            <Skeleton className="h-5 w-14 rounded-md" />
           </div>
 
           {/* Nav Items */}
@@ -482,18 +466,18 @@ export function AuthLoadingSkeleton() {
             <div>
               <Skeleton className="h-2.5 w-16 px-3 mb-2" />
               <div className="space-y-1">
-                <Skeleton className="h-9 w-full rounded-lg" />
-                <Skeleton className="h-9 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </div>
 
             <div>
               <Skeleton className="h-2.5 w-20 px-3 mb-2" />
               <div className="space-y-1">
-                <Skeleton className="h-9 w-full rounded-lg" />
-                <Skeleton className="h-9 w-full rounded-lg" />
-                <Skeleton className="h-9 w-full rounded-lg" />
-                <Skeleton className="h-9 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </div>
           </div>
@@ -515,12 +499,11 @@ export function AuthLoadingSkeleton() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 border-b border-zinc-200/80 bg-white flex items-center justify-between px-4 sm:px-8 shrink-0">
+        <header className="h-16 border-b border-zinc-200/80 bg-white flex items-center justify-between px-4 sm:px-6 shrink-0">
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <Skeleton className="h-9 w-full rounded-lg" />
           </div>
           <div className="flex items-center gap-3">
-            <Skeleton className="h-7 w-28 rounded-full" />
             <Skeleton className="h-9 w-9 rounded-lg" />
             <Skeleton className="h-9 w-9 rounded-lg" />
           </div>

@@ -107,7 +107,7 @@ export default function ProjectsTab({
               <th className="py-3 px-6 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-200/60">
+          <tbody className="divide-y divide-zinc-150">
             {filteredProjects.map((project) => {
               const previewUrl = getProjectPreview(project.image, project.demoUrl || project.link || "");
               return (
