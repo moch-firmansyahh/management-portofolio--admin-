@@ -79,7 +79,7 @@ export default function Sidebar({
 
   const navGroups: NavGroup[] = [
     {
-      title: "Ringkasan",
+      title: "",
       items: [
         {
           id: "dashboard" as AdminTab,
@@ -91,13 +91,12 @@ export default function Sidebar({
           label: "Pesan Masuk",
           icon: Inbox,
           badge: unreadMessagesCount > 0 ? (
-            <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-2xs animate-pulse">
+            <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-2xs">
               {unreadMessagesCount}
             </span>
           ) : (
             <span className="text-[10px] text-zinc-400">0</span>
           ),
-          dot: unreadMessagesCount > 0,
         },
       ],
     },
@@ -159,7 +158,7 @@ export default function Sidebar({
             ? "translate-x-0 w-[260px] shadow-2xl"
             : "-translate-x-full lg:translate-x-0"
         } ${
-          isSidebarOpen ? "w-[260px]" : "w-[76px]"
+          isSidebarOpen ? "w-[260px]" : "w-[68px]"
         }`}
       >
         {/* Tombol Bulat Melayang di TENGAH VERTIKAL Garis Border Sidebar (Khas SimGizi) */}
@@ -214,18 +213,25 @@ export default function Sidebar({
           </div>
 
           {/* Navigation Menus List */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+          <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3">
             {navGroups.map((group, gIdx) => (
               <div key={gIdx} className="space-y-1">
-                <div
-                  className={`px-2.5 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                    !isSidebarOpen
-                      ? "max-w-0 opacity-0 h-0 my-0 py-0"
-                      : "max-w-[160px] opacity-100 mb-1.5"
-                  }`}
-                >
-                  {group.title}
-                </div>
+                {group.title ? (
+                  <div className="h-6 flex items-center px-2.5 my-1.5 overflow-hidden shrink-0 relative">
+                    <span
+                      className={`text-[10px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap transition-opacity duration-300 ease-in-out ${
+                        !isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+                      }`}
+                    >
+                      {group.title}
+                    </span>
+                    <div
+                      className={`absolute inset-x-2.5 top-1/2 -translate-y-1/2 h-px bg-zinc-200/80 transition-opacity duration-300 ease-in-out ${
+                        !isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                      }`}
+                    />
+                  </div>
+                ) : null}
 
                 {group.items.map((item) => {
                   const Icon = item.icon;
@@ -235,13 +241,13 @@ export default function Sidebar({
                       key={item.id}
                       onClick={() => handleNavClick(item.id)}
                       title={!isSidebarOpen ? item.label : undefined}
-                      className={`w-full h-10 px-2.5 rounded-xl flex items-center transition-all duration-200 group cursor-pointer text-left ${
+                      className={`w-full h-10 px-2.5 rounded-xl flex items-center transition-colors duration-150 group cursor-pointer text-left relative overflow-hidden shrink-0 ${
                         isActive
                           ? "bg-zinc-900 text-white shadow-xs"
                           : "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 font-medium"
                       }`}
                     >
-                      <div className="w-5 h-5 flex items-center justify-center shrink-0 relative">
+                      <div className="w-5 h-5 flex items-center justify-center shrink-0">
                         <Icon
                           className={`w-[18px] h-[18px] transition-colors stroke-[1.8] ${
                             isActive
@@ -249,9 +255,6 @@ export default function Sidebar({
                               : "text-zinc-400 group-hover:text-zinc-700"
                           }`}
                         />
-                        {item.dot && !isSidebarOpen && (
-                          <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full ring-2 ring-white animate-pulse" />
-                        )}
                       </div>
 
                       <span
@@ -284,12 +287,12 @@ export default function Sidebar({
         </div>
 
         {/* User Profile Footer */}
-        <div className="p-3 border-t border-zinc-200/80 bg-zinc-50/50 space-y-2 shrink-0">
-          <div className="flex items-center px-1 py-1 overflow-hidden">
+        <div className="p-3.5 border-t border-zinc-200/80 bg-zinc-50/50 space-y-2 shrink-0">
+          <div className="flex items-center overflow-hidden">
             <img
               src={getAvatarUrl(gitProfile)}
               alt="avatar"
-              className="h-9 w-9 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
+              className="h-9 w-9 ml-0.5 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
               onError={handleImgError}
               title={!isSidebarOpen ? gitProfile?.name || "Moch Firmansyah" : undefined}
             />
@@ -313,16 +316,16 @@ export default function Sidebar({
             type="button"
             onClick={handleLogout}
             title={!isSidebarOpen ? "Keluar Sesi" : undefined}
-            className="w-full h-9 px-2 rounded-lg border border-zinc-200/80 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center justify-center cursor-pointer text-xs font-medium text-zinc-700 shadow-2xs group"
+            className="w-full h-10 px-2.5 rounded-xl border border-zinc-200/80 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center cursor-pointer text-xs font-medium text-zinc-700 shadow-2xs group overflow-hidden shrink-0"
           >
             <div className="w-5 h-5 flex items-center justify-center shrink-0">
-              <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-red-600" />
+              <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-red-600 transition-colors" />
             </div>
             <span
               className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
                 !isSidebarOpen
                   ? "max-w-0 opacity-0 ml-0"
-                  : "max-w-[100px] opacity-100 ml-2"
+                  : "max-w-[100px] opacity-100 ml-3"
               }`}
             >
               Keluar Sesi
