@@ -16,7 +16,10 @@ import {
   X,
   RefreshCw,
   Menu,
-  PanelLeft
+  PanelLeft,
+  User,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 import Sidebar, { AdminTab } from "../components/Sidebar";
@@ -26,6 +29,7 @@ import ProjectsTab from "../components/tabs/ProjectsTab";
 import AboutTab from "../components/tabs/AboutTab";
 import ExperienceTab from "../components/tabs/ExperienceTab";
 import MessagesTab from "../components/tabs/MessagesTab";
+import LoginIllustration from "../components/LoginIllustration";
 
 import SkillModal from "../components/modals/SkillModal";
 import ProjectModal from "../components/modals/ProjectModal";
@@ -79,6 +83,8 @@ export default function AdminDashboard() {
     logout,
   } = useAuth();
   const [passwordInput, setPasswordInput] = useState("");
+  const [usernameInput, setUsernameInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // 2. Toast notification state with race-condition prevention (useRef timer)
@@ -381,10 +387,11 @@ export default function AdminDashboard() {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    const success = await login(passwordInput);
+    const success = await login(usernameInput, passwordInput);
     setIsLoggingIn(false);
     if (success) {
       setPasswordInput("");
+      setUsernameInput("");
     }
   };
 
@@ -395,6 +402,7 @@ export default function AdminDashboard() {
       async () => {
         await logout();
         setPasswordInput("");
+        setUsernameInput("");
       },
       false,
       "Keluar"
@@ -750,56 +758,110 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4 font-sans select-none antialiased">
-        <div className="max-w-md w-full bg-white border border-zinc-200/90 rounded-2xl shadow-xl p-8 space-y-6 animate-dialog-show">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <div className="h-12 w-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center shadow-md">
-              <Lock className="h-6 w-6 stroke-[1.75]" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-zinc-900">
-              Admin Portal Login
-            </h1>
-            <p className="text-xs text-zinc-500 max-w-xs">
-              Masukkan password pengelola untuk mengakses CMS &amp; database.
-            </p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-[#4ea09b] via-[#3d8f8a] to-[#307773] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans antialiased relative overflow-hidden select-none">
+        {/* Background Ambient Glow & Geometric Accents */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-black/10 rounded-full blur-3xl pointer-events-none" />
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label
-                htmlFor="admin-password"
-                className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500"
-              >
-                Password Pengelola
-              </label>
-              <input
-                id="admin-password"
-                type="password"
-                required
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Ketik password..."
-                className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all font-mono"
-                autoFocus
-              />
+        {/* Floating Background Bubbles (matching reference image) */}
+        <div className="absolute top-10 left-12 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
+          <div className="w-5 h-5 rounded-full bg-white/40 shadow-sm ml-5" />
+          <div className="w-9 h-9 rounded-full bg-white/20 border border-white/30 backdrop-blur-xs" />
+          <div className="w-3.5 h-3.5 rounded-full bg-white/50 ml-6" />
+        </div>
+        <div className="absolute bottom-12 right-14 pointer-events-none hidden sm:flex flex-col items-center gap-1.5 opacity-60">
+          <div className="w-4 h-4 rounded-full bg-white/40 mr-6" />
+          <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 backdrop-blur-xs" />
+          <div className="w-3 h-3 rounded-full bg-white/50 mr-4" />
+        </div>
+
+        {/* Diagonal Corner Polygonal Accents */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/5 rotate-45 pointer-events-none rounded-3xl" />
+        <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-black/5 -rotate-45 pointer-events-none rounded-3xl" />
+
+        {/* Central Card */}
+        <div className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[36px] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] overflow-hidden border border-white/80 p-6 sm:p-10 md:p-14 animate-dialog-show">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14 items-center">
+            {/* Left Column: Creative Workspace & Meditating Character Illustration */}
+            <div className="flex flex-col items-center justify-center">
+              <LoginIllustration />
             </div>
 
-            {loginError && (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{loginError}</span>
+            {/* Right Column: Clean Login Form */}
+            <div className="flex flex-col justify-center max-w-sm mx-auto md:mx-0 w-full space-y-6">
+              <div className="space-y-2">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
+                  Selamat Datang
+                </h1>
+                <p className="text-xs sm:text-[13px] text-zinc-500 leading-relaxed">
+                  Masukkan kredensial pengelola untuk mengakses CMS &amp; database portofolio.
+                </p>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white py-2.5 text-xs font-medium shadow-2xs transition-all cursor-pointer"
-            >
-              <span>{isLoggingIn ? "Memverifikasi..." : "Masuk ke Dashboard"}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </form>
+              <form onSubmit={handleLoginSubmit} className="space-y-5">
+                {/* Username Input */}
+                <div className="space-y-1">
+                  <div className="relative border-b-2 border-zinc-200 focus-within:border-[#52A39E] transition-colors py-2 flex items-center gap-3">
+                    <User className="h-4 w-4 text-zinc-400 shrink-0" />
+                    <input
+                      id="admin-username"
+                      type="text"
+                      required
+                      value={usernameInput}
+                      onChange={(e) => setUsernameInput(e.target.value)}
+                      placeholder="Username atau nickname"
+                      className="w-full bg-transparent text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none font-medium"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div className="space-y-1">
+                  <div className="relative border-b-2 border-zinc-200 focus-within:border-[#52A39E] transition-colors py-2 flex items-center gap-3">
+                    <Lock className="h-4 w-4 text-zinc-400 shrink-0" />
+                    <input
+                      id="admin-password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={passwordInput}
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      placeholder="Password"
+                      className="w-full bg-transparent text-xs sm:text-sm text-zinc-900 placeholder:text-zinc-400 outline-none font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-zinc-400 hover:text-zinc-700 focus:outline-none cursor-pointer p-1 transition-colors"
+                      title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Error Banner */}
+                {loginError && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs animate-dialog-show">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                    <span>{loginError}</span>
+                  </div>
+                )}
+
+                {/* Submit Pill Button */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isLoggingIn}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#5FB2AC] hover:bg-[#4FA39D] active:bg-[#42958F] disabled:opacity-50 text-white px-8 py-2.5 text-xs sm:text-sm font-semibold shadow-md shadow-[#5FB2AC]/30 hover:shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <span>{isLoggingIn ? "Memverifikasi..." : "Masuk ke Dashboard"}</span>
+                    <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     );

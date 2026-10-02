@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { password } = body;
+    const { username, password } = body;
     const validPassword = process.env.ADMIN_PASSWORD;
     if (!validPassword) {
       console.error("ADMIN_PASSWORD belum diset di environment variables!");
@@ -70,8 +70,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Verifikasi password
-    if (!password || password !== validPassword) {
+    // 3. Verifikasi username & password
+    const envUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase().trim();
+    const allowedUsernames = new Set([envUsername, "admin", "firman", "moch-firmansyahh"]);
+    const cleanUsername = (username || "").trim().toLowerCase();
+    const isUsernameValid = cleanUsername && allowedUsernames.has(cleanUsername);
+
+    if (!isUsernameValid || !password || password !== validPassword) {
       recordFailedAttempt(ip);
       const remaining = remainingAttempts - 1;
       return NextResponse.json(
@@ -79,7 +84,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message:
             remaining > 0
-              ? `Password salah. Sisa kesempatan: ${remaining} kali.`
+              ? `Username atau password salah. Sisa kesempatan: ${remaining} kali.`
               : "Terlalu banyak percobaan gagal. Akun dikunci sementara selama 15 menit.",
         },
         { status: 401 }

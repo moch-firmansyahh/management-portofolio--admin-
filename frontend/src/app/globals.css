@@ -79,3 +79,31 @@
   animation: dialogShow 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
 }
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+@keyframes lightbulbGlow {
+  0%, 100% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.4));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+  }
+}
+
+.animate-lightbulb-glow {
+  animation: lightbulbGlow 2.5s ease-in-out infinite;
+}

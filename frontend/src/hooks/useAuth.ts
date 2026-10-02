@@ -62,13 +62,18 @@ export function useAuth() {
     }
   }, [isAuthenticated, isLoadingAuth]);
 
-  const login = useCallback(async (password: string): Promise<boolean> => {
+  const login = useCallback(async (firstParam: string, secondParam?: string): Promise<boolean> => {
     setLoginError("");
+    // Jika dipanggil dengan dua argumen: login(username, password)
+    // Jika dipanggil dengan satu argumen: login(password), gunakan username default "admin"
+    const username = secondParam !== undefined ? firstParam : "admin";
+    const password = secondParam !== undefined ? secondParam : firstParam;
+
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -77,7 +82,7 @@ export function useAuth() {
         setIsAuthenticated(true);
         return true;
       } else {
-        setLoginError(data.message || "Password salah. Silakan periksa kembali.");
+        setLoginError(data.message || "Username atau password salah. Silakan periksa kembali.");
         return false;
       }
     } catch {
