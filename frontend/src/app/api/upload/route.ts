@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "../../../lib/supabaseServer";
+import { createClient } from "@supabase/supabase-js";
+
+// Buat client khusus untuk upload, pastikan pakai Service Role Key
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+function getSupabaseAdmin() {
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_URL atau SUPABASE_SERVICE_ROLE_KEY belum diset di environment."
+    );
+  }
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
@@ -37,45 +54,43 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Coba upload ke portfolio-assets, jika tidak ada fallback ke projects
-    let targetBucket = "portfolio-assets";
-    let uploadRes = await supabaseServer.storage
-      .from(targetBucket)
-      .upload(filePath, buffer, {
-        contentType: file.type,
-        cacheControl: "3600",
-        upsert: true,
-      });
+    // Coba upload ke portfolio-assets terlebih dahulu
+    const buckets = ["portfolio-assets", "projects"];
+    let lastError: any = null;
 
-    if (uploadRes.error && uploadRes.error.message.includes("not found")) {
-      targetBucket = "projects";
-      uploadRes = await supabaseServer.storage
-        .from(targetBucket)
+    for (const bucket of buckets) {
+      const { error } = await supabaseAdmin.storage
+        .from(bucket)
         .upload(filePath, buffer, {
           contentType: file.type,
           cacheControl: "3600",
           upsert: true,
         });
+
+      if (!error) {
+        const { data: publicUrlData } = supabaseAdmin.storage
+          .from(bucket)
+          .getPublicUrl(filePath);
+
+        console.log(`Upload berhasil ke bucket "${bucket}": ${publicUrlData.publicUrl}`);
+
+        return NextResponse.json({
+          success: true,
+          url: publicUrlData.publicUrl,
+          bucket: bucket,
+          path: filePath,
+        });
+      }
+
+      console.warn(`Upload ke bucket "${bucket}" gagal:`, error.message);
+      lastError = error;
     }
 
-    if (uploadRes.error) {
-      console.error("Storage upload error:", uploadRes.error);
-      return NextResponse.json(
-        { success: false, error: uploadRes.error.message },
-        { status: 500 }
-      );
-    }
-
-    const { data: publicUrlData } = supabaseServer.storage
-      .from(targetBucket)
-      .getPublicUrl(filePath);
-
-    return NextResponse.json({
-      success: true,
-      url: publicUrlData.publicUrl,
-      bucket: targetBucket,
-      path: filePath,
-    });
+    // Semua bucket gagal
+    return NextResponse.json(
+      { success: false, error: `Upload gagal di semua bucket: ${lastError?.message}` },
+      { status: 500 }
+    );
   } catch (err: any) {
     console.error("Upload API error:", err);
     return NextResponse.json(
@@ -84,3 +99,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
