@@ -183,6 +183,12 @@ npm run dev
 
 ---
 
+## 📌 Catatan Pemeliharaan
+
+- Repositori ini dipelihara secara aktif untuk pengelolaan dan sinkronisasi konten dinamis portofolio utama.
+
+---
+
 ## 📄 Lisensi
 
 Proyek ini bersifat sumber terbuka di bawah lisensi [MIT License](LICENSE).
@@ -190,3 +196,4 @@ Proyek ini bersifat sumber terbuka di bawah lisensi [MIT License](LICENSE).
 <div align="center">
   <sub>Dibuat dengan ❤️ oleh <a href="https://github.com/moch-firmansyahh">Moch. Firmansyah</a> • © 2025 - 2026</sub>
 </div>
+
