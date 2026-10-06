@@ -142,23 +142,25 @@ export default function Sidebar({
     },
   ];
 
+  const isExpanded = isSidebarOpen || isMobileOpen;
+
   return (
     <>
       {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-zinc-950/40 z-40 lg:hidden backdrop-blur-xs transition-opacity duration-300"
+          className="fixed inset-0 bg-zinc-950/50 z-40 lg:hidden backdrop-blur-xs transition-opacity duration-300"
           onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`bg-white select-none z-30 border-r border-zinc-200/80 flex flex-col justify-between shrink-0 transition-[width] duration-300 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 h-screen ${
+        className={`bg-white select-none border-r border-zinc-200/80 flex flex-col justify-between shrink-0 transition-[width,transform] duration-300 ease-in-out fixed inset-y-0 left-0 lg:sticky lg:top-0 h-screen z-50 lg:z-30 ${
           isMobileOpen
-            ? "translate-x-0 w-[260px] shadow-2xl"
+            ? "translate-x-0 w-[270px] shadow-2xl"
             : "-translate-x-full lg:translate-x-0"
         } ${
-          isSidebarOpen ? "w-[260px]" : "w-[68px]"
+          isSidebarOpen ? "lg:w-[260px]" : "lg:w-[68px]"
         }`}
       >
         {/* Tombol Bulat Melayang di TENGAH VERTIKAL Garis Border Sidebar (Khas SimGizi) */}
@@ -182,17 +184,17 @@ export default function Sidebar({
           <div className="h-16 px-4 flex items-center justify-between border-b border-zinc-200/80 shrink-0">
             <div className="flex items-center gap-3 overflow-hidden">
               <div 
-                onClick={!isSidebarOpen ? handleToggle : undefined}
+                onClick={!isExpanded ? handleToggle : undefined}
                 className={`w-9 h-9 rounded-xl bg-zinc-900 text-white font-extrabold font-mono text-base shadow-xs flex items-center justify-center shrink-0 select-none ${
-                  !isSidebarOpen ? "cursor-pointer hover:bg-zinc-800 transition" : ""
+                  !isExpanded ? "cursor-pointer hover:bg-zinc-800 transition" : ""
                 }`}
-                title={!isSidebarOpen ? "Klik untuk buka sidebar" : undefined}
+                title={!isExpanded ? "Klik untuk buka sidebar" : undefined}
               >
                 F
               </div>
               <span
                 className={`font-semibold text-sm tracking-tight text-zinc-900 whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                  !isSidebarOpen
+                  !isExpanded
                     ? "max-w-0 opacity-0 ml-0"
                     : "max-w-[150px] opacity-100"
                 }`}
@@ -220,14 +222,14 @@ export default function Sidebar({
                   <div className="h-6 flex items-center px-2.5 my-1.5 overflow-hidden shrink-0 relative">
                     <span
                       className={`text-[10px] font-semibold text-zinc-400 uppercase tracking-wider whitespace-nowrap transition-opacity duration-300 ease-in-out ${
-                        !isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+                        !isExpanded ? "opacity-0 pointer-events-none" : "opacity-100"
                       }`}
                     >
                       {group.title}
                     </span>
                     <div
                       className={`absolute inset-x-2.5 top-1/2 -translate-y-1/2 h-px bg-zinc-200/80 transition-opacity duration-300 ease-in-out ${
-                        !isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                        !isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
                       }`}
                     />
                   </div>
@@ -240,7 +242,7 @@ export default function Sidebar({
                     <button
                       key={item.id}
                       onClick={() => handleNavClick(item.id)}
-                      title={!isSidebarOpen ? item.label : undefined}
+                      title={!isExpanded ? item.label : undefined}
                       className={`w-full h-10 px-2.5 rounded-xl flex items-center transition-colors duration-150 group cursor-pointer text-left relative overflow-hidden shrink-0 ${
                         isActive
                           ? "bg-zinc-900 text-white shadow-xs"
@@ -259,7 +261,7 @@ export default function Sidebar({
 
                       <span
                         className={`text-xs whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                          !isSidebarOpen
+                          !isExpanded
                             ? "max-w-0 opacity-0 ml-0"
                             : "max-w-[160px] opacity-100 ml-3"
                         }`}
@@ -270,7 +272,7 @@ export default function Sidebar({
                       {item.badge && (
                         <span
                           className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                            !isSidebarOpen
+                            !isExpanded
                               ? "max-w-0 opacity-0 p-0 m-0 border-0"
                               : "max-w-[40px] opacity-100 ml-auto"
                           }`}
@@ -294,11 +296,11 @@ export default function Sidebar({
               alt="avatar"
               className="h-9 w-9 ml-0.5 rounded-full ring-1 ring-zinc-300 object-cover shrink-0"
               onError={handleImgError}
-              title={!isSidebarOpen ? gitProfile?.name || "Moch Firmansyah" : undefined}
+              title={!isExpanded ? gitProfile?.name || "Moch Firmansyah" : undefined}
             />
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                !isSidebarOpen
+                !isExpanded
                   ? "max-w-0 opacity-0 ml-0"
                   : "max-w-[140px] opacity-100 ml-2.5"
               }`}
@@ -315,7 +317,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={handleLogout}
-            title={!isSidebarOpen ? "Keluar Sesi" : undefined}
+            title={!isExpanded ? "Keluar Sesi" : undefined}
             className="w-full h-10 px-2.5 rounded-xl border border-zinc-200/80 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors flex items-center cursor-pointer text-xs font-medium text-zinc-700 shadow-2xs group overflow-hidden shrink-0"
           >
             <div className="w-5 h-5 flex items-center justify-center shrink-0">
@@ -323,7 +325,7 @@ export default function Sidebar({
             </div>
             <span
               className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${
-                !isSidebarOpen
+                !isExpanded
                   ? "max-w-0 opacity-0 ml-0"
                   : "max-w-[100px] opacity-100 ml-3"
               }`}
