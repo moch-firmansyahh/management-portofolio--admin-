@@ -1,7 +1,6 @@
 import { supabaseServer as supabase } from "../supabaseServer";
 import { ContactMessage } from "../../types";
-
-const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { BACKEND_API } from "../constants";
 
 export async function getMessages(): Promise<ContactMessage[]> {
   try {

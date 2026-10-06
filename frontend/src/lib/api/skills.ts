@@ -1,8 +1,6 @@
 import { supabaseServer as supabase } from "../supabaseServer";
 import { Skill } from "../../types";
-import { POPULAR_SKILLS } from "../constants";
-
-const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { POPULAR_SKILLS, BACKEND_API } from "../constants";
 
 export async function getSkills(): Promise<Skill[]> {
   try {

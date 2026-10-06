@@ -1,8 +1,6 @@
 import { supabaseServer as supabase } from "../supabaseServer";
 import { Experience } from "../../types";
-import { DEFAULT_EXPERIENCES } from "../constants";
-
-const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { DEFAULT_EXPERIENCES, BACKEND_API } from "../constants";
 
 export async function getExperiences(): Promise<Experience[]> {
   try {
