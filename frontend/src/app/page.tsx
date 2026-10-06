@@ -243,13 +243,23 @@ export default function AdminDashboard() {
     return Array.from(new Set(combined.map((c) => c.trim()))).filter(Boolean);
   }, [skills, extraCategories]);
 
-  const toggleSidebar = () => {
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+        setIsMobileOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
       setIsMobileOpen((prev) => !prev);
     } else {
       setIsSidebarOpen((prev) => !prev);
     }
-  };
+  }, []);
 
   // 7. Modals State
   const [skillModal, setSkillModal] = useState<{
@@ -909,13 +919,13 @@ export default function AdminDashboard() {
         <header className="h-16 border-b border-zinc-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-20 shrink-0">
           <div className="flex items-center gap-3 flex-1 max-w-md">
             <button
+              type="button"
               onClick={toggleSidebar}
-              className={`p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer ${
-                isSidebarOpen ? "lg:hidden" : "flex"
-              }`}
-              title={isSidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
+              className="flex items-center justify-center p-2 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 active:bg-zinc-200 transition cursor-pointer shrink-0"
+              title="Toggle Sidebar"
+              aria-label="Toggle Sidebar"
             >
-              <PanelLeft className="h-5 w-5" />
+              <PanelLeft className="h-5 w-5 stroke-[2]" />
             </button>
 
             <div className="relative w-full">
