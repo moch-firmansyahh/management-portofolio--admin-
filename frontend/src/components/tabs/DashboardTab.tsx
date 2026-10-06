@@ -1,5 +1,5 @@
 import React from "react";
-import { GitHubCalendar } from "react-github-calendar";
+import GitHubContributionCalendar from "../GitHubContributionCalendar";
 import { Github, ExternalLink, GitBranch, ShieldCheck } from "lucide-react";
 import { Skill, Project, Experience, ContactMessage, GitHubProfile, GitHubRepo } from "../../types";
 import { getAvatarUrl } from "../../lib/utils";
@@ -50,14 +50,7 @@ export default function DashboardTab({
         </div>
         
         <div className="flex justify-center py-2 overflow-x-auto w-full">
-          <GitHubCalendar 
-            username={username}
-            theme={{
-              light: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
-              dark: ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"],
-            }}
-            colorScheme="light"
-          />
+          <GitHubContributionCalendar username={username} />
         </div>
       </div>
 

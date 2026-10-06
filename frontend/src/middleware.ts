@@ -6,6 +6,7 @@ const PUBLIC_API_PATHS = [
   "/api/auth/login",
   "/api/auth/session",
   "/api/auth/logout",
+  "/api/github",
 ];
 
 export function middleware(request: NextRequest) {
