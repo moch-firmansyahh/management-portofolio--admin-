@@ -3,9 +3,12 @@ import { GITHUB_USERNAME } from "../constants";
 
 export async function fetchGitHubProfile(username: string = GITHUB_USERNAME): Promise<GitHubProfile | null> {
   try {
-    const res = await fetch(`https://api.github.com/users/${username}`);
-    if (!res.ok) return null;
-    return await res.json();
+    const res = await fetch(`/api/github/profile?username=${encodeURIComponent(username)}`);
+    const result = await res.json();
+    if (result.success && result.data) {
+      return result.data;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -13,9 +16,12 @@ export async function fetchGitHubProfile(username: string = GITHUB_USERNAME): Pr
 
 export async function fetchGitHubRepos(username: string = GITHUB_USERNAME): Promise<GitHubRepo[]> {
   try {
-    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=15`);
-    if (!res.ok) return [];
-    return await res.json();
+    const res = await fetch(`/api/github/repos?username=${encodeURIComponent(username)}`);
+    const result = await res.json();
+    if (result.success && Array.isArray(result.data)) {
+      return result.data;
+    }
+    return [];
   } catch {
     return [];
   }

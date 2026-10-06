@@ -1,6 +1,6 @@
 import React from "react";
 import GitHubContributionCalendar from "../GitHubContributionCalendar";
-import { Github, ExternalLink, GitBranch, ShieldCheck } from "lucide-react";
+import { Github, ExternalLink, GitBranch } from "lucide-react";
 import { Skill, Project, Experience, ContactMessage, GitHubProfile, GitHubRepo } from "../../types";
 import { getAvatarUrl } from "../../lib/utils";
 import { GITHUB_USERNAME } from "../../lib/constants";
@@ -93,9 +93,6 @@ export default function DashboardTab({
         <div className="border-t border-zinc-100 pt-4 mt-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Repositori Terkini</span>
-            <span className="text-[10px] text-zinc-500 font-medium flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3 text-emerald-600" /> Live API
-            </span>
           </div>
           <div className="space-y-2">
             {gitRepos.slice(0, 4).map((r) => (
