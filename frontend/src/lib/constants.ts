@@ -5,11 +5,18 @@ export const GITHUB_USERNAME = "moch-firmansyahh";
 export const PRODUCTION_AZURE_API =
   "https://portofolio-firman-eugweadacaddacc2.eastasia-01.azurewebsites.net/api";
 
-export const BACKEND_API =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== "undefined" && window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : PRODUCTION_AZURE_API);
+const isBrowser = typeof window !== "undefined";
+const isLocalhost =
+  isBrowser &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "0.0.0.0");
+
+export const BACKEND_API = isLocalhost
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api")
+  : (process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes("localhost")
+      ? process.env.NEXT_PUBLIC_API_URL
+      : PRODUCTION_AZURE_API);
 
 export const SKILL_CATEGORIES = [
   "Front-End Web Development",
